@@ -90,7 +90,7 @@ export default function SeedChart({ data }: Props) {
         });
         chartContainerRef.current.appendChild(tooltip);
 
-        chart.subscribeCrosshairMove((param) => {
+        /*chart.subscribeCrosshairMove((param) => {
             if (
                 param.point === undefined ||
                 !param.time ||
@@ -110,7 +110,7 @@ export default function SeedChart({ data }: Props) {
             tooltip.style.left = `${param.point.x + 10}px`;
             tooltip.style.top = `${param.point.y - 30}px`;
             tooltip.style.display = 'block';
-        });
+        });*/
 
         const resize = () => {
             chart.applyOptions({

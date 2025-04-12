@@ -7,7 +7,10 @@ import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import JournalRegisterModal from '@/components/JournalRegisterModal';
 
-const SeedChart = dynamic(() => import('@/components/SeedChart'), { ssr: false });
+const SeedChart = dynamic<ComponentType<Props>>(
+    () => import('@/components/SeedChart'),
+    { ssr: false }
+);
 
 export default function JournalPage() {
     const totalSeed = 10000000;
@@ -82,7 +85,7 @@ export default function JournalPage() {
                 </div>
 
                 <AnimatePresence>
-                    {showChartSection && (
+                    {showChartSection ? (
                         <motion.section
                             key="chart-section"
                             initial={{ opacity: 0, height: 0 }}
@@ -111,7 +114,7 @@ export default function JournalPage() {
                                 <SeedChart data={filteredChartData} />
                             </div>
                         </motion.section>
-                    )}
+                    ) : null}
                 </AnimatePresence>
 
                 <section>
