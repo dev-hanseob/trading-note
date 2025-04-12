@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import {ComponentType, useEffect, useMemo, useState} from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, subMonths, subWeeks, parseISO } from 'date-fns';
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import JournalRegisterModal from '@/components/JournalRegisterModal';
 
-const SeedChart = dynamic<ComponentType<Props>>(
+const SeedChart = dynamic(
     () => import('@/components/SeedChart'),
     { ssr: false }
 );
@@ -95,11 +95,11 @@ export default function JournalPage() {
                             className="space-y-4 mb-10 overflow-hidden"
                         >
                             <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                                총 시드: {totalSeed.toLocaleString()}원 | 누적 손익: {totalProfit.toLocaleString()}원 | 총 수익률: <span className={totalRoi >= 0 ? 'text-emerald-500' : 'text-rose-500'}>{totalRoi.toFixed(2)}%</span>
+                                총 시드: {totalSeed.toLocaleString()}원 | 누적 손익: {totalProfit.toLocaleString()}원
                             </p>
 
                             <div className="flex flex-wrap gap-2 justify-end ml-auto">
-                                {['1W', '1M', '3M', '6M', 'ALL'].map((r) => (
+                                {['1W', '1M', '3M', '6M', 'ALL'].map((r: string) => (
                                     <button
                                         key={r}
                                         onClick={() => setRange(r as any)}
@@ -114,7 +114,7 @@ export default function JournalPage() {
                                 <SeedChart data={filteredChartData} />
                             </div>
                         </motion.section>
-                    ) : null}
+                    ) : (<></>)}
                 </AnimatePresence>
 
                 <section>

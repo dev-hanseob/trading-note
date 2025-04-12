@@ -1,6 +1,6 @@
 'use client';
 
-import { createChart } from 'lightweight-charts';
+import {ColorType, createChart} from 'lightweight-charts';
 import { useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
 
@@ -20,7 +20,7 @@ export default function SeedChart({ data }: Props) {
             height: 300,
             layout: {
                 background: {
-                    type: 'solid',
+                    type: ColorType.Solid,
                     color: theme === 'dark' ? '#0a0a0a' : '#ffffff',
                 },
                 textColor: theme === 'dark' ? '#ffffff' : '#333333',
@@ -31,8 +31,6 @@ export default function SeedChart({ data }: Props) {
             },
             timeScale: {
                 borderVisible: false,
-                rightOffset: 0.1,
-                leftOffset: 0.1
             },
             rightPriceScale: {
                 borderVisible: false,
@@ -42,7 +40,6 @@ export default function SeedChart({ data }: Props) {
                 mode: 0,
                 vertLine: { visible: true, width: 1, color: '#999', style: 0 },
                 horzLine: { visible: true, width: 1, color: '#999', style: 0 },
-                drawTimeAxisLabel: false, // ⛔ 호버 시 하단 시간 표시 제거
             },
         });
 
@@ -62,7 +59,7 @@ export default function SeedChart({ data }: Props) {
             priceFormat: {
                 type: 'custom',
                 minMove: 1,
-                formatter: (price) => `${Math.round(price).toLocaleString()} 원`,
+                formatter: (price:any) => `${Math.round(price).toLocaleString()} 원`,
             },
             priceLineVisible: true,
             lastValueVisible: true,
