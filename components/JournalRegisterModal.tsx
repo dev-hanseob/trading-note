@@ -10,7 +10,7 @@ interface Props {
 
 export default function JournalRegisterModal({ onClose }: Props) {
     const [step, setStep] = useState<'assetType' | 'form'>('assetType');
-    const [assetType, setAssetType] = useState<'코인' | '주식' | null>(null);
+    const [assetType, setAssetType] = useState<'암호화폐' | '주식' | null>(null);
     const [currency, setCurrency] = useState<'KRW' | 'USD' | 'USDT' | 'USDC'>('KRW');
 
     const [date, setDate] = useState('');
@@ -106,13 +106,17 @@ export default function JournalRegisterModal({ onClose }: Props) {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="bg-white dark:bg-neutral-900 p-6 rounded-lg w-full max-w-md shadow-lg space-y-4 max-h-[90vh] overflow-y-auto"
+                    className="bg-white dark:bg-neutral-900 p-6 rounded-lg w-full max-w-2xl shadow-lg space-y-4 max-h-[90vh] overflow-y-auto"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-lg font-semibold">매매일지 등록</h2>
-                        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">X</button>
-                    </div>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-semibold">매매일지 등록</h2>
+                            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                        </div>
 
                     <AnimatePresence mode="wait">
                         {step === 'assetType' && (
@@ -125,47 +129,59 @@ export default function JournalRegisterModal({ onClose }: Props) {
                                 className="space-y-6"
                             >
                                 <div className="space-y-2">
-                                    <p className="text-sm font-medium text-center mb-6">자산 종류 선택</p>
+                                    <p className="text-center text-base font-medium text-gray-700 dark:text-gray-200 mb-10">
+                                      오늘 기록하고 싶은 자산은 무엇인가요?
+                                    </p>
                                     <div className="flex flex-col gap-4">
-                                        <button
+                                        <motion.button
+                                            whileHover={{ scale: 1.01 }}
+                                            whileTap={{ scale: 0.97 }}
                                             onClick={() => {
-                                                setAssetType('코인');
+                                                setAssetType('암호화폐');
                                                 setStep('form');
                                             }}
-                                            className="text-lg py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600"
+                                            className="text-lg py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl font-semibold shadow hover:shadow-lg transition"
                                         >
-                                            코인
-                                        </button>
-                                        <button
+                                        암호화폐
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.01 }}
+                                            whileTap={{ scale: 0.97 }}
                                             onClick={() => {
                                                 setAssetType('주식');
                                                 setStep('form');
                                             }}
-                                            className="text-lg py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600"
+                                            className="text-lg py-3 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-xl font-semibold shadow hover:shadow-lg transition"
                                         >
-                                            주식
-                                        </button>
+                                        주식
+                                        </motion.button>
                                     </div>
                                 </div>
                             </motion.div>
                         )}
 
                         {step === 'form' && (
-                            <motion.div
-                                key="form"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                                className="space-y-6"
-                            >
+                        <motion.div
+                            key="form"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-6"
+                        >
+                        <button
+                          onClick={() => setStep('assetType')}
+                          className="text-sm text-gray-500 hover:text-gray-700 underline transition"
+                        >
+                          ← 이전으로
+                        </button>
                         <div className="flex justify-center">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-sm">
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">선택한 자산 종류</span>
-                                <span className={`px-2 py-1 rounded-full text-white text-sm font-semibold ${ assetType === '코인' ? 'bg-blue-500' : 'bg-green-500' }`}>
-                                    {assetType}
-                                </span>
-                            </div>
+                          <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-neutral-800 dark:to-neutral-700 rounded-xl shadow-inner border border-gray-300 dark:border-neutral-600">
+                            <span className="text-sm font-medium text-gray-800 dark:text-gray-100">선택한 자산:</span>
+                            <span className={`px-3 py-1 rounded-full text-white text-sm font-semibold shadow-sm ${assetType === '암호화폐' ? 'bg-blue-600' : 'bg-emerald-600'}`}>
+                              {assetType}
+                            </span>
+                          </div>
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1">화폐 단위</label>
