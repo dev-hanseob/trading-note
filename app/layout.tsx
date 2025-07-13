@@ -4,6 +4,10 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
+import AdBanner from '@/components/AdBanner';
+
+
+
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
@@ -15,14 +19,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="ko" suppressHydrationWarning>
+        <html lang="ko" suppressHydrationWarning className="overflow-x-hidden">
         <body
             className={`
                     ${geistSans.variable} 
                     ${geistMono.variable} 
                     font-sans antialiased 
-                    bg-background text-foreground
-                    m-0 p-0
+                    bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100
+                    m-0 p-0 overflow-x-hidden
                 `}
         >
         <Header />
@@ -30,17 +34,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* ✅ 포탈용 컨테이너 추가 */}
         <div id="modal-root"></div>
 
-        <div className="flex justify-center w-full px-2 sm:px-4">
-            {/* 좌측 광고 공간 */}
-            <aside className="hidden 2xl:block w-[160px]" />
-
-            {/* 메인 콘텐츠 */}
-            <main className="w-full max-w-[1440px] px-2 sm:px-4 min-h-screen">
-                {children}
-            </main>
-
-            {/* 우측 광고 공간 */}
-            <aside className="hidden 2xl:block w-[160px]" />
+        {/* 메인 콘텐츠 컨테이너 */}
+        <div className="w-full">
+            {children}
         </div>
         </body>
         </html>
