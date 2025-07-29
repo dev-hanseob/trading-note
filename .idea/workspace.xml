@@ -4,23 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="77f9506c-2697-4c9f-bd59-57668ab72bd4" name="Changes" comment="매매일지 등록 페이지 UI 수정">
-      <change afterPath="$PROJECT_DIR$/lib/api/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/journal/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/journal/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/Header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/JournalRegisterModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/JournalRegisterModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ThemeToggle.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ThemeToggle.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-    </list>
+    <list default="true" id="77f9506c-2697-4c9f-bd59-57668ab72bd4" name="Changes" comment="테이블 UI UX 수정 완료2" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -153,7 +137,7 @@
       <workItem from="1746884947070" duration="7150000" />
       <workItem from="1747685553298" duration="22652000" />
       <workItem from="1748534097084" duration="87000" />
-      <workItem from="1749300616464" duration="55317000" />
+      <workItem from="1749300616464" duration="61332000" />
     </task>
     <task id="LOCAL-00001" summary="update">
       <option name="closed" value="true" />
@@ -187,7 +171,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744462016210</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="테이블 UI UX 수정 완료">
+      <option name="closed" value="true" />
+      <created>1752400782991</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1752400782991</updated>
+    </task>
+    <task id="LOCAL-00006" summary="테이블 UI UX 수정 완료2">
+      <option name="closed" value="true" />
+      <created>1752400790747</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1752400790747</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,7 +197,9 @@
     <MESSAGE value="update" />
     <MESSAGE value="fix bug" />
     <MESSAGE value="매매일지 등록 페이지 UI 수정" />
-    <option name="LAST_COMMIT_MESSAGE" value="매매일지 등록 페이지 UI 수정" />
+    <MESSAGE value="테이블 UI UX 수정 완료" />
+    <MESSAGE value="테이블 UI UX 수정 완료2" />
+    <option name="LAST_COMMIT_MESSAGE" value="테이블 UI UX 수정 완료2" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
