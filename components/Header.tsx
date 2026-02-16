@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, X, BookOpen, BarChart3, Plus, LogIn } from 'lucide-react';
+import { Menu, X, BookOpen, BarChart3, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Header() {
@@ -58,16 +58,6 @@ export default function Header() {
 
                     {/* Right side */}
                     <div className="flex items-center gap-2">
-                        {!isLanding && (
-                            <Link
-                                href="/journal/new"
-                                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-md transition-colors"
-                            >
-                                <Plus className="w-4 h-4" />
-                                새 거래
-                            </Link>
-                        )}
-
                         {isLanding && (
                             <Link
                                 href="/login"
@@ -110,14 +100,6 @@ export default function Header() {
                                     {label}
                                 </Link>
                             ))}
-                            <Link
-                                href="/journal/new"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="flex items-center gap-3 px-3 py-2.5 mt-2 bg-emerald-600 text-white font-medium rounded-md"
-                            >
-                                <Plus className="w-5 h-5" />
-                                새 거래 기록
-                            </Link>
                         </div>
                     </div>
                 )}

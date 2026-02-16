@@ -28,12 +28,6 @@ export default function HomePage() {
               시작하기
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-6 py-3 text-slate-600 dark:text-slate-300 font-medium rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 transition-colors text-sm"
-            >
-              대시보드 둘러보기
-            </Link>
           </div>
         </div>
       </section>

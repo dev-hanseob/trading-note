@@ -3,10 +3,9 @@
 import {useEffect, useState, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import {AnimatePresence, motion} from 'framer-motion';
-import Image from 'next/image';
 import {
     X, Edit, Trash2, Copy, TrendingUp, TrendingDown,
-    ChevronLeft, ChevronRight, Check, ImageIcon
+    ChevronLeft, ChevronRight, Check, Maximize2
 } from 'lucide-react';
 import {Journal} from "@/type/domain/journal";
 import {TradeType, TradeTypeLabel, PositionTypeLabel, AssetTypeLabel} from "@/type/domain/journal.enum";
@@ -132,7 +131,6 @@ export default function JournalDetailModal({
 
     const isProfit = journal.profit > 0;
     const isLoss = journal.profit < 0;
-    const profitColor = isProfit ? 'emerald' : isLoss ? 'rose' : 'slate';
 
     const parsedMemo = useMemo(() => parseMemo(journal.memo), [journal.memo]);
 
@@ -210,6 +208,9 @@ export default function JournalDetailModal({
                                         현물
                                     </span>
                                 )}
+                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
+                                    {AssetTypeLabel[journal.assetType] || journal.assetType}
+                                </span>
                             </div>
                             <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0 hidden sm:inline">
                                 {formatTradeDateFull(journal.tradedAt)}
@@ -248,40 +249,65 @@ export default function JournalDetailModal({
 
                     {/* Scrollable body */}
                     <div className="overflow-y-auto flex-1">
+                        {/* Chart Screenshot (top position) */}
+                        {journal.chartScreenshotUrl && (
+                            <div
+                                className="relative aspect-video bg-slate-100 dark:bg-slate-950 cursor-pointer group overflow-hidden"
+                                onClick={() => setShowFullImage(true)}
+                            >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={journal.chartScreenshotUrl}
+                                    alt={`${journal.symbol} 차트`}
+                                    className="w-full h-full object-contain"
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-2.5">
+                                        <Maximize2 className="w-5 h-5 text-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* P&L Hero Section */}
-                        <div className={`px-6 py-6 ${
-                            isProfit ? 'bg-emerald-50 dark:bg-emerald-900/20' : isLoss ? 'bg-red-50 dark:bg-red-900/20' : 'bg-slate-50 dark:bg-slate-800/50'
+                        <div className={`px-6 py-5 ${
+                            isProfit ? 'bg-emerald-50 dark:bg-emerald-950/30' : isLoss ? 'bg-red-50 dark:bg-red-950/30' : 'bg-slate-50 dark:bg-slate-800/50'
                         }`}>
-                            <div className="text-center mb-6">
+                            <div className="text-center mb-5">
                                 <div className="flex items-center justify-center gap-2 mb-1">
                                     {isProfit && <TrendingUp className="w-6 h-6 text-emerald-500"/>}
                                     {isLoss && <TrendingDown className="w-6 h-6 text-red-400"/>}
-                                    <span className={`text-3xl sm:text-4xl font-bold ${
-                                        isProfit ? 'text-emerald-400' : isLoss ? 'text-red-400' : 'text-slate-400'
+                                    <span className={`text-3xl sm:text-4xl font-bold tabular-nums ${
+                                        isProfit ? 'text-emerald-600 dark:text-emerald-400' : isLoss ? 'text-red-600 dark:text-red-400' : 'text-slate-400'
                                     }`}>
                                         {journal.profit > 0 ? '+' : ''}{journal.profit.toLocaleString()}원
                                     </span>
                                 </div>
-                                <div className={`text-lg font-medium ${
-                                    isProfit ? 'text-emerald-500' : isLoss ? 'text-red-400' : 'text-slate-400'
+                                <div className={`text-lg font-semibold tabular-nums ${
+                                    isProfit ? 'text-emerald-500' : isLoss ? 'text-red-500 dark:text-red-400' : 'text-slate-400'
                                 }`}>
                                     {journal.roi > 0 ? '+' : ''}{journal.roi.toFixed(2)}%
+                                    {seedRatio > 0 && (
+                                        <span className={`ml-2 text-xs font-medium ${seedRatio > 20 ? 'text-red-400' : 'text-slate-400'}`}>
+                                            (시드 {seedRatio.toFixed(1)}%)
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Key metrics grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                <div className="bg-white/60 dark:bg-slate-800/50 rounded-xl p-3 text-center">
                                     <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">진입가</div>
-                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                    <div className="text-sm font-bold tabular-nums text-slate-900 dark:text-white">
                                         {journal.entryPrice
                                             ? journal.entryPrice.toLocaleString() + '원'
                                             : journal.buyPrice.toLocaleString() + '원'}
                                     </div>
                                 </div>
-                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                                <div className="bg-white/60 dark:bg-slate-800/50 rounded-xl p-3 text-center">
                                     <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">청산가</div>
-                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                    <div className="text-sm font-bold tabular-nums text-slate-900 dark:text-white">
                                         {journal.profit !== 0 && journal.buyPrice
                                             ? (() => {
                                                 const qty = parseFloat(journal.quantity) || 1;
@@ -291,108 +317,40 @@ export default function JournalDetailModal({
                                             : '-'}
                                     </div>
                                 </div>
-                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                                <div className="bg-white/60 dark:bg-slate-800/50 rounded-xl p-3 text-center">
                                     <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">수량</div>
-                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                    <div className="text-sm font-bold tabular-nums text-slate-900 dark:text-white">
                                         {journal.quantity}{journal.assetType === 'STOCK' ? '주' : ''}
                                     </div>
                                 </div>
-                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                                <div className="bg-white/60 dark:bg-slate-800/50 rounded-xl p-3 text-center">
                                     <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">투자금</div>
-                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                    <div className="text-sm font-bold tabular-nums text-slate-900 dark:text-white">
                                         {journal.investment.toLocaleString()}원
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Chart Screenshot (if available) */}
-                        {journal.chartScreenshotUrl && (
-                            <div className="px-6 py-5">
-                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                    <ImageIcon size={16} className="text-slate-400"/>
-                                    차트 스크린샷
-                                </h3>
-                                <div
-                                    className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 cursor-pointer hover:shadow-md transition-shadow"
-                                    onClick={() => setShowFullImage(true)}
-                                >
-                                    <Image
-                                        src={journal.chartScreenshotUrl}
-                                        alt={`${journal.symbol} 차트`}
-                                        fill
-                                        className="object-contain bg-slate-800/50"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Trade Analysis Section */}
+                        {/* Conditional sections */}
                         <div className="px-6 py-5 space-y-5">
-                            {/* Trade Details */}
-                            <div>
-                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">거래 정보</h3>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
-                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">자산 유형</div>
-                                        <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                            {AssetTypeLabel[journal.assetType] || journal.assetType}
-                                        </div>
-                                    </div>
-                                    <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
-                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">시장</div>
-                                        <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                            {TradeTypeLabel[journal.tradeType]}
-                                        </div>
-                                    </div>
-                                    <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
-                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">화폐</div>
-                                        <div className="text-sm font-medium text-slate-900 dark:text-white">{journal.currency}</div>
-                                    </div>
-                                    {journal.tradeType === TradeType.FUTURE && (
-                                        <>
-                                            <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
-                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">포지션</div>
-                                                <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                                    {journal.position ? PositionTypeLabel[journal.position] : '-'}
-                                                </div>
-                                            </div>
-                                            <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
-                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">레버리지</div>
-                                                <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                                    {journal.leverage ? `${journal.leverage}배` : '-'}
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                    {seedRatio > 0 && (
-                                        <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
-                                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">시드 비율</div>
-                                            <div className={`text-sm font-medium ${seedRatio > 20 ? 'text-red-400' : 'text-white'}`}>
-                                                {seedRatio.toFixed(1)}%
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
                             {/* Risk Management (if stopLoss/takeProfit available) */}
                             {(journal.stopLoss || journal.takeProfit) && (
                                 <div>
                                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">리스크 관리</h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                         {journal.stopLoss && (
-                                            <div className="bg-red-900/20 rounded-lg p-3">
-                                                <div className="text-xs text-red-400 mb-0.5">손절가</div>
-                                                <div className="text-sm font-medium text-red-400">
+                                            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
+                                                <div className="text-xs text-red-500 dark:text-red-400 mb-0.5">손절가</div>
+                                                <div className="text-sm font-medium tabular-nums text-red-600 dark:text-red-400">
                                                     {journal.stopLoss.toLocaleString()}원
                                                 </div>
                                             </div>
                                         )}
                                         {journal.takeProfit && (
-                                            <div className="bg-emerald-900/20 rounded-lg p-3">
-                                                <div className="text-xs text-emerald-400 mb-0.5">익절가</div>
-                                                <div className="text-sm font-medium text-emerald-400">
+                                            <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-3">
+                                                <div className="text-xs text-emerald-500 dark:text-emerald-400 mb-0.5">익절가</div>
+                                                <div className="text-sm font-medium tabular-nums text-emerald-600 dark:text-emerald-400">
                                                     {journal.takeProfit.toLocaleString()}원
                                                 </div>
                                             </div>
@@ -406,9 +364,9 @@ export default function JournalDetailModal({
                                             </div>
                                         )}
                                         {maxLoss !== null && (
-                                            <div className="bg-red-900/20 rounded-lg p-3">
-                                                <div className="text-xs text-red-400 mb-0.5">최대 손실</div>
-                                                <div className="text-sm font-medium text-red-400">
+                                            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
+                                                <div className="text-xs text-red-500 dark:text-red-400 mb-0.5">최대 손실</div>
+                                                <div className="text-sm font-medium tabular-nums text-red-600 dark:text-red-400">
                                                     -{maxLoss.toLocaleString()}원
                                                 </div>
                                             </div>
@@ -416,56 +374,6 @@ export default function JournalDetailModal({
                                     </div>
                                 </div>
                             )}
-
-                            {/* ROI Progress Bar (Fixed: proper percentage mapping) */}
-                            <div>
-                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">수익률 분석</h3>
-                                <div className="space-y-3">
-                                    <div>
-                                        <div className="flex justify-between items-center mb-1.5">
-                                            <span className="text-xs text-slate-500 dark:text-slate-400">투자 대비 수익률</span>
-                                            <span className={`text-sm font-bold ${
-                                                isProfit ? 'text-emerald-400' : isLoss ? 'text-red-400' : 'text-slate-400'
-                                            }`}>
-                                                {journal.roi > 0 ? '+' : ''}{journal.roi.toFixed(2)}%
-                                            </span>
-                                        </div>
-                                        <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5">
-                                            <div
-                                                className={`h-2.5 rounded-full transition-all ${
-                                                    isProfit
-                                                        ? 'bg-emerald-500'
-                                                        : isLoss
-                                                            ? 'bg-red-500'
-                                                            : 'bg-slate-600'
-                                                }`}
-                                                style={{
-                                                    width: `${Math.min(Math.abs(journal.roi), 100)}%`,
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {seedRatio > 0 && (
-                                        <div>
-                                            <div className="flex justify-between items-center mb-1.5">
-                                                <span className="text-xs text-slate-500 dark:text-slate-400">시드 투입 비율</span>
-                                                <span className={`text-sm font-bold ${seedRatio > 20 ? 'text-red-400' : 'text-blue-400'}`}>
-                                                    {seedRatio.toFixed(1)}%
-                                                </span>
-                                            </div>
-                                            <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
-                                                <div
-                                                    className={`h-2 rounded-full transition-all ${
-                                                        seedRatio > 20 ? 'bg-red-500' : 'bg-blue-400'
-                                                    }`}
-                                                    style={{width: `${Math.min(seedRatio, 100)}%`}}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
 
                             {/* Structured memo sections (if parsed from JSON) */}
                             {parsedMemo.isStructured && (
@@ -502,7 +410,7 @@ export default function JournalDetailModal({
                             {journal.memo && (
                                 <div>
                                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">트레이딩 메모</h3>
-                                    <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200/50 dark:border-amber-800/30">
+                                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700/50">
                                         <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
                                             {parsedMemo.isStructured
                                                 ? (parsedMemo.narrative || parsedMemo.rawText)
@@ -592,12 +500,12 @@ export default function JournalDetailModal({
                             >
                                 <X size={24}/>
                             </button>
-                            <div className="relative w-full h-full max-w-5xl max-h-[85vh]">
-                                <Image
+                            <div className="relative w-full h-full max-w-5xl max-h-[85vh] flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
                                     src={journal.chartScreenshotUrl}
                                     alt={`${journal.symbol} 차트`}
-                                    fill
-                                    className="object-contain"
+                                    className="max-w-full max-h-full object-contain"
                                 />
                             </div>
                         </motion.div>
