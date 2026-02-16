@@ -168,7 +168,7 @@ export default function EquityCurve({ journals, seed }: EquityCurveProps) {
               <stop offset="95%" stopColor={strokeColor} stopOpacity={0.05} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} className="dark:stroke-slate-700" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
           <XAxis
             dataKey="date"
             tickFormatter={formatXAxis}

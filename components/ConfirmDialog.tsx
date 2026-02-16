@@ -29,35 +29,37 @@ export default function ConfirmDialog({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
           style={{ zIndex: 999999 }}
           onMouseDown={(e) => { if (e.target === e.currentTarget) onCancel(); }}
         >
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.97, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full p-6"
+            exit={{ scale: 0.97, opacity: 0 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-xl max-w-sm w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                variant === 'danger' ? 'bg-red-900/30' : 'bg-amber-900/30'
+                variant === 'danger' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
               }`}>
                 <AlertTriangle className={`w-5 h-5 ${
                   variant === 'danger' ? 'text-red-400' : 'text-amber-400'
                 }`} />
               </div>
               <div className="flex-1">
-                <h3 className="text-white font-semibold mb-1">{title}</h3>
-                <p className="text-sm text-slate-400">{message}</p>
+                <h3 className="text-slate-900 dark:text-white font-semibold mb-1">{title}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{message}</p>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <button
                 onClick={onCancel}
                 disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
                 {cancelLabel}
               </button>

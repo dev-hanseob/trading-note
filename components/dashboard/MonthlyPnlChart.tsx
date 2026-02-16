@@ -89,7 +89,7 @@ export default function MonthlyPnlChart({ journals }: MonthlyPnlChartProps) {
       </div>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} className="dark:stroke-slate-700" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
           <XAxis
             dataKey="month"
             tickFormatter={formatXAxis}

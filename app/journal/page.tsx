@@ -138,7 +138,7 @@ export default function JournalPage() {
     }, [calculatedTableData, selectedRows]);
 
     const getOutcomeBadge = (entry: Journal) => {
-        if (entry.profit === 0) return {label: '진행중', className: 'bg-slate-800 text-slate-400'};
+        if (entry.profit === 0) return {label: '진행중', className: 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'};
         if (entry.profit > 0) return {label: '이익', className: 'bg-emerald-900/50 text-emerald-400'};
         return {label: '손실', className: 'bg-red-900/50 text-red-400'};
     };
@@ -227,8 +227,8 @@ export default function JournalPage() {
         return (
             <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-8 min-h-screen">
                 <div className="animate-pulse space-y-4">
-                    <div className="h-10 bg-slate-800 rounded-lg w-64" />
-                    <div className="h-80 bg-slate-800 rounded-xl" />
+                    <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-lg w-64" />
+                    <div className="h-80 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                 </div>
             </div>
         );
@@ -240,29 +240,29 @@ export default function JournalPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
                 <div>
                     <p className="text-xs font-medium text-emerald-500 uppercase tracking-widest mb-1">매매일지</p>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white">매매 히스토리</h1>
-                    <p className="text-slate-500 mt-1">총 <span className="font-semibold text-slate-300">{totalItems}건</span>의 거래를 기록했습니다.</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">매매 히스토리</h1>
+                    <p className="text-slate-500 mt-1">총 <span className="font-semibold text-slate-600 dark:text-slate-300">{totalItems}건</span>의 거래를 기록했습니다.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="hidden lg:flex items-center bg-slate-800 rounded-lg p-0.5">
-                        <button onClick={() => setViewMode('table')} className={`p-2 rounded-md transition-all ${viewMode === 'table' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'}`}>
+                    <div className="hidden lg:flex items-center bg-slate-200 dark:bg-slate-800 rounded-lg p-0.5">
+                        <button onClick={() => setViewMode('table')} className={`p-2 rounded-md transition-all ${viewMode === 'table' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
                             <List className="w-4 h-4" />
                         </button>
-                        <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-all ${viewMode === 'grid' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'}`}>
+                        <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
                             <LayoutGrid className="w-4 h-4" />
                         </button>
                     </div>
                     {selectedRows.size > 0 && (
                         <button
                             onClick={() => setShowDeleteConfirm(true)}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-red-900/20 border border-red-800/50 text-red-400 hover:bg-red-900/30 font-medium rounded-lg text-sm transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 font-medium rounded-lg text-sm transition-colors"
                         >
                             <Trash2 size={15} /> 삭제 ({selectedRows.size})
                         </button>
                     )}
                     <button
                         onClick={() => { setEditTarget(null); setShowModal(true); }}
-                        className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-lg text-sm border border-slate-700 transition-colors"
+                        className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-lg text-sm border border-slate-300 dark:border-slate-700 transition-colors"
                     >
                         <Zap size={14} /> 퀵 엔트리
                     </button>
@@ -273,41 +273,41 @@ export default function JournalPage() {
             </div>
 
             {/* Summary Stat Bar */}
-            <div className="bg-slate-900 rounded-lg p-4 flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 overflow-x-auto border border-slate-800">
-                <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">총 거래</span><span className="text-sm font-bold text-white tabular-nums">{summaryStats.total}건</span></div>
-                <div className="w-px h-4 bg-slate-800 shrink-0" />
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 overflow-x-auto border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">총 거래</span><span className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">{summaryStats.total}건</span></div>
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-800 shrink-0" />
                 <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">이익</span><span className="text-sm font-bold text-emerald-400 tabular-nums">{summaryStats.wins}건</span></div>
                 <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">손실</span><span className="text-sm font-bold text-red-400 tabular-nums">{summaryStats.losses}건</span></div>
-                <div className="w-px h-4 bg-slate-800 shrink-0" />
-                <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">승률</span><span className="text-sm font-bold text-white tabular-nums">{summaryStats.winRate.toFixed(1)}%</span></div>
-                <div className="w-px h-4 bg-slate-800 shrink-0" />
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-800 shrink-0" />
+                <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">승률</span><span className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">{summaryStats.winRate.toFixed(1)}%</span></div>
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-800 shrink-0" />
                 <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">총 P&L</span><span className={`text-sm font-bold tabular-nums ${summaryStats.totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{summaryStats.totalPnl > 0 ? '+' : ''}{summaryStats.totalPnl.toLocaleString()}원</span></div>
                 <div className="flex items-center gap-2 shrink-0"><span className="text-xs text-slate-500">평균 P&L</span><span className={`text-sm font-bold tabular-nums ${summaryStats.avgPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{summaryStats.avgPnl > 0 ? '+' : ''}{Math.round(summaryStats.avgPnl).toLocaleString()}원</span></div>
             </div>
 
             {/* Search & Filter Bar */}
-            <div className="bg-slate-900 rounded-lg border border-slate-800 p-4 mb-4 space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 mb-4 space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative flex-1 min-w-[200px]">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                         <input type="text" placeholder="종목명으로 검색..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-slate-800 border border-slate-700 rounded-md text-sm h-9 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors" />
+                            className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm h-9 pl-10 pr-4 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors" />
                         {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"><X size={14} /></button>}
                     </div>
                     <div className="relative">
-                        <select value={assetFilter} onChange={e => setAssetFilter(e.target.value as 'all' | AssetType)} className="h-9 pl-3 pr-8 bg-slate-800 border border-slate-700 rounded-md text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
+                        <select value={assetFilter} onChange={e => setAssetFilter(e.target.value as 'all' | AssetType)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
                             <option value="all">전체 자산</option><option value={AssetType.STOCK}>주식</option><option value={AssetType.CRYPTO}>암호화폐</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                     </div>
                     <div className="relative">
-                        <select value={tradeTypeFilter} onChange={e => setTradeTypeFilter(e.target.value as 'all' | TradeType)} className="h-9 pl-3 pr-8 bg-slate-800 border border-slate-700 rounded-md text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
+                        <select value={tradeTypeFilter} onChange={e => setTradeTypeFilter(e.target.value as 'all' | TradeType)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
                             <option value="all">전체 유형</option><option value={TradeType.SPOT}>현물</option><option value={TradeType.FUTURE}>선물</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                     </div>
                     <div className="relative">
-                        <select value={outcomeFilter} onChange={e => setOutcomeFilter(e.target.value as 'all' | 'win' | 'loss' | 'open')} className="h-9 pl-3 pr-8 bg-slate-800 border border-slate-700 rounded-md text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
+                        <select value={outcomeFilter} onChange={e => setOutcomeFilter(e.target.value as 'all' | 'win' | 'loss' | 'open')} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
                             <option value="all">전체 결과</option><option value="win">이익</option><option value="loss">손실</option><option value="open">진행중</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
@@ -327,25 +327,25 @@ export default function JournalPage() {
 
             {/* Selected Stats Bar */}
             {selectedRows.size > 0 && (
-                <div className="mb-4 p-4 bg-emerald-900/20 rounded-lg border border-emerald-800/50">
+                <div className="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800/50">
                     <div className="flex flex-wrap gap-6 text-sm">
-                        <div><span className="text-slate-500">선택됨</span><span className="ml-2 font-bold text-white tabular-nums">{selectedStats.count}</span></div>
+                        <div><span className="text-slate-500">선택됨</span><span className="ml-2 font-bold text-slate-900 dark:text-white tabular-nums">{selectedStats.count}</span></div>
                         <div><span className="text-slate-500">총 P&L</span><span className={`ml-2 font-bold tabular-nums ${selectedStats.totalProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{selectedStats.totalProfit > 0 ? '+' : ''}{selectedStats.totalProfit.toLocaleString()}</span></div>
                         <div><span className="text-slate-500">평균 ROI</span><span className={`ml-2 font-bold tabular-nums ${selectedStats.avgRoi >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{selectedStats.avgRoi > 0 ? '+' : ''}{selectedStats.avgRoi.toFixed(2)}%</span></div>
-                        <div><span className="text-slate-500">승률</span><span className="ml-2 font-bold text-white tabular-nums">{selectedStats.winRate.toFixed(1)}%</span></div>
+                        <div><span className="text-slate-500">승률</span><span className="ml-2 font-bold text-slate-900 dark:text-white tabular-nums">{selectedStats.winRate.toFixed(1)}%</span></div>
                     </div>
                 </div>
             )}
 
             {/* Table View */}
             {!isMobileView && viewMode === 'table' && (
-                <div className="bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                            <tr className="border-b border-slate-800">
+                            <tr className="border-b border-slate-200 dark:border-slate-800">
                                 <th className="px-4 py-3 text-left w-12">
-                                    <input type="checkbox" className="rounded border-slate-600 bg-slate-800 text-emerald-500 focus:ring-emerald-500"
+                                    <input type="checkbox" className="rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-emerald-500 focus:ring-emerald-500"
                                         onChange={e => { e.target.checked ? setSelectedRows(new Set(filteredAndSortedData.map(x => x.id))) : setSelectedRows(new Set()); }}
                                         checked={selectedRows.size === filteredAndSortedData.length && filteredAndSortedData.length > 0} />
                                 </th>
@@ -374,24 +374,24 @@ export default function JournalPage() {
                                 const isSelected = selectedRows.has(entry.id);
                                 const badge = getOutcomeBadge(entry);
                                 return (
-                                    <tr key={entry.id} className={`border-b border-slate-800/50 transition-colors cursor-pointer hover:bg-slate-800/50 ${isSelected ? 'bg-emerald-900/20' : ''}`}
+                                    <tr key={entry.id} className={`border-b border-slate-200 dark:border-slate-800/50 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 ${isSelected ? 'bg-emerald-900/20' : ''}`}
                                         onClick={() => { setDetailTarget(entry); setShowDetailModal(true); }}>
-                                        <td className="px-4 py-3.5"><input type="checkbox" checked={isSelected} onClick={e => e.stopPropagation()} onChange={() => toggleRow(entry.id)} className="rounded border-slate-600 bg-slate-800 text-emerald-500 focus:ring-emerald-500" /></td>
+                                        <td className="px-4 py-3.5"><input type="checkbox" checked={isSelected} onClick={e => e.stopPropagation()} onChange={() => toggleRow(entry.id)} className="rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-emerald-500 focus:ring-emerald-500" /></td>
                                         <td className="px-4 py-3.5">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 bg-slate-800 rounded-md flex items-center justify-center"><span className="text-xs font-bold text-slate-400">{entry.symbol.charAt(0)}</span></div>
-                                                <div><div className="font-medium text-white">{entry.symbol}</div><div className="text-xs text-slate-500">{AssetTypeLabel[entry.assetType] || entry.assetType}</div></div>
+                                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded-md flex items-center justify-center"><span className="text-xs font-bold text-slate-500 dark:text-slate-400">{entry.symbol.charAt(0)}</span></div>
+                                                <div><div className="font-medium text-slate-900 dark:text-white">{entry.symbol}</div><div className="text-xs text-slate-500">{AssetTypeLabel[entry.assetType] || entry.assetType}</div></div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3.5">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-900/50 text-emerald-400' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-900/50 text-red-400' : 'bg-slate-800 text-slate-400'}`}>
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-900/50 text-emerald-400' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-900/50 text-red-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
                                                 {entry.tradeType === TradeType.FUTURE ? `${entry.position || '선물'}${entry.leverage && entry.leverage > 1 ? ` ${entry.leverage}x` : ''}` : '현물'}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3.5 text-slate-500 text-sm tabular-nums">{formatTradeDate(entry.tradedAt)}</td>
                                         <td className="px-4 py-3.5 text-right"><span className={`font-medium tabular-nums ${entry.profit > 0 ? 'text-emerald-400' : entry.profit < 0 ? 'text-red-400' : 'text-slate-500'}`}>{entry.profit > 0 ? '+' : ''}{entry.profit.toLocaleString()}</span></td>
                                         <td className="px-4 py-3.5 text-right"><span className={`font-medium text-sm tabular-nums ${entry.roi > 0 ? 'text-emerald-400' : entry.roi < 0 ? 'text-red-400' : 'text-slate-500'}`}>{entry.roi > 0 ? '+' : ''}{entry.roi.toFixed(2)}%</span></td>
-                                        <td className="px-4 py-3.5 text-right font-medium text-slate-300 tabular-nums">{entry.investment.toLocaleString()}</td>
+                                        <td className="px-4 py-3.5 text-right font-medium text-slate-600 dark:text-slate-300 tabular-nums">{entry.investment.toLocaleString()}</td>
                                         <td className="px-4 py-3.5 text-center"><span className={`text-xs font-medium px-2 py-0.5 rounded ${badge.className}`}>{badge.label}</span></td>
                                         <td className="px-4 py-3.5 text-center">{entry.memo && <StickyNote size={14} className="text-slate-600 mx-auto" />}</td>
                                     </tr>
@@ -404,9 +404,9 @@ export default function JournalPage() {
                         <div className="text-center py-16">
                             <BookOpen className="w-12 h-12 mx-auto mb-4 text-slate-300" />
                             {hasActiveFilters ? (
-                                <><p className="text-lg font-semibold text-white mb-1">검색 결과가 없습니다</p><p className="text-sm text-slate-400 mb-4">다른 검색어나 필터를 시도해보세요</p><button onClick={resetFilters} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-lg text-sm transition-colors">필터 초기화</button></>
+                                <><p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">검색 결과가 없습니다</p><p className="text-sm text-slate-400 mb-4">다른 검색어나 필터를 시도해보세요</p><button onClick={resetFilters} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-lg text-sm transition-colors">필터 초기화</button></>
                             ) : (
-                                <><p className="text-lg font-semibold text-white mb-1">아직 기록된 거래가 없습니다</p><p className="text-sm text-slate-400 mb-4">첫 번째 거래를 기록하고 성과를 추적해보세요</p><Link href="/journal/new" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-sm transition-colors"><Plus size={16} /> 새 거래</Link></>
+                                <><p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">아직 기록된 거래가 없습니다</p><p className="text-sm text-slate-400 mb-4">첫 번째 거래를 기록하고 성과를 추적해보세요</p><Link href="/journal/new" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-sm transition-colors"><Plus size={16} /> 새 거래</Link></>
                             )}
                         </div>
                     )}
@@ -422,13 +422,13 @@ export default function JournalPage() {
                         const isWin = entry.profit > 0;
                         const isLoss = entry.profit < 0;
                         return (
-                            <div key={entry.id} className={`group bg-slate-900 rounded-xl border overflow-hidden transition-colors cursor-pointer ${isSelected ? 'border-emerald-700 ring-1 ring-emerald-800' : 'border-slate-800 hover:border-slate-700'}`}
+                            <div key={entry.id} className={`group bg-white dark:bg-slate-900 rounded-xl border overflow-hidden transition-colors cursor-pointer ${isSelected ? 'border-emerald-700 ring-1 ring-emerald-800' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}
                                 onClick={() => { setDetailTarget(entry); setShowDetailModal(true); }}>
                                 <div className="relative h-40 overflow-hidden">
                                     {entry.chartScreenshotUrl ? (
                                         <Image src={entry.chartScreenshotUrl} alt={`${entry.symbol} chart`} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                                     ) : (
-                                        <div className={`w-full h-full flex items-center justify-center ${isWin ? 'bg-emerald-950/50' : isLoss ? 'bg-red-950/50' : 'bg-slate-900'}`}>
+                                        <div className={`w-full h-full flex items-center justify-center ${isWin ? 'bg-emerald-50 dark:bg-emerald-950/50' : isLoss ? 'bg-red-50 dark:bg-red-950/50' : 'bg-slate-100 dark:bg-slate-900'}`}>
                                             <svg className="absolute inset-0 w-full h-full opacity-[0.15]" viewBox="0 0 400 160" preserveAspectRatio="none">
                                                 {isWin ? <polyline fill="none" stroke="#10b981" strokeWidth="2.5" points="0,120 40,110 80,100 120,115 160,90 200,70 240,80 280,50 320,40 360,30 400,15" />
                                                 : isLoss ? <polyline fill="none" stroke="#f43f5e" strokeWidth="2.5" points="0,30 40,35 80,50 120,40 160,70 200,90 240,80 280,110 320,120 360,130 400,145" />
@@ -440,10 +440,10 @@ export default function JournalPage() {
                                             </div>
                                         </div>
                                     )}
-                                    <div className="absolute top-2.5 left-2.5"><input type="checkbox" checked={isSelected} onClick={e => e.stopPropagation()} onChange={() => toggleRow(entry.id)} className="w-4 h-4 rounded border-slate-600 bg-slate-800/80 text-emerald-500 focus:ring-emerald-500" /></div>
+                                    <div className="absolute top-2.5 left-2.5"><input type="checkbox" checked={isSelected} onClick={e => e.stopPropagation()} onChange={() => toggleRow(entry.id)} className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 text-emerald-500 focus:ring-emerald-500" /></div>
                                     <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
                                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full shadow-sm ${badge.className}`}>{badge.label}</span>
-                                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-900/70 text-emerald-400' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-900/70 text-red-400' : 'bg-slate-800/90 text-slate-400'}`}>
+                                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-900/70 text-emerald-400' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-900/70 text-red-400' : 'bg-slate-200 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400'}`}>
                                             {entry.tradeType === TradeType.FUTURE ? entry.position : '현물'}{entry.leverage && entry.leverage > 1 ? ` ${entry.leverage}x` : ''}
                                         </span>
                                     </div>
@@ -451,8 +451,8 @@ export default function JournalPage() {
                                 <div className="p-4">
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-2">
-                                            <div className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold ${isWin ? 'bg-emerald-900/50 text-emerald-400' : isLoss ? 'bg-red-900/50 text-red-400' : 'bg-slate-800 text-slate-500'}`}>{entry.symbol.charAt(0)}</div>
-                                            <div><div className="font-medium text-white text-sm leading-tight">{entry.symbol}</div><div className="text-xs text-slate-500">{AssetTypeLabel[entry.assetType] || entry.assetType}</div></div>
+                                            <div className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold ${isWin ? 'bg-emerald-900/50 text-emerald-400' : isLoss ? 'bg-red-900/50 text-red-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>{entry.symbol.charAt(0)}</div>
+                                            <div><div className="font-medium text-slate-900 dark:text-white text-sm leading-tight">{entry.symbol}</div><div className="text-xs text-slate-500">{AssetTypeLabel[entry.assetType] || entry.assetType}</div></div>
                                         </div>
                                         <span className="text-xs text-slate-400">{formatTradeDate(entry.tradedAt)}</span>
                                     </div>
@@ -460,7 +460,7 @@ export default function JournalPage() {
                                         <div><div className="text-xs text-slate-500 mb-0.5">P&L</div><div className={`text-lg font-bold tabular-nums ${isWin ? 'text-emerald-400' : isLoss ? 'text-red-400' : 'text-slate-500'}`}>{entry.profit > 0 ? '+' : ''}{entry.profit.toLocaleString()}</div></div>
                                         <div className="text-right"><div className="text-xs text-slate-500 mb-0.5">ROI</div><div className={`text-lg font-bold tabular-nums flex items-center gap-1 ${isWin ? 'text-emerald-400' : isLoss ? 'text-red-400' : 'text-slate-500'}`}>{isWin && <TrendingUp className="w-4 h-4" />}{isLoss && <TrendingDown className="w-4 h-4" />}{entry.roi > 0 ? '+' : ''}{entry.roi.toFixed(2)}%</div></div>
                                     </div>
-                                    <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
                                         <span>{entry.investment.toLocaleString()} 투자</span>
                                         {entry.memo && <StickyNote size={12} className="text-slate-300" />}
                                     </div>
@@ -472,9 +472,9 @@ export default function JournalPage() {
                         <div className="col-span-full text-center py-16">
                             <BookOpen className="w-12 h-12 mx-auto mb-4 text-slate-300" />
                             {hasActiveFilters ? (
-                                <><p className="text-lg font-semibold text-white mb-1">검색 결과가 없습니다</p><p className="text-sm text-slate-400 mb-4">다른 검색어나 필터를 시도해보세요</p><button onClick={resetFilters} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-lg text-sm transition-colors">필터 초기화</button></>
+                                <><p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">검색 결과가 없습니다</p><p className="text-sm text-slate-400 mb-4">다른 검색어나 필터를 시도해보세요</p><button onClick={resetFilters} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-lg text-sm transition-colors">필터 초기화</button></>
                             ) : (
-                                <><p className="text-lg font-semibold text-white mb-1">아직 기록된 거래가 없습니다</p><p className="text-sm text-slate-400 mb-4">첫 번째 거래를 기록하고 성과를 추적해보세요</p><Link href="/journal/new" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-sm transition-colors"><Plus size={16} /> 새 거래</Link></>
+                                <><p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">아직 기록된 거래가 없습니다</p><p className="text-sm text-slate-400 mb-4">첫 번째 거래를 기록하고 성과를 추적해보세요</p><Link href="/journal/new" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-sm transition-colors"><Plus size={16} /> 새 거래</Link></>
                             )}
                         </div>
                     )}
@@ -485,7 +485,7 @@ export default function JournalPage() {
             {filteredAndSortedData.length > 0 && (
                 <div className="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
+                        <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
                         <div className="flex items-center gap-1">
                             {Array.from({length: Math.min(totalPages, 5)}, (_, i) => {
                                 let page;
@@ -493,12 +493,12 @@ export default function JournalPage() {
                                 else if (currentPage <= 3) page = i + 1;
                                 else if (currentPage >= totalPages - 2) page = totalPages - 4 + i;
                                 else page = currentPage - 2 + i;
-                                return (<button key={page} onClick={() => setCurrentPage(page)} className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${currentPage === page ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>{page}</button>);
+                                return (<button key={page} onClick={() => setCurrentPage(page)} className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${currentPage === page ? 'bg-emerald-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{page}</button>);
                             })}
                         </div>
-                        <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
+                        <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
                     </div>
-                    <select value={itemsPerPage} onChange={e => { setItemsPerPage(parseInt(e.target.value)); setCurrentPage(1); }} className="px-3 py-2 text-sm bg-slate-800 border border-slate-700 text-slate-300 rounded-md hover:bg-slate-700 transition-colors cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <select value={itemsPerPage} onChange={e => { setItemsPerPage(parseInt(e.target.value)); setCurrentPage(1); }} className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         {[10, 20, 30, 50, 100].map(n => <option key={n} value={n}>{n}개씩 보기</option>)}
                     </select>
                 </div>

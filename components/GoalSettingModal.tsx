@@ -92,7 +92,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-lg shadow-xl"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 w-full max-w-lg shadow-xl"
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold flex items-center gap-2">

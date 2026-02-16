@@ -173,7 +173,7 @@ export default function JournalDetailModal({
                 animate={{opacity: 1}}
                 exit={{opacity: 0}}
                 transition={{duration: 0.15}}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4"
+                className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center sm:p-4"
                 style={{zIndex: 999999, willChange: 'opacity'}}
                 onMouseDown={(e) => {
                     if (e.target === e.currentTarget) {
@@ -182,19 +182,19 @@ export default function JournalDetailModal({
                 }}
             >
                 <motion.div
-                    initial={{scale: 0.95, opacity: 0, y: 20}}
+                    initial={{scale: 0.97, opacity: 0, y: 10}}
                     animate={{scale: 1, opacity: 1, y: 0}}
-                    exit={{scale: 0.95, opacity: 0, y: 20}}
+                    exit={{scale: 0.97, opacity: 0, y: 10}}
                     transition={{duration: 0.15, ease: "easeOut"}}
-                    className="bg-slate-900 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-slate-800 flex flex-col"
+                    className="bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col"
                     style={{willChange: 'transform, opacity'}}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header - clean, white, with actions */}
-                    <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0">
+                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
-                                <h2 className="text-xl font-bold text-white truncate">{journal.symbol}</h2>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white truncate">{journal.symbol}</h2>
                                 {journal.tradeType === TradeType.FUTURE && journal.position && (
                                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${
                                         journal.position === 'LONG'
@@ -206,34 +206,34 @@ export default function JournalDetailModal({
                                     </span>
                                 )}
                                 {journal.tradeType === TradeType.SPOT && (
-                                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 shrink-0">
+                                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
                                         현물
                                     </span>
                                 )}
                             </div>
-                            <span className="text-sm text-slate-400 shrink-0 hidden sm:inline">
+                            <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0 hidden sm:inline">
                                 {formatTradeDateFull(journal.tradedAt)}
-                                <span className="ml-1 text-slate-300">({getRelativeTime()})</span>
+                                <span className="ml-1 text-slate-600 dark:text-slate-300">({getRelativeTime()})</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
                             <button
                                 onClick={onEdit}
-                                className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-200"
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                                 title="수정"
                             >
                                 <Edit size={18}/>
                             </button>
                             <button
                                 onClick={onDelete}
-                                className="p-2 hover:bg-red-900/20 rounded-lg transition-colors text-slate-400 hover:text-red-400"
+                                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400"
                                 title="삭제"
                             >
                                 <Trash2 size={18}/>
                             </button>
                             <button
                                 onClick={onClose}
-                                className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-200"
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                                 title="닫기"
                             >
                                 <X size={18}/>
@@ -242,7 +242,7 @@ export default function JournalDetailModal({
                     </div>
 
                     {/* Mobile date (shown only on small screens) */}
-                    <div className="px-6 py-2 text-sm text-slate-400 sm:hidden border-b border-slate-800">
+                    <div className="px-6 py-2 text-sm text-slate-500 dark:text-slate-400 sm:hidden border-b border-slate-200 dark:border-slate-800">
                         {formatTradeDateFull(journal.tradedAt)} ({getRelativeTime()})
                     </div>
 
@@ -250,7 +250,7 @@ export default function JournalDetailModal({
                     <div className="overflow-y-auto flex-1">
                         {/* P&L Hero Section */}
                         <div className={`px-6 py-6 ${
-                            isProfit ? 'bg-emerald-900/20' : isLoss ? 'bg-red-900/20' : 'bg-slate-800/50'
+                            isProfit ? 'bg-emerald-50 dark:bg-emerald-900/20' : isLoss ? 'bg-red-50 dark:bg-red-900/20' : 'bg-slate-50 dark:bg-slate-800/50'
                         }`}>
                             <div className="text-center mb-6">
                                 <div className="flex items-center justify-center gap-2 mb-1">
@@ -271,17 +271,17 @@ export default function JournalDetailModal({
 
                             {/* Key metrics grid */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
-                                    <div className="text-xs text-slate-400 mb-1">진입가</div>
-                                    <div className="text-sm font-bold text-white">
+                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">진입가</div>
+                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
                                         {journal.entryPrice
                                             ? journal.entryPrice.toLocaleString() + '원'
                                             : journal.buyPrice.toLocaleString() + '원'}
                                     </div>
                                 </div>
-                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
-                                    <div className="text-xs text-slate-400 mb-1">청산가</div>
-                                    <div className="text-sm font-bold text-white">
+                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">청산가</div>
+                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
                                         {journal.profit !== 0 && journal.buyPrice
                                             ? (() => {
                                                 const qty = parseFloat(journal.quantity) || 1;
@@ -291,15 +291,15 @@ export default function JournalDetailModal({
                                             : '-'}
                                     </div>
                                 </div>
-                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
-                                    <div className="text-xs text-slate-400 mb-1">수량</div>
-                                    <div className="text-sm font-bold text-white">
+                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">수량</div>
+                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
                                         {journal.quantity}{journal.assetType === 'STOCK' ? '주' : ''}
                                     </div>
                                 </div>
-                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
-                                    <div className="text-xs text-slate-400 mb-1">투자금</div>
-                                    <div className="text-sm font-bold text-white">
+                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">투자금</div>
+                                    <div className="text-sm font-bold text-slate-900 dark:text-white">
                                         {journal.investment.toLocaleString()}원
                                     </div>
                                 </div>
@@ -309,12 +309,12 @@ export default function JournalDetailModal({
                         {/* Chart Screenshot (if available) */}
                         {journal.chartScreenshotUrl && (
                             <div className="px-6 py-5">
-                                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                                     <ImageIcon size={16} className="text-slate-400"/>
                                     차트 스크린샷
                                 </h3>
                                 <div
-                                    className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden border border-slate-800 cursor-pointer hover:shadow-md transition-shadow"
+                                    className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 cursor-pointer hover:shadow-md transition-shadow"
                                     onClick={() => setShowFullImage(true)}
                                 >
                                     <Image
@@ -331,43 +331,43 @@ export default function JournalDetailModal({
                         <div className="px-6 py-5 space-y-5">
                             {/* Trade Details */}
                             <div>
-                                <h3 className="text-sm font-semibold text-white mb-3">거래 정보</h3>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">거래 정보</h3>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    <div className="bg-slate-800/50 rounded-lg p-3">
-                                        <div className="text-xs text-slate-400 mb-0.5">자산 유형</div>
-                                        <div className="text-sm font-medium text-white">
+                                    <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">자산 유형</div>
+                                        <div className="text-sm font-medium text-slate-900 dark:text-white">
                                             {AssetTypeLabel[journal.assetType] || journal.assetType}
                                         </div>
                                     </div>
-                                    <div className="bg-slate-800/50 rounded-lg p-3">
-                                        <div className="text-xs text-slate-400 mb-0.5">시장</div>
-                                        <div className="text-sm font-medium text-white">
+                                    <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">시장</div>
+                                        <div className="text-sm font-medium text-slate-900 dark:text-white">
                                             {TradeTypeLabel[journal.tradeType]}
                                         </div>
                                     </div>
-                                    <div className="bg-slate-800/50 rounded-lg p-3">
-                                        <div className="text-xs text-slate-400 mb-0.5">화폐</div>
-                                        <div className="text-sm font-medium text-white">{journal.currency}</div>
+                                    <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">화폐</div>
+                                        <div className="text-sm font-medium text-slate-900 dark:text-white">{journal.currency}</div>
                                     </div>
                                     {journal.tradeType === TradeType.FUTURE && (
                                         <>
-                                            <div className="bg-slate-800/50 rounded-lg p-3">
-                                                <div className="text-xs text-slate-400 mb-0.5">포지션</div>
-                                                <div className="text-sm font-medium text-white">
+                                            <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
+                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">포지션</div>
+                                                <div className="text-sm font-medium text-slate-900 dark:text-white">
                                                     {journal.position ? PositionTypeLabel[journal.position] : '-'}
                                                 </div>
                                             </div>
-                                            <div className="bg-slate-800/50 rounded-lg p-3">
-                                                <div className="text-xs text-slate-400 mb-0.5">레버리지</div>
-                                                <div className="text-sm font-medium text-white">
+                                            <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
+                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">레버리지</div>
+                                                <div className="text-sm font-medium text-slate-900 dark:text-white">
                                                     {journal.leverage ? `${journal.leverage}배` : '-'}
                                                 </div>
                                             </div>
                                         </>
                                     )}
                                     {seedRatio > 0 && (
-                                        <div className="bg-slate-800/50 rounded-lg p-3">
-                                            <div className="text-xs text-slate-400 mb-0.5">시드 비율</div>
+                                        <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
+                                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">시드 비율</div>
                                             <div className={`text-sm font-medium ${seedRatio > 20 ? 'text-red-400' : 'text-white'}`}>
                                                 {seedRatio.toFixed(1)}%
                                             </div>
@@ -379,7 +379,7 @@ export default function JournalDetailModal({
                             {/* Risk Management (if stopLoss/takeProfit available) */}
                             {(journal.stopLoss || journal.takeProfit) && (
                                 <div>
-                                    <h3 className="text-sm font-semibold text-white mb-3">리스크 관리</h3>
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">리스크 관리</h3>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                         {journal.stopLoss && (
                                             <div className="bg-red-900/20 rounded-lg p-3">
@@ -398,9 +398,9 @@ export default function JournalDetailModal({
                                             </div>
                                         )}
                                         {riskReward !== null && (
-                                            <div className="bg-slate-800/50 rounded-lg p-3">
-                                                <div className="text-xs text-slate-400 mb-0.5">R:R</div>
-                                                <div className="text-sm font-medium text-white">
+                                            <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
+                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">R:R</div>
+                                                <div className="text-sm font-medium text-slate-900 dark:text-white">
                                                     1:{riskReward.toFixed(2)}
                                                 </div>
                                             </div>
@@ -419,18 +419,18 @@ export default function JournalDetailModal({
 
                             {/* ROI Progress Bar (Fixed: proper percentage mapping) */}
                             <div>
-                                <h3 className="text-sm font-semibold text-white mb-3">수익률 분석</h3>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">수익률 분석</h3>
                                 <div className="space-y-3">
                                     <div>
                                         <div className="flex justify-between items-center mb-1.5">
-                                            <span className="text-xs text-slate-400">투자 대비 수익률</span>
+                                            <span className="text-xs text-slate-500 dark:text-slate-400">투자 대비 수익률</span>
                                             <span className={`text-sm font-bold ${
                                                 isProfit ? 'text-emerald-400' : isLoss ? 'text-red-400' : 'text-slate-400'
                                             }`}>
                                                 {journal.roi > 0 ? '+' : ''}{journal.roi.toFixed(2)}%
                                             </span>
                                         </div>
-                                        <div className="w-full bg-slate-800 rounded-full h-2.5">
+                                        <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5">
                                             <div
                                                 className={`h-2.5 rounded-full transition-all ${
                                                     isProfit
@@ -449,12 +449,12 @@ export default function JournalDetailModal({
                                     {seedRatio > 0 && (
                                         <div>
                                             <div className="flex justify-between items-center mb-1.5">
-                                                <span className="text-xs text-slate-400">시드 투입 비율</span>
+                                                <span className="text-xs text-slate-500 dark:text-slate-400">시드 투입 비율</span>
                                                 <span className={`text-sm font-bold ${seedRatio > 20 ? 'text-red-400' : 'text-blue-400'}`}>
                                                     {seedRatio.toFixed(1)}%
                                                 </span>
                                             </div>
-                                            <div className="w-full bg-slate-800 rounded-full h-2">
+                                            <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
                                                 <div
                                                     className={`h-2 rounded-full transition-all ${
                                                         seedRatio > 20 ? 'bg-red-500' : 'bg-blue-400'
@@ -472,11 +472,11 @@ export default function JournalDetailModal({
                                 <>
                                     {parsedMemo.timeframes && parsedMemo.timeframes.length > 0 && (
                                         <div>
-                                            <h3 className="text-sm font-semibold text-white mb-2">타임프레임</h3>
+                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">타임프레임</h3>
                                             <div className="flex flex-wrap gap-2">
                                                 {parsedMemo.timeframes.map((tf, i) => (
                                                     <span key={i}
-                                                          className="px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs font-medium">
+                                                          className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full text-xs font-medium">
                                                         {tf}
                                                     </span>
                                                 ))}
@@ -485,14 +485,14 @@ export default function JournalDetailModal({
                                     )}
                                     {parsedMemo.keyLevels && (
                                         <div>
-                                            <h3 className="text-sm font-semibold text-white mb-2">주요 가격대</h3>
-                                            <p className="text-sm text-slate-400">{parsedMemo.keyLevels}</p>
+                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">주요 가격대</h3>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">{parsedMemo.keyLevels}</p>
                                         </div>
                                     )}
                                     {parsedMemo.riskManagement && (
                                         <div>
-                                            <h3 className="text-sm font-semibold text-white mb-2">리스크 관리 노트</h3>
-                                            <p className="text-sm text-slate-400">{parsedMemo.riskManagement}</p>
+                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">리스크 관리 노트</h3>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">{parsedMemo.riskManagement}</p>
                                         </div>
                                     )}
                                 </>
@@ -501,9 +501,9 @@ export default function JournalDetailModal({
                             {/* Memo / Narrative */}
                             {journal.memo && (
                                 <div>
-                                    <h3 className="text-sm font-semibold text-white mb-3">트레이딩 메모</h3>
-                                    <div className="bg-amber-900/20 rounded-xl p-4 border border-amber-800/30">
-                                        <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">트레이딩 메모</h3>
+                                    <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200/50 dark:border-amber-800/30">
+                                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
                                             {parsedMemo.isStructured
                                                 ? (parsedMemo.narrative || parsedMemo.rawText)
                                                 : parsedMemo.rawText}
@@ -515,10 +515,10 @@ export default function JournalDetailModal({
                     </div>
 
                     {/* Bottom Action Bar */}
-                    <div className="px-6 py-3 bg-slate-950/50 border-t border-slate-800 flex items-center justify-between shrink-0">
+                    <div className="px-6 py-3 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
                         <button
                             onClick={handleCopy}
-                            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-200 transition-colors"
+                            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
                         >
                             <Copy size={14}/>
                             결과 복사
@@ -529,18 +529,18 @@ export default function JournalDetailModal({
                                 <button
                                     onClick={() => canGoPrev && onNavigate?.(journals[currentIndex! - 1])}
                                     disabled={!canGoPrev}
-                                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                                 >
                                     <ChevronLeft size={16}/>
                                     이전
                                 </button>
-                                <span className="text-xs text-slate-400">
+                                <span className="text-xs text-slate-500 dark:text-slate-400">
                                     {(currentIndex ?? 0) + 1} / {journals.length}
                                 </span>
                                 <button
                                     onClick={() => canGoNext && onNavigate?.(journals[currentIndex! + 1])}
                                     disabled={!canGoNext}
-                                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                                 >
                                     다음
                                     <ChevronRight size={16}/>

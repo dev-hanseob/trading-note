@@ -140,22 +140,22 @@ export default function DashboardPage() {
             <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8 min-h-screen">
                 <div className="animate-pulse space-y-4">
                     <div className="flex justify-between items-center">
-                        <div className="h-7 bg-slate-800 rounded w-32" />
-                        <div className="h-7 bg-slate-800 rounded w-48" />
+                        <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded w-32" />
+                        <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded w-48" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[...Array(3)].map((_, i) => (
-                            <div key={i} className="h-28 bg-slate-800 rounded-xl" />
+                            <div key={i} className="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                         ))}
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {[...Array(4)].map((_, i) => (
-                            <div key={i} className="h-20 bg-slate-800 rounded-lg" />
+                            <div key={i} className="h-20 bg-slate-200 dark:bg-slate-800 rounded-lg" />
                         ))}
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div className="h-72 bg-slate-800 rounded-xl" />
-                        <div className="h-72 bg-slate-800 rounded-xl" />
+                        <div className="h-72 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                        <div className="h-72 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                     </div>
                 </div>
             </div>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
         <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8 min-h-screen">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-                <h1 className="text-lg sm:text-xl font-bold text-white">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
                     대시보드
                 </h1>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -174,14 +174,14 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-1.5">
                         <button
                             onClick={() => setShowSeedModal(true)}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-400 bg-slate-800/50 border border-slate-800 hover:bg-slate-800 hover:text-slate-200 rounded-md transition-colors"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 rounded-md transition-colors"
                         >
                             <SlidersHorizontal size={12} />
                             시드
                         </button>
                         <button
                             onClick={() => setShowGoalModal(true)}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-400 bg-slate-800/50 border border-slate-800 hover:bg-slate-800 hover:text-slate-200 rounded-md transition-colors"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 rounded-md transition-colors"
                         >
                             <Flag size={12} />
                             목표
@@ -192,7 +192,7 @@ export default function DashboardPage() {
 
             {/* Error */}
             {error && (
-                <div className="mb-6 px-4 py-3 bg-red-900/20 border border-red-800/50 rounded-lg text-sm text-red-400">
+                <div className="mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-lg text-sm text-red-500 dark:text-red-400">
                     {error}
                 </div>
             )}

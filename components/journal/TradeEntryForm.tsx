@@ -277,10 +277,10 @@ export default function TradeEntryForm() {
     /*  Section styles                                                   */
     /* ---------------------------------------------------------------- */
 
-    const sectionCard = 'bg-slate-900 rounded-2xl p-6 border border-slate-800';
-    const labelCls = 'text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block';
-    const inputCls = 'w-full bg-slate-800 border border-slate-700 text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all';
-    const inputErrorCls = 'w-full bg-slate-800 border border-red-700 text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all';
+    const sectionCard = 'bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800';
+    const labelCls = 'text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 block';
+    const inputCls = 'w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all';
+    const inputErrorCls = 'w-full bg-slate-100 dark:bg-slate-800 border border-red-300 dark:border-red-700 text-slate-900 dark:text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all';
 
     /* ---------------------------------------------------------------- */
     /*  Render                                                           */
@@ -294,7 +294,7 @@ export default function TradeEntryForm() {
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <Crosshair className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-white">거래 기본 정보</h2>
+                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">거래 기본 정보</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -308,7 +308,7 @@ export default function TradeEntryForm() {
                                 className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
                                     assetType === AssetType.CRYPTO
                                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/30'
-                                        : 'bg-slate-800 border border-slate-700 text-slate-500 hover:border-emerald-600'
+                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-emerald-600'
                                 }`}
                             >
                                 암호화폐
@@ -319,7 +319,7 @@ export default function TradeEntryForm() {
                                 className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
                                     assetType === AssetType.STOCK
                                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/30'
-                                        : 'bg-slate-800 border border-slate-700 text-slate-500 hover:border-emerald-600'
+                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-emerald-600'
                                 }`}
                             >
                                 주식
@@ -365,8 +365,8 @@ export default function TradeEntryForm() {
                                 onClick={() => setTradeType(TradeType.SPOT)}
                                 className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
                                     tradeType === TradeType.SPOT
-                                        ? 'bg-slate-800 text-white shadow-lg'
-                                        : 'bg-slate-800 border border-slate-700 text-slate-500 hover:border-slate-600'
+                                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white shadow-lg'
+                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-slate-400 dark:hover:border-slate-600'
                                 }`}
                             >
                                 현물
@@ -376,8 +376,8 @@ export default function TradeEntryForm() {
                                 onClick={() => setTradeType(TradeType.FUTURE)}
                                 className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
                                     tradeType === TradeType.FUTURE
-                                        ? 'bg-slate-800 text-white shadow-lg'
-                                        : 'bg-slate-800 border border-slate-700 text-slate-500 hover:border-slate-600'
+                                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white shadow-lg'
+                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-slate-400 dark:hover:border-slate-600'
                                 }`}
                             >
                                 선물
@@ -395,7 +395,7 @@ export default function TradeEntryForm() {
                                 className={`flex-1 h-11 rounded-lg text-sm font-extrabold transition-all flex items-center justify-center gap-1.5 ${
                                     tradePosition === 'LONG'
                                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/30'
-                                        : 'bg-slate-800 border border-slate-700 text-slate-400 hover:border-emerald-600'
+                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-400 hover:border-emerald-600'
                                 }`}
                             >
                                 <TrendingUp className="w-4 h-4" />
@@ -407,7 +407,7 @@ export default function TradeEntryForm() {
                                 className={`flex-1 h-11 rounded-lg text-sm font-extrabold transition-all flex items-center justify-center gap-1.5 ${
                                     tradePosition === 'SHORT'
                                         ? 'bg-rose-500 text-white shadow-lg shadow-red-900/30'
-                                        : 'bg-slate-800 border border-slate-700 text-slate-400 hover:border-red-600'
+                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-400 hover:border-red-600'
                                 }`}
                             >
                                 <TrendingDown className="w-4 h-4" />
@@ -435,7 +435,7 @@ export default function TradeEntryForm() {
                             <label className="flex items-center gap-3 cursor-pointer h-11 w-full">
                                 <div
                                     onClick={() => setIsClosed(!isClosed)}
-                                    className={`relative w-11 h-6 rounded-full transition-all shrink-0 ${isClosed ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                                    className={`relative w-11 h-6 rounded-full transition-all shrink-0 ${isClosed ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}
                                 >
                                     <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${isClosed ? 'left-[22px]' : 'left-0.5'}`} />
                                 </div>
@@ -452,7 +452,7 @@ export default function TradeEntryForm() {
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <Shield className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-white">가격 & 수량</h2>
+                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">가격 & 수량</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -513,27 +513,27 @@ export default function TradeEntryForm() {
                             exit={{ opacity: 0, height: 0 }}
                             className="mt-4"
                         >
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-800 rounded-xl border border-slate-800">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
                                 <div>
-                                    <div className="text-xs font-bold text-slate-400 mb-1">투자금</div>
-                                    <div className="text-sm font-bold text-slate-200">
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">투자금</div>
+                                    <div className="text-sm font-bold text-slate-700 dark:text-slate-200">
                                         {calcs.investment > 0 ? calcs.investment.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '---'}
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs font-bold text-slate-400 mb-1">최대 손실</div>
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">최대 손실</div>
                                     <div className="text-sm font-bold text-red-400">
                                         {calcs.maxLoss > 0 ? `-${calcs.maxLoss.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '---'}
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs font-bold text-slate-400 mb-1">최대 수익</div>
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">최대 수익</div>
                                     <div className="text-sm font-bold text-emerald-400">
                                         {calcs.maxProfit > 0 ? `+${calcs.maxProfit.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '---'}
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs font-bold text-slate-400 mb-1">R:R 비율</div>
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">R:R 비율</div>
                                     <div className={`text-sm font-bold ${calcs.riskReward >= 2 ? 'text-emerald-400' : calcs.riskReward >= 1 ? 'text-amber-400' : 'text-red-400'}`}>
                                         {calcs.riskReward > 0 ? `1:${calcs.riskReward.toFixed(2)}` : '---'}
                                     </div>
@@ -557,7 +557,7 @@ export default function TradeEntryForm() {
                     >
                         <div className="flex items-center gap-2 mb-6">
                             <ArrowRight className="w-5 h-5 text-emerald-500" />
-                            <h2 className="text-lg font-extrabold text-white">거래 결과</h2>
+                            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">거래 결과</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -593,12 +593,12 @@ export default function TradeEntryForm() {
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <LineChart className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-white">차트 & 분석</h2>
+                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">차트 & 분석</h2>
                 </div>
 
                 {/* Chart Upload */}
                 {chartPreview ? (
-                    <div className="relative mb-6 rounded-xl overflow-hidden border border-slate-700">
+                    <div className="relative mb-6 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700">
                         <img src={chartPreview} alt="차트 스크린샷" className="w-full max-h-64 object-contain bg-slate-900" />
                         <button
                             type="button"
@@ -626,7 +626,7 @@ export default function TradeEntryForm() {
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
-                        className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center mb-6 hover:border-emerald-600 transition-all cursor-pointer group"
+                        className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center mb-6 hover:border-emerald-600 transition-all cursor-pointer group"
                     >
                         <ImageIcon className="w-8 h-8 text-slate-500 mx-auto mb-2 group-hover:text-emerald-400 transition-colors" />
                         <p className="text-sm text-slate-500 font-medium">차트 스크린샷을 드래그하거나 클릭하여 업로드</p>
@@ -657,7 +657,7 @@ export default function TradeEntryForm() {
                                     className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                                         selectedTimeframes.includes(tf)
                                             ? 'bg-emerald-500 text-white shadow-md shadow-emerald-900/30'
-                                            : 'bg-slate-800 border border-slate-700 text-slate-500 hover:bg-slate-700'
+                                            : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
                                     }`}
                                 >
                                     {tf}
@@ -686,7 +686,7 @@ export default function TradeEntryForm() {
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <Brain className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-white">심리 & 전략</h2>
+                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">심리 & 전략</h2>
                 </div>
 
                 {/* Emotion Selector */}
@@ -701,7 +701,7 @@ export default function TradeEntryForm() {
                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
                                     emotion === em.value
                                         ? em.activeClasses + ' shadow-sm'
-                                        : 'border-slate-800 bg-slate-800 hover:border-slate-600'
+                                        : 'border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-600'
                                 }`}
                             >
                                 <span className="text-lg">{em.icon}</span>
@@ -727,7 +727,7 @@ export default function TradeEntryForm() {
                                 className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all ${
                                     selectedStrategies.includes(strategy)
                                         ? 'bg-emerald-500 text-white shadow-md shadow-emerald-900/30'
-                                        : 'bg-slate-800 border border-slate-700 text-slate-500 hover:bg-slate-700'
+                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {strategy}
@@ -745,14 +745,14 @@ export default function TradeEntryForm() {
                                 key={item.id}
                                 type="button"
                                 onClick={() => toggleChecklist(item.id)}
-                                className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-700 transition-all"
+                                className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
                             >
                                 {item.checked ? (
                                     <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0" />
                                 ) : (
                                     <Square className="w-5 h-5 text-slate-500 shrink-0" />
                                 )}
-                                <span className={`text-sm ${item.checked ? 'text-white font-medium' : 'text-slate-500'}`}>{item.label}</span>
+                                <span className={`text-sm ${item.checked ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}`}>{item.label}</span>
                             </button>
                         ))}
                     </div>
@@ -765,14 +765,14 @@ export default function TradeEntryForm() {
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <FileText className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-white">트레이딩 노트</h2>
+                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">트레이딩 노트</h2>
                 </div>
                 <textarea
                     placeholder="거래 근거, 시장 상황, 반성점 등을 자유롭게 작성하세요..."
                     value={narrative}
                     onChange={(e) => setNarrative(e.target.value)}
                     rows={5}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg text-sm p-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none"
+                    className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-sm p-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none"
                 />
             </div>
 
@@ -780,7 +780,7 @@ export default function TradeEntryForm() {
             {/* Submit Error                                     */}
             {/* ============================================== */}
             {errors.submit && (
-                <div className="p-4 bg-red-900/20 border border-red-800 rounded-xl">
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
                     <p className="text-sm text-red-400 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4" />
                         {errors.submit}
@@ -795,7 +795,7 @@ export default function TradeEntryForm() {
                 <button
                     type="button"
                     onClick={() => router.push('/journal')}
-                    className="bg-slate-800 border border-slate-700 text-slate-500 hover:bg-slate-700 font-semibold rounded-xl px-6 py-3 transition-all"
+                    className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold rounded-xl px-6 py-3 transition-all"
                 >
                     취소
                 </button>
@@ -819,10 +819,10 @@ export default function TradeEntryForm() {
             {/* ============================================== */}
             {/* Mobile Bottom Bar                                */}
             {/* ============================================== */}
-            <div className="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 px-4 py-3 lg:hidden z-40">
+            <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-4 py-3 lg:hidden z-40">
                 <div className="flex items-center justify-between max-w-4xl mx-auto">
                     <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-bold text-white text-sm truncate">{assetPair || '---'}</span>
+                        <span className="font-bold text-slate-900 dark:text-white text-sm truncate">{assetPair || '---'}</span>
                         <span className={`text-xs font-bold px-1.5 py-0.5 rounded shrink-0 ${
                             tradePosition === 'LONG' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'
                         }`}>

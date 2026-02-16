@@ -46,9 +46,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   };
 
   const colors = {
-    success: 'bg-emerald-900/90 border-emerald-700/50 text-emerald-100',
-    error: 'bg-red-900/90 border-red-700/50 text-red-100',
-    info: 'bg-slate-800/90 border-slate-700/50 text-slate-100',
+    success: 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/90 dark:border-emerald-700/50 dark:text-emerald-100',
+    error: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/90 dark:border-red-700/50 dark:text-red-100',
+    info: 'bg-slate-100 border-slate-200 text-slate-800 dark:bg-slate-800/90 dark:border-slate-700/50 dark:text-slate-100',
   };
 
   return (
@@ -68,7 +68,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
                 <span className="text-sm font-medium">{toast.message}</span>
-                <button onClick={() => removeToast(toast.id)} className="ml-2 p-0.5 hover:bg-white/10 rounded transition-colors">
+                <button onClick={() => removeToast(toast.id)} className="ml-2 p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded transition-colors">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </motion.div>

@@ -42,8 +42,8 @@ export default function TradeSidebar({ collapsed, onToggle }: TradeSidebarProps)
 
     if (collapsed) {
         return (
-            <div className="w-16 border-r border-slate-800 bg-slate-900/50 flex flex-col items-center py-4 shrink-0">
-                <button onClick={onToggle} className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-700 text-slate-400 transition-all">
+            <div className="w-16 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col items-center py-4 shrink-0">
+                <button onClick={onToggle} className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-all">
                     <ChevronRight className="w-4 h-4" />
                 </button>
                 {/* Mini stats when collapsed */}
@@ -52,9 +52,9 @@ export default function TradeSidebar({ collapsed, onToggle }: TradeSidebarProps)
                         <div className="text-xs font-bold text-emerald-400">{winRate}%</div>
                         <div className="text-[10px] text-slate-400">승률</div>
                     </div>
-                    <div className="w-6 h-px bg-slate-700" />
+                    <div className="w-6 h-px bg-slate-300 dark:bg-slate-700" />
                     <div className="text-center">
-                        <div className="text-xs font-bold text-slate-300">{totalTrades}</div>
+                        <div className="text-xs font-bold text-slate-600 dark:text-slate-300">{totalTrades}</div>
                         <div className="text-[10px] text-slate-400">거래</div>
                     </div>
                 </div>
@@ -63,28 +63,28 @@ export default function TradeSidebar({ collapsed, onToggle }: TradeSidebarProps)
     }
 
     return (
-        <div className="w-80 xl:w-96 border-r border-slate-800 bg-slate-900/50 flex flex-col shrink-0 h-[calc(100vh-64px)] overflow-hidden">
+        <div className="w-80 xl:w-96 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col shrink-0 h-[calc(100vh-64px)] overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                <h3 className="text-sm font-extrabold text-white">최근 거래</h3>
-                <button onClick={onToggle} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-700 text-slate-400 transition-all">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">최근 거래</h3>
+                <button onClick={onToggle} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-all">
                     <ChevronLeft className="w-4 h-4" />
                 </button>
             </div>
 
             {/* Quick Stats */}
-            <div className="p-3 border-b border-slate-800">
+            <div className="p-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-slate-800 rounded-lg p-2.5 border border-slate-800 text-center">
-                        <div className="text-xs font-bold text-slate-400 mb-0.5">승률</div>
+                    <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 border border-slate-200 dark:border-slate-800 text-center">
+                        <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-0.5">승률</div>
                         <div className="text-sm font-extrabold text-emerald-400">{winRate}%</div>
                     </div>
-                    <div className="bg-slate-800 rounded-lg p-2.5 border border-slate-800 text-center">
-                        <div className="text-xs font-bold text-slate-400 mb-0.5">총 거래</div>
-                        <div className="text-sm font-extrabold text-slate-200">{totalTrades}</div>
+                    <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 border border-slate-200 dark:border-slate-800 text-center">
+                        <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-0.5">총 거래</div>
+                        <div className="text-sm font-extrabold text-slate-700 dark:text-slate-200">{totalTrades}</div>
                     </div>
-                    <div className="bg-slate-800 rounded-lg p-2.5 border border-slate-800 text-center">
-                        <div className="text-xs font-bold text-slate-400 mb-0.5">누적 손익</div>
+                    <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 border border-slate-200 dark:border-slate-800 text-center">
+                        <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-0.5">누적 손익</div>
                         <div className={`text-sm font-extrabold ${totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {totalPnl >= 0 ? '+' : ''}{totalPnl.toLocaleString()}
                         </div>
@@ -101,7 +101,7 @@ export default function TradeSidebar({ collapsed, onToggle }: TradeSidebarProps)
                         placeholder="종목 검색..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg text-sm h-9 pl-9 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-sm h-9 pl-9 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     />
                 </div>
             </div>
@@ -120,10 +120,10 @@ export default function TradeSidebar({ collapsed, onToggle }: TradeSidebarProps)
                             {activeTrades.map(trade => {
                                 const badge = getBadge(trade);
                                 return (
-                                    <div key={trade.id} className="bg-slate-800 rounded-xl border border-emerald-800 p-3 hover:border-emerald-600 hover:shadow-sm transition-all cursor-pointer">
+                                    <div key={trade.id} className="bg-slate-100 dark:bg-slate-800 rounded-xl border border-emerald-200 dark:border-emerald-800 p-3 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-sm transition-all cursor-pointer">
                                         <div className="flex items-center justify-between mb-1.5">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-bold text-sm text-white">{trade.symbol}</span>
+                                                <span className="font-bold text-sm text-slate-900 dark:text-white">{trade.symbol}</span>
                                                 {trade.position && (
                                                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                                                         trade.position === 'LONG' ? 'bg-emerald-900/20 text-emerald-400' : 'bg-red-900/20 text-red-400'
@@ -156,10 +156,10 @@ export default function TradeSidebar({ collapsed, onToggle }: TradeSidebarProps)
                             {historyTrades.slice(0, 20).map(trade => {
                                 const badge = getBadge(trade);
                                 return (
-                                    <div key={trade.id} className="bg-slate-800 rounded-xl border border-slate-800 p-3 hover:border-slate-700 hover:shadow-sm transition-all cursor-pointer">
+                                    <div key={trade.id} className="bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 p-3 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm transition-all cursor-pointer">
                                         <div className="flex items-center justify-between mb-1.5">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-bold text-sm text-white">{trade.symbol}</span>
+                                                <span className="font-bold text-sm text-slate-900 dark:text-white">{trade.symbol}</span>
                                                 {trade.position && (
                                                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                                                         trade.position === 'LONG' ? 'bg-emerald-900/20 text-emerald-400' : 'bg-red-900/20 text-red-400'
@@ -184,7 +184,7 @@ export default function TradeSidebar({ collapsed, onToggle }: TradeSidebarProps)
                 )}
 
                 {filteredTrades.length === 0 && (
-                    <div className="text-center py-8 text-slate-400 text-sm">
+                    <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">
                         거래 내역이 없습니다
                     </div>
                 )}
