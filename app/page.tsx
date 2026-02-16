@@ -14,8 +14,8 @@ export default function HomePage() {
             <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">트레이딩 저널</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-[1.1] mb-6 tracking-tight">
-            기록하지 않는 매매는<br />
-            <span className="text-slate-500">반복될 뿐이다.</span>
+            기록하고, 복기하라.<br />
+            <span className="text-slate-500">수익은 거기서 시작된다.</span>
           </h1>
           <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed mb-10 max-w-lg">
             모든 거래를 30초 안에 기록하고, 승률과 수익률을 데이터로 확인하세요.

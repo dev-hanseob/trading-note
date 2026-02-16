@@ -138,9 +138,9 @@ export default function JournalPage() {
     }, [calculatedTableData, selectedRows]);
 
     const getOutcomeBadge = (entry: Journal) => {
-        if (entry.profit === 0) return {label: '진행중', className: 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'};
-        if (entry.profit > 0) return {label: '이익', className: 'bg-emerald-900/50 text-emerald-400'};
-        return {label: '손실', className: 'bg-red-900/50 text-red-400'};
+        if (entry.profit === 0) return {label: '진행중', className: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'};
+        if (entry.profit > 0) return {label: '이익', className: 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'};
+        return {label: '손실', className: 'bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300'};
     };
 
     const toggleRow = (id: number) => {
@@ -370,30 +370,31 @@ export default function JournalPage() {
                             </tr>
                             </thead>
                             <tbody>
-                            {filteredAndSortedData.map(entry => {
+                            {filteredAndSortedData.map((entry, index) => {
                                 const isSelected = selectedRows.has(entry.id);
                                 const badge = getOutcomeBadge(entry);
+                                const isEven = index % 2 === 0;
                                 return (
-                                    <tr key={entry.id} className={`border-b border-slate-200 dark:border-slate-800/50 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 ${isSelected ? 'bg-emerald-900/20' : ''}`}
+                                    <tr key={entry.id} className={`border-b border-slate-200 dark:border-slate-800 transition-colors cursor-pointer hover:bg-emerald-50 dark:hover:bg-slate-800/70 ${isSelected ? 'bg-emerald-50 dark:bg-emerald-900/20' : isEven ? 'bg-slate-50/50 dark:bg-slate-800/20' : ''}`}
                                         onClick={() => { setDetailTarget(entry); setShowDetailModal(true); }}>
                                         <td className="px-4 py-3.5"><input type="checkbox" checked={isSelected} onClick={e => e.stopPropagation()} onChange={() => toggleRow(entry.id)} className="rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-emerald-500 focus:ring-emerald-500" /></td>
                                         <td className="px-4 py-3.5">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded-md flex items-center justify-center"><span className="text-xs font-bold text-slate-500 dark:text-slate-400">{entry.symbol.charAt(0)}</span></div>
-                                                <div><div className="font-medium text-slate-900 dark:text-white">{entry.symbol}</div><div className="text-xs text-slate-500">{AssetTypeLabel[entry.assetType] || entry.assetType}</div></div>
+                                            <div className="flex items-center gap-2.5">
+                                                <div className={`w-8 h-8 rounded-md flex items-center justify-center ${entry.assetType === AssetType.CRYPTO ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-emerald-100 dark:bg-emerald-900/40'}`}><span className={`text-xs font-bold ${entry.assetType === AssetType.CRYPTO ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>{entry.symbol.charAt(0)}</span></div>
+                                                <div><div className="font-semibold text-slate-900 dark:text-white">{entry.symbol}</div><div className="text-xs text-slate-500 dark:text-slate-400">{AssetTypeLabel[entry.assetType] || entry.assetType}</div></div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3.5">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-900/50 text-emerald-400' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-900/50 text-red-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
                                                 {entry.tradeType === TradeType.FUTURE ? `${entry.position || '선물'}${entry.leverage && entry.leverage > 1 ? ` ${entry.leverage}x` : ''}` : '현물'}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3.5 text-slate-500 text-sm tabular-nums">{formatTradeDate(entry.tradedAt)}</td>
-                                        <td className="px-4 py-3.5 text-right"><span className={`font-medium tabular-nums ${entry.profit > 0 ? 'text-emerald-400' : entry.profit < 0 ? 'text-red-400' : 'text-slate-500'}`}>{entry.profit > 0 ? '+' : ''}{entry.profit.toLocaleString()}</span></td>
-                                        <td className="px-4 py-3.5 text-right"><span className={`font-medium text-sm tabular-nums ${entry.roi > 0 ? 'text-emerald-400' : entry.roi < 0 ? 'text-red-400' : 'text-slate-500'}`}>{entry.roi > 0 ? '+' : ''}{entry.roi.toFixed(2)}%</span></td>
-                                        <td className="px-4 py-3.5 text-right font-medium text-slate-600 dark:text-slate-300 tabular-nums">{entry.investment.toLocaleString()}</td>
-                                        <td className="px-4 py-3.5 text-center"><span className={`text-xs font-medium px-2 py-0.5 rounded ${badge.className}`}>{badge.label}</span></td>
-                                        <td className="px-4 py-3.5 text-center">{entry.memo && <StickyNote size={14} className="text-slate-600 mx-auto" />}</td>
+                                        <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300 text-sm tabular-nums font-medium">{formatTradeDate(entry.tradedAt)}</td>
+                                        <td className="px-4 py-3.5 text-right"><span className={`font-semibold tabular-nums ${entry.profit > 0 ? 'text-emerald-600 dark:text-emerald-400' : entry.profit < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-500'}`}>{entry.profit > 0 ? '+' : ''}{entry.profit.toLocaleString()}</span></td>
+                                        <td className="px-4 py-3.5 text-right"><span className={`font-semibold text-sm tabular-nums ${entry.roi > 0 ? 'text-emerald-600 dark:text-emerald-400' : entry.roi < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-500'}`}>{entry.roi > 0 ? '+' : ''}{entry.roi.toFixed(2)}%</span></td>
+                                        <td className="px-4 py-3.5 text-right font-medium text-slate-700 dark:text-slate-200 tabular-nums">{entry.investment.toLocaleString()}</td>
+                                        <td className="px-4 py-3.5 text-center"><span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${badge.className}`}>{badge.label}</span></td>
+                                        <td className="px-4 py-3.5 text-center">{entry.memo && <StickyNote size={14} className="text-slate-400 dark:text-slate-500 mx-auto" />}</td>
                                     </tr>
                                 );
                             })}

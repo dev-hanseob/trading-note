@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, X, BookOpen, BarChart3, Plus } from 'lucide-react';
+import { Menu, X, BookOpen, BarChart3, Plus, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Header() {
@@ -15,6 +15,7 @@ export default function Header() {
         { href: '/journal', label: '매매일지', icon: BookOpen },
     ];
 
+    const isLanding = pathname === '/';
     const isActive = (href: string) => pathname === href || pathname?.startsWith(href + '/');
 
     return (
@@ -36,46 +37,62 @@ export default function Header() {
                     </Link>
 
                     {/* Desktop nav */}
-                    <nav className="hidden lg:flex items-center gap-1">
-                        {navLinks.map(({ href, label, icon: Icon }) => (
-                            <Link
-                                key={href}
-                                href={href}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                                    isActive(href)
-                                        ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
-                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'
-                                }`}
-                            >
-                                <Icon className="w-4 h-4" />
-                                {label}
-                            </Link>
-                        ))}
-                    </nav>
+                    {!isLanding && (
+                        <nav className="hidden lg:flex items-center gap-1">
+                            {navLinks.map(({ href, label, icon: Icon }) => (
+                                <Link
+                                    key={href}
+                                    href={href}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                        isActive(href)
+                                            ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
+                                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {label}
+                                </Link>
+                            ))}
+                        </nav>
+                    )}
 
                     {/* Right side */}
                     <div className="flex items-center gap-2">
-                        <Link
-                            href="/journal/new"
-                            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-md transition-colors"
-                        >
-                            <Plus className="w-4 h-4" />
-                            새 거래
-                        </Link>
+                        {!isLanding && (
+                            <Link
+                                href="/journal/new"
+                                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-md transition-colors"
+                            >
+                                <Plus className="w-4 h-4" />
+                                새 거래
+                            </Link>
+                        )}
+
+                        {isLanding && (
+                            <Link
+                                href="/login"
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+                            >
+                                <LogIn className="w-4 h-4" />
+                                로그인
+                            </Link>
+                        )}
 
                         <ThemeToggle />
 
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
-                        >
-                            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                        </button>
+                        {!isLanding && (
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="lg:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+                            >
+                                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </button>
+                        )}
                     </div>
                 </div>
 
                 {/* Mobile menu */}
-                {isMobileMenuOpen && (
+                {!isLanding && isMobileMenuOpen && (
                     <div className="lg:hidden bg-white dark:bg-slate-950 border-t border-slate-200/50 dark:border-slate-800/50">
                         <div className="px-4 py-3 space-y-1">
                             {navLinks.map(({ href, label, icon: Icon }) => (
