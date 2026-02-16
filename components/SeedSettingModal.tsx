@@ -113,7 +113,7 @@ export default function SeedSettingModal({
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl"
+        className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-md shadow-xl"
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
@@ -122,7 +122,7 @@ export default function SeedSettingModal({
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             disabled={isLoading}
           >
             <X size={20} />
@@ -131,7 +131,7 @@ export default function SeedSettingModal({
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               시작 시드 금액(원)
             </label>
             <input
@@ -140,7 +140,7 @@ export default function SeedSettingModal({
               value={seedValue}
               onChange={handleInputChange}
               disabled={isLoading}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-lg text-right disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white text-lg text-right disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="1,000,000"
             />
             {error && (
@@ -148,8 +148,8 @@ export default function SeedSettingModal({
             )}
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               💡 시드 금액은 수익률 계산의 기준이 됩니다. 변경 시 모든 수익률이 새로운 시드를 기준으로 재계산됩니다.
             </p>
           </div>
@@ -158,7 +158,7 @@ export default function SeedSettingModal({
             <button
               onClick={handleClose}
               disabled={isLoading}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               취소
             </button>

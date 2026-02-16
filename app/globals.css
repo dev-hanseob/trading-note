@@ -3,115 +3,88 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 15, 23, 42;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: white;
+  background: rgb(var(--background-rgb));
 }
 
-.dark body {
-  background: rgb(15, 23, 42); /* slate-900 */
+/* Tabular numbers for financial data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(51, 65, 85);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(71, 85, 105);
 }
 
-/* 트렌디한 버튼 스타일 */
-.btn-trendy-primary {
-  @apply relative bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-700 hover:from-emerald-600 hover:via-teal-700 hover:to-cyan-800 text-white px-6 py-3 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transform border border-emerald-400/20 hover:border-teal-400/30;
+/* Clean button system */
+.btn-primary {
+  @apply px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors;
 }
 
-.btn-trendy-primary:active {
-  @apply scale-95;
+.btn-secondary {
+  @apply px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-lg border border-slate-700 transition-colors;
 }
 
-.btn-trendy-secondary {
-  @apply relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl transition-all duration-300 font-semibold border border-slate-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 shadow-md hover:shadow-lg hover:scale-105 transform;
+.btn-danger {
+  @apply px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-400 text-sm font-medium rounded-lg border border-red-800/30 transition-colors;
 }
 
-.btn-trendy-secondary:active {
-  @apply scale-95;
+.btn-ghost {
+  @apply px-4 py-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm font-medium rounded-lg transition-colors;
 }
 
-.btn-trendy-danger {
-  @apply relative bg-gradient-to-r from-rose-500 via-red-500 to-pink-600 hover:from-rose-600 hover:via-red-600 hover:to-pink-700 text-white px-5 py-2.5 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transform border border-rose-400/20 hover:border-red-400/30;
-}
-
-.btn-trendy-danger:active {
-  @apply scale-95;
-}
-
-.btn-trendy-ghost {
-  @apply relative bg-transparent hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-4 py-2 rounded-xl transition-all duration-300 font-medium hover:scale-105 transform border border-transparent hover:border-slate-200 dark:hover:border-slate-600;
-}
-
-.btn-trendy-ghost:active {
-  @apply scale-95;
-}
-
+/* Legacy compatibility */
+.btn-trendy-primary { @apply btn-primary; }
+.btn-trendy-secondary { @apply btn-secondary; }
+.btn-trendy-danger { @apply btn-danger; }
+.btn-trendy-ghost { @apply btn-ghost; }
 .btn-trendy-icon {
-  @apply relative bg-slate-100/70 dark:bg-slate-800/70 backdrop-blur-sm hover:bg-blue-100 dark:hover:bg-blue-900/30 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:scale-110 transform border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-600;
+  @apply p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors;
 }
+.btn-trading-primary { @apply btn-primary; }
+.btn-trading-secondary { @apply btn-secondary; }
 
-.btn-trendy-icon:active {
-  @apply scale-95;
-}
-
-/* 버튼 그룹 스타일 */
-.btn-group-trendy {
-  @apply flex gap-3;
-}
-
-/* 페이지네이션 버튼 */
+/* Pagination */
 .btn-pagination {
-  @apply rounded-lg font-medium transition-all duration-200 hover:scale-105 transform;
+  @apply rounded-lg font-medium transition-colors;
 }
-
 .btn-pagination.active {
-  @apply bg-slate-700 dark:bg-slate-600 text-white shadow-md;
+  @apply bg-emerald-600 text-white;
 }
-
 .btn-pagination:not(.active) {
-  @apply bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200;
+  @apply bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200;
 }
 
-.btn-pagination:active {
-  @apply scale-95;
-}
-
-/* 레거시 버튼 스타일 (호환성) */
-.btn-trading-primary {
-  @apply btn-trendy-primary;
-}
-
-.btn-trading-secondary {
-  @apply btn-trendy-secondary;
-}
-
-/* 모달 열릴 때 body 스크롤 방지 - 모바일 개선 */
+/* Modal scroll lock */
 .modal-open {
   overflow: hidden;
   position: fixed;
   width: 100%;
   height: 100%;
 }
-
-/* iOS Safari에서 추가 스크롤 방지 */
 .modal-open body {
   touch-action: none;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }

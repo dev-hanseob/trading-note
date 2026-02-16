@@ -1,263 +1,201 @@
+'use client';
+
 import Link from 'next/link';
-import { 
-  TrendingUp, 
-  Target, 
-  BookOpen, 
-  BarChart3, 
-  Shield, 
-  Zap,
-  CheckCircle,
-  ArrowRight,
-  Star,
-  Award
-} from 'lucide-react';
+import { ArrowRight, TrendingUp, TrendingDown, BarChart3, Clock, Zap } from 'lucide-react';
 
 export default function HomePage() {
-  const features = [
-    {
-      icon: TrendingUp,
-      title: "실시간 수익률 추적",
-      description: "매매 기록을 통해 실시간으로 수익률을 계산하고 시각화합니다."
-    },
-    {
-      icon: Target,
-      title: "목표 설정 및 관리",
-      description: "월간, 연간 목표를 설정하고 달성 진행률을 한눈에 확인하세요."
-    },
-    {
-      icon: BookOpen,
-      title: "매매일지 작성",
-      description: "상세한 매매 기록으로 트레이딩 패턴을 분석하고 개선하세요."
-    },
-    {
-      icon: BarChart3,
-      title: "시각적 차트 분석",
-      description: "직관적인 차트로 시드 변화 추이를 쉽게 파악할 수 있습니다."
-    },
-    {
-      icon: Shield,
-      title: "안전한 데이터 관리",
-      description: "개인 투자 정보를 안전하게 보호하며 언제든 접근 가능합니다."
-    },
-    {
-      icon: Zap,
-      title: "빠른 기록 입력",
-      description: "간단하고 직관적인 UI로 매매 기록을 신속하게 입력하세요."
-    }
-  ];
-
-  const benefits = [
-    "체계적인 투자 기록 관리",
-    "데이터 기반 투자 분석",
-    "목표 달성률 시각화",
-    "투자 성과 개선"
-  ];
-
-  const stats = [
-    { number: "99.9%", label: "서비스 안정성" },
-    { number: "1,000+", label: "활성 사용자" },
-    { number: "4.8/5", label: "사용자 만족도" }
-  ];
-
   return (
-    <div className="w-full">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-blue-600/10"></div>
-        <div className="relative w-full px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-          <div className="max-w-7xl mx-auto text-center">
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-emerald-700 dark:text-emerald-400 text-sm font-medium">
-                <Star className="w-4 h-4 mr-2" />
-                트레이더를 위한 완벽한 솔루션
+    <div className="w-full bg-slate-950 min-h-screen">
+      {/* Hero - Minimal, direct */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 pb-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-900/20 border border-emerald-800/30 rounded-full mb-6">
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-xs font-medium text-emerald-400">트레이딩 저널</span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 tracking-tight">
+            기록하지 않는 매매는<br />
+            <span className="text-slate-500">반복될 뿐이다.</span>
+          </h1>
+          <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-10 max-w-lg">
+            모든 거래를 30초 안에 기록하고, 승률과 수익률을 데이터로 확인하세요.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/journal"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 font-semibold rounded-lg hover:bg-slate-100 transition-colors text-sm"
+            >
+              시작하기
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-6 py-3 text-slate-300 font-medium rounded-lg border border-slate-800 hover:bg-slate-900 hover:border-slate-700 transition-colors text-sm"
+            >
+              대시보드 둘러보기
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Live-style Dashboard Preview */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-slate-900/50 border border-slate-800/50 rounded-xl overflow-hidden">
+            {/* Browser chrome */}
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800/50 bg-slate-900/80">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+              </div>
+              <div className="flex-1 flex justify-center">
+                <div className="px-3 py-0.5 bg-slate-800/50 rounded text-[10px] text-slate-600 font-mono">
+                  trading-note.app/dashboard
+                </div>
               </div>
             </div>
-            
-            <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-              스마트한 투자,{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">
-                정확한 기록
-              </span>
-            </h1>
-            
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              매매 기록부터 수익률 분석까지, 당신의 트레이딩을 한 단계 업그레이드하세요. 
-              데이터 기반의 투자 분석으로 더 나은 투자 결과를 만들어보세요.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link 
-                href="/journal"
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              >
-                지금 시작하기
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-              
-              <button className="inline-flex items-center px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300">
-                데모 보기
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white dark:bg-gray-800">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-4xl font-bold text-emerald-600 mb-2">{stat.number}</div>
-                  <div className="text-gray-600 dark:text-gray-300">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 bg-gray-50 dark:bg-gray-900">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                트레이딩을 더 스마트하게
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                전문 트레이더들이 사용하는 필수 기능들을 모두 담았습니다.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {features.map((feature, index) => {
-                const IconComponent = feature.icon;
-                return (
-                  <div
-                    key={index}
-                    className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700"
-                  >
-                    <div className="text-emerald-600 mb-4">
-                      <IconComponent className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                      {feature.description}
-                    </p>
+            {/* Mock dashboard */}
+            <div className="p-4 sm:p-5 space-y-3">
+              {/* Today summary bar */}
+              <div className="flex items-center justify-between p-3 bg-slate-800/30 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-emerald-400" />
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-24 bg-white dark:bg-gray-800">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                  왜 트레이딩 저널이 필요할까요?
-                </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                  성공하는 투자자들의 공통점은 체계적인 기록 관리입니다. 
-                  감정에 흔들리지 않는 데이터 기반 투자를 시작하세요.
-                </p>
-                
-                <div className="space-y-4">
-                  {benefits.map((benefit, index) => (
-                    <div key={index} className="flex items-center">
-                      <CheckCircle className="w-6 h-6 text-emerald-600 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700 dark:text-gray-300">{benefit}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="bg-gradient-to-br from-emerald-100 to-blue-100 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-2xl p-8 shadow-xl">
-                  <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">매매 성과</h3>
-                      <Award className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">이번 달 수익률</span>
-                        <span className="font-semibold text-emerald-600">+15.2%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">총 수익률</span>
-                        <span className="font-semibold text-emerald-600">+127.8%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-4">
-                        <div className="bg-emerald-600 h-2 rounded-full w-3/4"></div>
-                      </div>
-                    </div>
+                  <div>
+                    <div className="text-xs text-slate-500">오늘의 성과</div>
+                    <div className="text-sm font-bold text-emerald-400 tabular-nums">+485,000원</div>
                   </div>
                 </div>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-slate-500">3건 거래</span>
+                  <span className="text-emerald-500">2W</span>
+                  <span className="text-red-500">1L</span>
+                </div>
+              </div>
+
+              {/* Stat cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {[
+                  { label: '총 잔고', value: '12,450,000', sub: '+24.5%', color: 'text-white', subColor: 'text-emerald-500' },
+                  { label: '누적 손익', value: '+2,450,000', sub: '32건', color: 'text-emerald-400', subColor: 'text-slate-500' },
+                  { label: '승률', value: '68.7%', sub: '22W / 10L', color: 'text-white', subColor: 'text-slate-500' },
+                  { label: 'Profit Factor', value: '2.14', sub: 'Good', color: 'text-white', subColor: 'text-emerald-500' },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-slate-800/30 rounded-lg p-3">
+                    <div className="text-[10px] text-slate-500 mb-1">{stat.label}</div>
+                    <div className={`text-base font-bold tabular-nums ${stat.color}`}>{stat.value}</div>
+                    <div className={`text-[10px] ${stat.subColor}`}>{stat.sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Chart */}
+              <div className="bg-slate-800/20 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] text-slate-500 font-medium">자산 추이</span>
+                  <div className="flex gap-1.5">
+                    {['1W', '1M', '3M', 'ALL'].map(p => (
+                      <span key={p} className={`text-[9px] px-1.5 py-0.5 rounded ${p === '1M' ? 'bg-emerald-600/20 text-emerald-400' : 'text-slate-600'}`}>
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <svg className="w-full h-24" viewBox="0 0 500 90" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="rgb(16, 185, 129)" stopOpacity="0.15" />
+                      <stop offset="100%" stopColor="rgb(16, 185, 129)" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,70 L25,65 L50,60 L75,62 L100,50 L125,45 L150,48 L175,38 L200,35 L225,37 L250,28 L275,24 L300,26 L325,18 L350,14 L375,16 L400,10 L425,8 L450,9 L475,5 L500,3 L500,90 L0,90Z" fill="url(#chartFill)" />
+                  <polyline fill="none" stroke="rgb(16, 185, 129)" strokeWidth="1.5" points="0,70 25,65 50,60 75,62 100,50 125,45 150,48 175,38 200,35 225,37 250,28 275,24 300,26 325,18 350,14 375,16 400,10 425,8 450,9 475,5 500,3" />
+                </svg>
+              </div>
+
+              {/* Recent trades */}
+              <div className="space-y-1">
+                {[
+                  { symbol: 'BTC', type: 'LONG', pnl: '+320,000', roi: '+3.2%', win: true, time: '14:32' },
+                  { symbol: 'ETH', type: 'SHORT', pnl: '-85,000', roi: '-1.7%', win: false, time: '11:15' },
+                  { symbol: 'SOL', type: 'LONG', pnl: '+250,000', roi: '+8.3%', win: true, time: '09:48' },
+                ].map((trade, i) => (
+                  <div key={i} className="flex items-center justify-between px-3 py-2 bg-slate-800/20 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-medium text-white w-8">{trade.symbol}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                        trade.type === 'LONG' ? 'bg-emerald-900/50 text-emerald-400' : 'bg-red-900/50 text-red-400'
+                      }`}>{trade.type}</span>
+                      <span className="text-[10px] text-slate-600">{trade.time}</span>
+                    </div>
+                    <div className="flex items-center gap-3 tabular-nums">
+                      <span className={`text-xs font-medium ${trade.win ? 'text-emerald-400' : 'text-red-400'}`}>{trade.pnl}</span>
+                      <span className={`text-[10px] w-12 text-right ${trade.win ? 'text-emerald-500' : 'text-red-500'}`}>{trade.roi}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-emerald-600 to-blue-600">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+      {/* Features - 3 cols, icon + text only */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-900">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                지금 바로 시작하여 더 나은 투자자가 되어보세요
-              </h2>
-              <p className="text-xl text-emerald-100 mb-8">
-                무료로 시작하고, 언제든지 업그레이드할 수 있습니다.
+              <Zap className="w-5 h-5 text-emerald-500 mb-3" />
+              <h3 className="text-sm font-semibold text-white mb-1.5">30초 퀵 엔트리</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                종목, 가격, 손익. 핵심만 빠르게 입력. 나머지는 자동 계산.
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link 
-                  href="/journal"
-                  className="inline-flex items-center px-8 py-4 bg-white text-emerald-600 font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                  무료로 시작하기
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </div>
+            </div>
+            <div>
+              <BarChart3 className="w-5 h-5 text-emerald-500 mb-3" />
+              <h3 className="text-sm font-semibold text-white mb-1.5">데이터로 복기</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                승률, 수익률, Profit Factor, 연속 스트릭. 감이 아닌 숫자로 실력을 확인.
+              </p>
+            </div>
+            <div>
+              <Clock className="w-5 h-5 text-emerald-500 mb-3" />
+              <h3 className="text-sm font-semibold text-white mb-1.5">오늘의 성과</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                대시보드에서 오늘 거래 현황을 실시간 확인. 일별, 월별 추이 분석.
+              </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* CTA - minimal */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-900">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-2xl font-bold text-white mb-3">
+            첫 번째 거래를 기록하세요
+          </p>
+          <p className="text-sm text-slate-500 mb-8">무료. 설치 없음. 바로 시작.</p>
+          <Link
+            href="/journal"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-white text-slate-900 font-semibold rounded-lg hover:bg-slate-100 transition-colors text-sm"
+          >
+            시작하기
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center">
-              <div className="flex justify-center items-center mb-4">
-                <TrendingUp className="w-8 h-8 text-emerald-500 mr-2" />
-                <span className="text-2xl font-bold">Trading Journal</span>
-              </div>
-              <p className="text-gray-400 mb-6">
-                스마트한 투자를 위한 필수 도구
-              </p>
-              <div className="flex justify-center space-x-6 text-sm text-gray-400">
-                <Link href="/journal" className="hover:text-white transition-colors">
-                  서비스 이용
-                </Link>
-                <a href="#" className="hover:text-white transition-colors">
-                  문의하기
-                </a>
-                <a href="#" className="hover:text-white transition-colors">
-                  개인정보처리방침
-                </a>
-              </div>
-            </div>
+      <footer className="w-full px-4 sm:px-6 lg:px-8 py-6 border-t border-slate-900">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="text-xs font-medium text-slate-600">Trading Note</span>
+          <div className="flex items-center gap-6 text-xs text-slate-700">
+            <Link href="/journal" className="hover:text-slate-400 transition-colors">서비스</Link>
+            <Link href="/dashboard" className="hover:text-slate-400 transition-colors">대시보드</Link>
           </div>
         </div>
       </footer>

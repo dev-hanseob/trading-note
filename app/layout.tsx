@@ -1,16 +1,10 @@
-// ✅ 1. layout.tsx 수정
-
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Manrope } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
-import AdBanner from '@/components/AdBanner';
+import { ToastProvider } from '@/components/Toast';
 
-
-
-
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'Trading Note',
@@ -19,25 +13,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="ko" suppressHydrationWarning className="overflow-x-hidden">
+        <html lang="ko" suppressHydrationWarning className="dark overflow-x-hidden">
         <body
             className={`
-                    ${geistSans.variable} 
-                    ${geistMono.variable} 
-                    font-sans antialiased 
-                    bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100
-                    m-0 p-0 overflow-x-hidden
-                `}
+                ${manrope.variable}
+                font-sans antialiased
+                bg-slate-950 text-slate-100
+                m-0 p-0 overflow-x-hidden
+            `}
         >
+        <ToastProvider>
         <Header />
-
-        {/* ✅ 포탈용 컨테이너 추가 */}
-        <div id="modal-root"></div>
-
-        {/* 메인 콘텐츠 컨테이너 */}
+        <div id="modal-root" />
         <div className="w-full">
             {children}
         </div>
+        </ToastProvider>
         </body>
         </html>
     );

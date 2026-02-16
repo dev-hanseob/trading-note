@@ -24,6 +24,7 @@ type WizardStep = 'asset' | 'basic' | 'trading' | 'profit' | 'review';
 
 export default function JournalRegisterModal({ onClose, onSuccessAction, editTarget }: Props) {
     const [currentStep, setCurrentStep] = useState<WizardStep>('asset');
+    const [isQuickMode, setIsQuickMode] = useState(!editTarget); // Quick mode by default for new entries
     // Form states
     const [assetType, setAssetType] = useState<AssetType>(AssetType.CRYPTO);
     const [currency, setCurrency] = useState<'KRW' | 'USD' | 'USDT' | 'USDC'>('KRW');
@@ -240,8 +241,8 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
     const canProceed = (): boolean => {
         switch (currentStep) {
             case 'asset': return true; // Always can proceed from asset selection
-            case 'basic': return date && symbol.trim().length > 0;
-            case 'trading': return quantity && parseFloat(quantity) > 0 && getPrice() > 0 && getInvestment() > 0;
+            case 'basic': return !!date && symbol.trim().length > 0;
+            case 'trading': return !!quantity && parseFloat(quantity) > 0 && getPrice() > 0 && getInvestment() > 0;
             case 'profit': return true; // Can proceed even with 0 profit
             case 'review': return true;
             default: return false;
@@ -249,7 +250,16 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
     };
 
     const handleSubmit = async () => {
-        if (!validateCurrentStep()) return;
+        if (isQuickMode) {
+            const quickErrors: Record<string, string> = {};
+            if (!date) quickErrors.date = '날짜를 선택해주세요';
+            if (!symbol.trim()) quickErrors.symbol = '종목을 입력해주세요';
+            if (quickErrors.date || quickErrors.symbol) {
+                setErrors(quickErrors);
+                return;
+            }
+        }
+        if (!isQuickMode && !validateCurrentStep()) return;
         
         setIsSubmitting(true);
         const data: addJournalRequest = {
@@ -293,26 +303,26 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                     const isActive = index === currentStepIndex;
                     const isCompleted = index < currentStepIndex;
                     const StepIcon = step.icon;
-                    
+
                     return (
                         <div key={step.key} className="flex flex-col items-center flex-1">
                             <div className={`
-                                w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 mb-1 sm:mb-2
-                                ${isActive 
-                                    ? 'bg-emerald-500 text-white shadow-lg scale-110' 
-                                    : isCompleted 
-                                        ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' 
-                                        : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
+                                w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-300 mb-1 sm:mb-2
+                                ${isActive
+                                    ? 'bg-emerald-600 text-white'
+                                    : isCompleted
+                                        ? 'bg-emerald-900/30 text-emerald-400'
+                                        : 'bg-slate-800 text-slate-600'
                                 }
                             `}>
                                 {isCompleted ? (
-                                    <Check className="w-4 h-4 sm:w-6 sm:h-6" />
+                                    <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                                 ) : (
-                                    <StepIcon className="w-4 h-4 sm:w-6 sm:h-6" />
+                                    <StepIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                                 )}
                             </div>
                             <span className={`text-[10px] sm:text-xs font-medium text-center leading-tight ${
-                                isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'
+                                isActive ? 'text-emerald-400' : 'text-slate-500'
                             }`}>
                                 {step.title}
                             </span>
@@ -320,9 +330,9 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                     );
                 })}
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 sm:h-2">
-                <div 
-                    className="bg-emerald-500 h-1.5 sm:h-2 rounded-full transition-all duration-300"
+            <div className="w-full bg-slate-800 rounded-full h-1">
+                <div
+                    className="bg-emerald-500 h-1 rounded-full transition-all duration-300"
                     style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
                 />
             </div>
@@ -348,32 +358,269 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-2xl h-[95vh] sm:max-h-[90vh] sm:h-auto flex flex-col shadow-2xl mx-2 sm:mx-0"
+                    className="bg-slate-900 rounded-xl w-full max-w-2xl h-[95vh] sm:max-h-[90vh] sm:h-auto flex flex-col border border-slate-800 mx-2 sm:mx-0"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-4 sm:p-6 text-white flex-shrink-0">
-                        <div className="flex justify-between items-center mb-3 sm:mb-4">
-                            <h2 className="text-lg sm:text-xl font-bold">
+                    <div className="p-4 sm:p-6 border-b border-slate-800 flex-shrink-0">
+                        <div className="flex justify-between items-center mb-2">
+                            <h2 className="text-lg sm:text-xl font-bold text-white">
                                 {editTarget ? '매매일지 수정' : '새 거래 등록'}
                             </h2>
-                            <button 
-                                onClick={onClose} 
-                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                            <button
+                                onClick={onClose}
+                                className="p-2 hover:bg-slate-800 rounded-md transition-colors text-slate-400 hover:text-white"
                             >
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
-                        <div className="text-emerald-100">
-                            <h3 className="font-semibold text-sm sm:text-base">{steps[currentStepIndex].title}</h3>
-                            <p className="text-xs sm:text-sm opacity-90">{steps[currentStepIndex].description}</p>
-                        </div>
+                        {!editTarget && (
+                          <div className="flex items-center gap-2 mt-3">
+                            <button
+                              onClick={() => setIsQuickMode(false)}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                !isQuickMode ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              상세 입력
+                            </button>
+                            <button
+                              onClick={() => setIsQuickMode(true)}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                isQuickMode ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              퀵 엔트리
+                            </button>
+                          </div>
+                        )}
+                        {!isQuickMode && (
+                          <div>
+                            <h3 className="font-medium text-sm text-emerald-500">{steps[currentStepIndex].title}</h3>
+                            <p className="text-xs text-slate-500">{steps[currentStepIndex].description}</p>
+                          </div>
+                        )}
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6 modal-content-scrollable">
+                      {isQuickMode ? (
+                        <div className="space-y-4">
+                          {/* Asset Type Toggle */}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setAssetType(AssetType.CRYPTO)}
+                              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                                assetType === AssetType.CRYPTO ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                              }`}
+                            >
+                              암호화폐
+                            </button>
+                            <button
+                              onClick={() => setAssetType(AssetType.STOCK)}
+                              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                                assetType === AssetType.STOCK ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                              }`}
+                            >
+                              주식
+                            </button>
+                          </div>
+
+                          {/* Date + Symbol row */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">거래일</label>
+                              <input
+                                type="date"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:border-emerald-500 focus:outline-none transition-colors"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">종목</label>
+                              <input
+                                value={symbol}
+                                onChange={(e) => setSymbol(e.target.value)}
+                                placeholder={assetType === AssetType.CRYPTO ? 'BTC' : '삼성전자'}
+                                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Trade Type + Currency */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">시장</label>
+                              <div className="flex gap-1.5">
+                                <button
+                                  onClick={() => { setTradeType(TradeType.SPOT); setPosition(null); }}
+                                  className={`flex-1 py-2 rounded-md text-xs font-medium transition-colors ${
+                                    tradeType === TradeType.SPOT ? 'bg-slate-700 text-white' : 'bg-slate-800/50 text-slate-500'
+                                  }`}
+                                >
+                                  현물
+                                </button>
+                                <button
+                                  onClick={() => setTradeType(TradeType.FUTURE)}
+                                  className={`flex-1 py-2 rounded-md text-xs font-medium transition-colors ${
+                                    tradeType === TradeType.FUTURE ? 'bg-slate-700 text-white' : 'bg-slate-800/50 text-slate-500'
+                                  }`}
+                                >
+                                  선물
+                                </button>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">화폐</label>
+                              <select
+                                value={currency}
+                                onChange={(e) => setCurrency(e.target.value as any)}
+                                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:border-emerald-500 focus:outline-none transition-colors appearance-none cursor-pointer"
+                              >
+                                <option value="KRW">KRW</option>
+                                <option value="USD">USD</option>
+                                <option value="USDT">USDT</option>
+                                <option value="USDC">USDC</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Position + Leverage (only for futures) */}
+                          {tradeType === TradeType.FUTURE && (
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">포지션</label>
+                                <div className="flex gap-1.5">
+                                  <button
+                                    onClick={() => setPosition(PositionType.LONG)}
+                                    className={`flex-1 py-2 rounded-md text-xs font-medium transition-colors ${
+                                      position === PositionType.LONG ? 'bg-emerald-600 text-white' : 'bg-slate-800/50 text-slate-500'
+                                    }`}
+                                  >
+                                    LONG
+                                  </button>
+                                  <button
+                                    onClick={() => setPosition(PositionType.SHORT)}
+                                    className={`flex-1 py-2 rounded-md text-xs font-medium transition-colors ${
+                                      position === PositionType.SHORT ? 'bg-red-600 text-white' : 'bg-slate-800/50 text-slate-500'
+                                    }`}
+                                  >
+                                    SHORT
+                                  </button>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">레버리지</label>
+                                <input
+                                  type="number"
+                                  value={leverage}
+                                  onChange={(e) => setLeverage(e.target.value)}
+                                  placeholder="10"
+                                  className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors"
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Quantity + Price */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">수량</label>
+                              <input
+                                type="number"
+                                step="any"
+                                value={quantity}
+                                onChange={(e) => setQuantity(e.target.value)}
+                                placeholder="0.5"
+                                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">단가</label>
+                              <input
+                                type="text"
+                                value={priceDisplay}
+                                onChange={(e) => setPriceDisplay(formatNumber(e.target.value))}
+                                placeholder="50,000"
+                                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white text-right placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors tabular-nums"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Investment */}
+                          <div>
+                            <label className="block text-xs font-medium text-slate-400 mb-1.5">투자금 ({currency})</label>
+                            <input
+                              type="text"
+                              value={investmentDisplay}
+                              onChange={(e) => setInvestmentDisplay(formatNumber(e.target.value))}
+                              placeholder="1,000,000"
+                              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white text-right placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors tabular-nums"
+                            />
+                          </div>
+
+                          {/* Profit + ROI */}
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="col-span-2">
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">손익 ({currency})</label>
+                              <input
+                                type="text"
+                                value={profitDisplay}
+                                onChange={(e) => {
+                                  setActiveCalculation('roi');
+                                  setProfitDisplay(formatNumber(e.target.value));
+                                }}
+                                placeholder="+100,000"
+                                className={`w-full px-3 py-2.5 bg-slate-800 border rounded-lg text-sm text-right font-medium tabular-nums focus:outline-none transition-colors ${
+                                  getProfit() > 0 ? 'border-emerald-700 text-emerald-400' : getProfit() < 0 ? 'border-red-700 text-red-400' : 'border-slate-700 text-white'
+                                }`}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">ROI %</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={roi}
+                                onChange={(e) => {
+                                  setActiveCalculation('profit');
+                                  setRoi(Number(e.target.value));
+                                }}
+                                placeholder="3.2"
+                                className={`w-full px-3 py-2.5 bg-slate-800 border rounded-lg text-sm text-right font-medium tabular-nums focus:outline-none transition-colors ${
+                                  roi > 0 ? 'border-emerald-700 text-emerald-400' : roi < 0 ? 'border-red-700 text-red-400' : 'border-slate-700 text-white'
+                                }`}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Memo */}
+                          <div>
+                            <label className="block text-xs font-medium text-slate-400 mb-1.5">메모 (선택)</label>
+                            <textarea
+                              value={memo}
+                              onChange={(e) => setMemo(e.target.value)}
+                              rows={2}
+                              placeholder="간단한 메모..."
+                              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+                            />
+                          </div>
+
+                          {/* Submit Error */}
+                          {errors.submit && (
+                            <div className="p-3 bg-red-900/20 rounded-lg border border-red-800">
+                              <p className="text-sm text-red-400 flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4" />
+                                {errors.submit}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <>
                         <ProgressBar />
                         
                         {/* Step Content */}
@@ -389,10 +636,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 >
                                     <div className="text-center mb-8">
                                         <div className="text-6xl mb-4">🎯</div>
-                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        <h3 className="text-xl font-semibold text-white mb-2">
                                             거래한 자산을 선택해주세요
                                         </h3>
-                                        <p className="text-gray-600 dark:text-gray-400">
+                                        <p className="text-slate-400">
                                             암호화폐와 주식 중 어떤 자산을 거래했나요?
                                         </p>
                                     </div>
@@ -407,14 +654,14 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                             }}
                                             className={`p-6 rounded-xl border-2 transition-all duration-300 ${
                                                 assetType === AssetType.CRYPTO
-                                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
-                                                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                                                    ? 'border-blue-500 bg-blue-900/20'
+                                                    : 'border-slate-700 hover:border-blue-600'
                                             }`}
                                         >
                                             <div className="flex flex-col items-center">
                                                 <Bitcoin className="w-12 h-12 mb-3 text-orange-500" />
                                                 <h4 className="font-semibold text-lg mb-1">암호화폐</h4>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                                                <p className="text-sm text-slate-400 text-center">
                                                     비트코인, 이더리움 등<br />디지털 자산
                                                 </p>
                                             </div>
@@ -429,14 +676,14 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                             }}
                                             className={`p-6 rounded-xl border-2 transition-all duration-300 ${
                                                 assetType === AssetType.STOCK
-                                                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 shadow-lg'
-                                                    : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600'
+                                                    ? 'border-emerald-500 bg-emerald-900/20'
+                                                    : 'border-slate-700 hover:border-emerald-600'
                                             }`}
                                         >
                                             <div className="flex flex-col items-center">
                                                 <TrendingUp className="w-12 h-12 mb-3 text-emerald-500" />
                                                 <h4 className="font-semibold text-lg mb-1">주식</h4>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                                                <p className="text-sm text-slate-400 text-center">
                                                     국내외 주식,<br />ETF 등
                                                 </p>
                                             </div>
@@ -456,27 +703,27 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 >
                                     <div className="text-center mb-6">
                                         <Calendar className="w-16 h-16 mx-auto mb-3 text-emerald-500" />
-                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        <h3 className="text-xl font-semibold text-white mb-2">
                                             거래 기본 정보
                                         </h3>
-                                        <p className="text-gray-600 dark:text-gray-400">
+                                        <p className="text-slate-400">
                                             언제, 어떤 종목을 거래했는지 알려주세요
                                         </p>
                                     </div>
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 거래 날짜 <span className="text-red-500">*</span>
                                             </label>
                                             <input 
                                                 type="date" 
                                                 value={date} 
                                                 onChange={(e) => setDate(e.target.value)}
-                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white transition-colors ${
+                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white transition-colors ${
                                                     errors.date 
                                                         ? 'border-red-500 focus:border-red-600' 
-                                                        : 'border-gray-200 dark:border-gray-700 focus:border-emerald-500'
+                                                        : 'border-slate-700 focus:border-emerald-500'
                                                 }`}
                                             />
                                             {errors.date && (
@@ -488,17 +735,17 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 종목명 <span className="text-red-500">*</span>
                                             </label>
                                             <input 
                                                 value={symbol} 
                                                 onChange={(e) => setSymbol(e.target.value)} 
                                                 placeholder={assetType === AssetType.CRYPTO ? "예: BTC, ETH, ADA" : "예: 삼성전자, TSLA, AAPL"}
-                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white transition-colors ${
+                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white transition-colors ${
                                                     errors.symbol 
                                                         ? 'border-red-500 focus:border-red-600' 
-                                                        : 'border-gray-200 dark:border-gray-700 focus:border-emerald-500'
+                                                        : 'border-slate-700 focus:border-emerald-500'
                                                 }`}
                                             />
                                             {errors.symbol && (
@@ -507,8 +754,8 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                     {errors.symbol}
                                                 </p>
                                             )}
-                                            <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                                <p className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                                            <div className="mt-2 p-3 bg-blue-900/20 rounded-lg">
+                                                <p className="text-sm text-blue-400 flex items-center gap-2">
                                                     <HelpCircle className="w-4 h-4" />
                                                     {assetType === AssetType.CRYPTO 
                                                         ? "암호화폐의 경우 'BTC', 'ETH' 같은 심볼로 입력하세요"
@@ -519,12 +766,12 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 시장 타입
                                             </label>
                                             <Listbox value={tradeType} onChange={setTradeType}>
                                                 <div className="relative">
-                                                    <Listbox.Button className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white text-left hover:border-emerald-500 transition-colors">
+                                                    <Listbox.Button className="w-full px-4 py-3 border border-slate-700 rounded-xl text-sm bg-slate-800 text-white text-left hover:border-emerald-500 transition-colors">
                                                         <span className="flex items-center gap-2">
                                                             {tradeType === TradeType.SPOT ? (
                                                                 <Target className="w-4 h-4 text-blue-500" />
@@ -534,14 +781,14 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                             {TradeTypeLabel[tradeType]}
                                                         </span>
                                                     </Listbox.Button>
-                                                    <Listbox.Options className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-auto">
+                                                    <Listbox.Options className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-slate-700 rounded-xl shadow-lg max-h-48 overflow-auto">
                                                         {Object.values(TradeType).map((option) => (
                                                             <Listbox.Option
                                                                 key={option}
                                                                 value={option}
                                                                 className={({ active }) =>
                                                                     `cursor-pointer select-none px-4 py-3 flex items-center gap-2 ${
-                                                                        active ? 'bg-emerald-500 text-white' : 'text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                                        active ? 'bg-emerald-500 text-white' : 'text-white hover:bg-slate-700'
                                                                     }`
                                                                 }
                                                             >
@@ -559,25 +806,25 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 화폐 단위
                                             </label>
                                             <Listbox value={currency} onChange={setCurrency}>
                                                 <div className="relative">
-                                                    <Listbox.Button className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white text-left hover:border-emerald-500 transition-colors">
+                                                    <Listbox.Button className="w-full px-4 py-3 border border-slate-700 rounded-xl text-sm bg-slate-800 text-white text-left hover:border-emerald-500 transition-colors">
                                                         <span className="flex items-center gap-2">
                                                             <DollarSign className="w-4 h-4 text-green-500" />
                                                             {currency}
                                                         </span>
                                                     </Listbox.Button>
-                                                    <Listbox.Options className="absolute z-50 w-full bottom-full mb-1 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-auto">
+                                                    <Listbox.Options className="absolute z-50 w-full bottom-full mb-1 bg-white dark:bg-gray-800 border border-slate-700 rounded-xl shadow-lg max-h-48 overflow-auto">
                                                         {['KRW', 'USD', 'USDT', 'USDC'].map((option) => (
                                                             <Listbox.Option
                                                                 key={option}
                                                                 value={option}
                                                                 className={({ active }) =>
                                                                     `cursor-pointer select-none px-4 py-3 flex items-center gap-2 ${
-                                                                        active ? 'bg-emerald-500 text-white' : 'text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                                        active ? 'bg-emerald-500 text-white' : 'text-white hover:bg-slate-700'
                                                                     }`
                                                                 }
                                                             >
@@ -604,17 +851,17 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 >
                                     <div className="text-center mb-6">
                                         <Coins className="w-16 h-16 mx-auto mb-3 text-emerald-500" />
-                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        <h3 className="text-xl font-semibold text-white mb-2">
                                             거래 상세 정보
                                         </h3>
-                                        <p className="text-gray-600 dark:text-gray-400">
+                                        <p className="text-slate-400">
                                             거래 수량과 가격 정보를 입력해주세요
                                         </p>
                                     </div>
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 거래 수량 <span className="text-red-500">*</span>
                                             </label>
                                             <input 
@@ -623,10 +870,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                 value={quantity} 
                                                 onChange={(e) => setQuantity(e.target.value)} 
                                                 placeholder={assetType === AssetType.CRYPTO ? "예: 0.5, 1.25" : "예: 10, 100"}
-                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white transition-colors ${
+                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white transition-colors ${
                                                     errors.quantity 
                                                         ? 'border-red-500 focus:border-red-600' 
-                                                        : 'border-gray-200 dark:border-gray-700 focus:border-emerald-500'
+                                                        : 'border-slate-700 focus:border-emerald-500'
                                                 }`}
                                             />
                                             {errors.quantity && (
@@ -638,7 +885,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 단가 ({currency}) <span className="text-red-500">*</span>
                                             </label>
                                             <input
@@ -648,10 +895,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                     setPriceDisplay(formatNumber(e.target.value));
                                                 }}
                                                 placeholder="예: 50,000,000"
-                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white text-right transition-colors ${
+                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white text-right transition-colors ${
                                                     errors.price 
                                                         ? 'border-red-500 focus:border-red-600' 
-                                                        : 'border-gray-200 dark:border-gray-700 focus:border-emerald-500'
+                                                        : 'border-slate-700 focus:border-emerald-500'
                                                 }`}
                                             />
                                             {errors.price && (
@@ -663,7 +910,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 총 투자금 ({currency}) <span className="text-red-500">*</span>
                                             </label>
                                             <input
@@ -673,10 +920,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                     setInvestmentDisplay(formatNumber(e.target.value));
                                                 }}
                                                 placeholder="예: 1,000,000"
-                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white text-right transition-colors ${
+                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white text-right transition-colors ${
                                                     errors.investment 
                                                         ? 'border-red-500 focus:border-red-600' 
-                                                        : 'border-gray-200 dark:border-gray-700 focus:border-emerald-500'
+                                                        : 'border-slate-700 focus:border-emerald-500'
                                                 }`}
                                             />
                                             {errors.investment && (
@@ -690,12 +937,12 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         {tradeType === TradeType.FUTURE && (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                                    <label className="block text-sm font-medium text-slate-200 mb-2">
                                                         포지션 <span className="text-red-500">*</span>
                                                     </label>
                                                     <Listbox value={position} onChange={setPosition}>
                                                         <div className="relative">
-                                                            <Listbox.Button className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white text-left transition-colors ${
+                                                            <Listbox.Button className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white text-left transition-colors ${
                                                                 errors.position 
                                                                     ? 'border-red-500' 
                                                                     : 'border-gray-200 dark:border-gray-700 hover:border-emerald-500'
@@ -711,14 +958,14 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                                     {position ? PositionTypeLabel[position] : '포지션 선택'}
                                                                 </span>
                                                             </Listbox.Button>
-                                                            <Listbox.Options className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-auto">
+                                                            <Listbox.Options className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-slate-700 rounded-xl shadow-lg max-h-48 overflow-auto">
                                                                 {Object.values(PositionType).map((option) => (
                                                                     <Listbox.Option
                                                                         key={option}
                                                                         value={option}
                                                                         className={({ active }) =>
                                                                             `cursor-pointer select-none px-4 py-3 flex items-center gap-2 ${
-                                                                                active ? 'bg-emerald-500 text-white' : 'text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                                                active ? 'bg-emerald-500 text-white' : 'text-white hover:bg-slate-700'
                                                                             }`
                                                                         }
                                                                     >
@@ -742,7 +989,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                 </div>
 
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                                    <label className="block text-sm font-medium text-slate-200 mb-2">
                                                         레버리지 (배)
                                                     </label>
                                                     <input
@@ -750,10 +997,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                         value={leverage || ''}
                                                         onChange={(e) => setLeverage(e.target.value)}
                                                         placeholder="예: 10, 20"
-                                                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white focus:border-emerald-500 transition-colors"
+                                                        className="w-full px-4 py-3 border border-slate-700 rounded-xl text-sm bg-slate-800 text-white focus:border-emerald-500 transition-colors"
                                                     />
-                                                    <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                                                        <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
+                                                    <div className="mt-2 p-3 bg-yellow-900/20 rounded-lg">
+                                                        <p className="text-sm text-yellow-400 flex items-center gap-2">
                                                             <AlertCircle className="w-4 h-4" />
                                                             높은 레버리지는 높은 위험을 수반합니다
                                                         </p>
@@ -776,17 +1023,17 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 >
                                     <div className="text-center mb-6">
                                         <TrendingUp className="w-16 h-16 mx-auto mb-3 text-emerald-500" />
-                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        <h3 className="text-xl font-semibold text-white mb-2">
                                             손익 정보
                                         </h3>
-                                        <p className="text-gray-600 dark:text-gray-400">
+                                        <p className="text-slate-400">
                                             거래 결과를 입력해주세요
                                         </p>
                                     </div>
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 실현 손익 ({currency})
                                             </label>
                                             <input
@@ -797,13 +1044,13 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                     setProfitDisplay(formatNumber(e.target.value));
                                                 }}
                                                 placeholder="예: +100,000 또는 -50,000"
-                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white text-right transition-colors font-medium ${
+                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white text-right transition-colors font-medium ${
                                                     getProfit() >= 0 
                                                         ? 'text-emerald-600 border-emerald-200 dark:border-emerald-700 focus:border-emerald-500' 
                                                         : 'text-red-600 border-red-200 dark:border-red-700 focus:border-red-500'
                                                 }`}
                                             />
-                                            <div className="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
                                                 <HelpCircle className="w-4 h-4" />
                                                 손실인 경우 마이너스(-) 기호를 포함해서 입력하세요
                                             </div>
@@ -816,7 +1063,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 수익률 (%)
                                             </label>
                                             <input
@@ -828,7 +1075,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                     setRoi(Number(e.target.value));
                                                 }}
                                                 placeholder="예: 3.25 또는 -1.50"
-                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white text-right transition-colors font-medium ${
+                                                className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-800 text-white text-right transition-colors font-medium ${
                                                     roi >= 0 
                                                         ? 'text-emerald-600 border-emerald-200 dark:border-emerald-700 focus:border-emerald-500' 
                                                         : 'text-red-600 border-red-200 dark:border-red-700 focus:border-red-500'
@@ -838,21 +1085,21 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
 
                                         {/* Real-time calculation display */}
                                         {(getProfit() !== 0 || roi !== 0) && (
-                                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                                                <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">계산 결과</div>
+                                            <div className="p-4 bg-slate-800/50 rounded-lg">
+                                                <div className="text-sm font-medium text-slate-200 mb-2">계산 결과</div>
                                                 <div className="space-y-1 text-sm">
                                                     <div className="flex justify-between">
-                                                        <span className="text-gray-600 dark:text-gray-400">투자금:</span>
+                                                        <span className="text-slate-400">투자금:</span>
                                                         <span className="font-medium">{investmentDisplay} {currency}</span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-gray-600 dark:text-gray-400">손익:</span>
+                                                        <span className="text-slate-400">손익:</span>
                                                         <span className={`font-medium ${getProfit() >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                                             {getProfit() > 0 ? '+' : ''}{profitDisplay} {currency}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-gray-600 dark:text-gray-400">수익률:</span>
+                                                        <span className="text-slate-400">수익률:</span>
                                                         <span className={`font-medium ${roi >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                                             {roi > 0 ? '+' : ''}{roi.toFixed(2)}%
                                                         </span>
@@ -862,7 +1109,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         )}
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                            <label className="block text-sm font-medium text-slate-200 mb-2">
                                                 메모 (선택사항)
                                             </label>
                                             <textarea 
@@ -870,7 +1117,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                 onChange={(e) => setMemo(e.target.value)} 
                                                 rows={3} 
                                                 placeholder="거래에 대한 메모나 분석을 자유롭게 작성하세요"
-                                                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white focus:border-emerald-500 transition-colors resize-none"
+                                                className="w-full px-4 py-3 border border-slate-700 rounded-xl text-sm bg-slate-800 text-white focus:border-emerald-500 transition-colors resize-none"
                                             />
                                         </div>
                                     </div>
@@ -888,55 +1135,55 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 >
                                     <div className="text-center mb-6">
                                         <Check className="w-16 h-16 mx-auto mb-3 text-emerald-500" />
-                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                        <h3 className="text-xl font-semibold text-white mb-2">
                                             정보 확인
                                         </h3>
-                                        <p className="text-gray-600 dark:text-gray-400">
+                                        <p className="text-slate-400">
                                             입력한 내용을 확인하고 저장하세요
                                         </p>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                                        <div className="bg-slate-800/50 p-6 rounded-lg border border-slate-700">
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div>
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400">자산 유형</span>
-                                                    <p className="text-gray-900 dark:text-white">{assetType === AssetType.CRYPTO ? '암호화폐' : '주식'}</p>
+                                                    <span className="font-medium text-slate-400">자산 유형</span>
+                                                    <p className="text-white">{assetType === AssetType.CRYPTO ? '암호화폐' : '주식'}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400">종목</span>
-                                                    <p className="text-gray-900 dark:text-white">{symbol}</p>
+                                                    <span className="font-medium text-slate-400">종목</span>
+                                                    <p className="text-white">{symbol}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400">거래일</span>
-                                                    <p className="text-gray-900 dark:text-white">{date}</p>
+                                                    <span className="font-medium text-slate-400">거래일</span>
+                                                    <p className="text-white">{date}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400">시장</span>
-                                                    <p className="text-gray-900 dark:text-white">{TradeTypeLabel[tradeType]}</p>
+                                                    <span className="font-medium text-slate-400">시장</span>
+                                                    <p className="text-white">{TradeTypeLabel[tradeType]}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400">수량</span>
-                                                    <p className="text-gray-900 dark:text-white">{quantity}</p>
+                                                    <span className="font-medium text-slate-400">수량</span>
+                                                    <p className="text-white">{quantity}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400">단가</span>
-                                                    <p className="text-gray-900 dark:text-white">{priceDisplay} {currency}</p>
+                                                    <span className="font-medium text-slate-400">단가</span>
+                                                    <p className="text-white">{priceDisplay} {currency}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400">투자금</span>
-                                                    <p className="text-gray-900 dark:text-white">{investmentDisplay} {currency}</p>
+                                                    <span className="font-medium text-slate-400">투자금</span>
+                                                    <p className="text-white">{investmentDisplay} {currency}</p>
                                                 </div>
                                                 {tradeType === TradeType.FUTURE && position && (
                                                     <div>
-                                                        <span className="font-medium text-gray-600 dark:text-gray-400">포지션</span>
-                                                        <p className="text-gray-900 dark:text-white">{PositionTypeLabel[position]}</p>
+                                                        <span className="font-medium text-slate-400">포지션</span>
+                                                        <p className="text-white">{PositionTypeLabel[position]}</p>
                                                     </div>
                                                 )}
                                                 {tradeType === TradeType.FUTURE && leverage && (
                                                     <div>
-                                                        <span className="font-medium text-gray-600 dark:text-gray-400">레버리지</span>
-                                                        <p className="text-gray-900 dark:text-white">{leverage}배</p>
+                                                        <span className="font-medium text-slate-400">레버리지</span>
+                                                        <p className="text-white">{leverage}배</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -944,8 +1191,8 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
 
                                         <div className={`p-6 rounded-xl border-2 ${
                                             getProfit() >= 0 
-                                                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700' 
-                                                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
+                                                ? 'bg-emerald-900/20 border-emerald-800'
+                                                : 'bg-red-900/20 border-red-800'
                                         }`}>
                                             <div className="text-center">
                                                 <div className={`text-3xl font-bold mb-2 ${
@@ -962,14 +1209,14 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                         </div>
 
                                         {memo && (
-                                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                                                <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">메모</div>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{memo}</p>
+                                            <div className="p-4 bg-slate-800/50 rounded-lg">
+                                                <div className="text-sm font-medium text-slate-200 mb-2">메모</div>
+                                                <p className="text-sm text-slate-400 whitespace-pre-wrap">{memo}</p>
                                             </div>
                                         )}
 
                                         {errors.submit && (
-                                            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-700">
+                                            <div className="p-4 bg-red-900/20 rounded-lg border border-red-800">
                                                 <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
                                                     <AlertCircle className="w-4 h-4" />
                                                     {errors.submit}
@@ -980,18 +1227,46 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 </motion.div>
                             )}
                         </AnimatePresence>
+                        </>
+                      )}
                     </div>
 
                     {/* Navigation Footer */}
-                    <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                    <div className="p-4 sm:p-6 bg-slate-950/50 border-t border-slate-800 flex-shrink-0">
+                      {isQuickMode ? (
+                        <div className="flex justify-end items-center gap-2 sm:gap-3">
+                          <button onClick={onClose} className="px-3 sm:px-4 py-2 text-slate-400 hover:text-slate-200 font-medium transition-colors text-sm">
+                            취소
+                          </button>
+                          <button
+                            onClick={handleSubmit}
+                            disabled={isSubmitting || !symbol.trim() || !date}
+                            className={`btn-trendy-primary flex items-center gap-2 text-sm px-4 sm:px-6 py-2 sm:py-3 ${
+                              (isSubmitting || !symbol.trim() || !date) ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                          >
+                            {isSubmitting ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                저장 중...
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-4 h-4" />
+                                {editTarget ? '수정 완료' : '저장'}
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      ) : (
                         <div className="flex justify-between items-center">
                             <button
                                 onClick={goToPreviousStep}
                                 disabled={isFirstStep}
                                 className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium transition-all text-sm sm:text-base ${
                                     isFirstStep
-                                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                        ? 'text-slate-600 cursor-not-allowed'
+                                        : 'text-slate-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                                 }`}
                             >
                                 <ArrowLeft className="w-4 h-4" />
@@ -1001,11 +1276,11 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <button
                                     onClick={onClose}
-                                    className="px-3 sm:px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors text-sm sm:text-base"
+                                    className="px-3 sm:px-4 py-2 text-slate-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors text-sm sm:text-base"
                                 >
                                     취소
                                 </button>
-                                
+
                                 {isLastStep ? (
                                     <button
                                         onClick={handleSubmit}
@@ -1040,6 +1315,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 )}
                             </div>
                         </div>
+                      )}
                     </div>
                 </motion.div>
             </motion.div>

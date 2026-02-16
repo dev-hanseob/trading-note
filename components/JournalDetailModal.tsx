@@ -1,85 +1,180 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import {AnimatePresence, motion} from 'framer-motion';
+import Image from 'next/image';
 import {
-    X, Edit, Trash2, Copy, TrendingUp, TrendingDown, 
-    Calendar, DollarSign, BarChart3, Target, Clock,
-    Activity, Zap, Award, AlertCircle, Check
+    X, Edit, Trash2, Copy, TrendingUp, TrendingDown,
+    ChevronLeft, ChevronRight, Check, ImageIcon
 } from 'lucide-react';
 import {Journal} from "@/type/domain/journal";
-import {TradeType, TradeTypeLabel, PositionTypeLabel} from "@/type/domain/journal.enum";
+import {TradeType, TradeTypeLabel, PositionTypeLabel, AssetTypeLabel} from "@/type/domain/journal.enum";
 import {formatDistanceToNow} from 'date-fns';
 import {ko} from 'date-fns/locale';
 
 interface Props {
     journal: Journal;
+    journals?: Journal[];
+    currentIndex?: number;
     onClose: () => void;
     onEdit: () => void;
     onDelete: () => void;
+    onNavigate?: (journal: Journal) => void;
     totalSeed?: number;
 }
 
-export default function JournalDetailModal({ journal, onClose, onEdit, onDelete, totalSeed = 0 }: Props) {
+// Try to parse memo as structured JSON from TradeEntryForm
+interface ParsedMemo {
+    isStructured: boolean;
+    narrative?: string;
+    timeframes?: string[];
+    keyLevels?: string;
+    riskManagement?: string;
+    rawText: string;
+}
+
+function parseMemo(memo: string): ParsedMemo {
+    if (!memo) return {isStructured: false, rawText: ''};
+
+    try {
+        const parsed = JSON.parse(memo);
+        if (typeof parsed === 'object' && parsed !== null) {
+            return {
+                isStructured: true,
+                narrative: parsed.narrative || parsed.memo || parsed.notes || '',
+                timeframes: parsed.timeframes || [],
+                keyLevels: parsed.keyLevels || parsed.key_levels || '',
+                riskManagement: parsed.riskManagement || parsed.risk_management || '',
+                rawText: memo,
+            };
+        }
+    } catch {
+        // Not JSON, treat as plain text
+    }
+
+    return {isStructured: false, rawText: memo};
+}
+
+function formatTradeDateFull(dateStr: string): string {
+    try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}.${m}.${d}`;
+    } catch {
+        return dateStr;
+    }
+}
+
+export default function JournalDetailModal({
+    journal,
+    journals,
+    currentIndex,
+    onClose,
+    onEdit,
+    onDelete,
+    onNavigate,
+    totalSeed = 0
+}: Props) {
     const [showCopyToast, setShowCopyToast] = useState(false);
     const [copiedText, setCopiedText] = useState('');
-    
+    const [showFullImage, setShowFullImage] = useState(false);
+
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
-                onClose();
+                if (showFullImage) {
+                    setShowFullImage(false);
+                } else {
+                    onClose();
+                }
             }
         };
-        
+
+        // Arrow key navigation
+        const handleArrowKeys = (e: KeyboardEvent) => {
+            if (showFullImage) return;
+            if (!journals || !onNavigate || currentIndex === undefined) return;
+
+            if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                onNavigate(journals[currentIndex - 1]);
+            } else if (e.key === 'ArrowRight' && currentIndex < journals.length - 1) {
+                onNavigate(journals[currentIndex + 1]);
+            }
+        };
+
         document.body.classList.add('modal-open');
         window.addEventListener('keydown', handleEsc);
-        
+        window.addEventListener('keydown', handleArrowKeys);
+
         return () => {
             document.body.classList.remove('modal-open');
             window.removeEventListener('keydown', handleEsc);
+            window.removeEventListener('keydown', handleArrowKeys);
         };
-    }, [onClose]);
+    }, [onClose, journals, onNavigate, currentIndex, showFullImage]);
 
-    // 거래 중요도 계산
-    const getImportanceLevel = (): 'high' | 'medium' | 'normal' => {
-        const profitRatio = Math.abs(journal.profit) / Math.max(journal.investment, 1);
-        const roiAbs = Math.abs(journal.roi);
-        
-        if (profitRatio > 0.3 || roiAbs > 20) return 'high';
-        if (profitRatio > 0.1 || roiAbs > 5) return 'medium';
-        return 'normal';
-    };
-
-    // 상대적 시간 표시
     const getRelativeTime = () => {
         try {
-            return formatDistanceToNow(new Date(journal.tradedAt), { addSuffix: true, locale: ko });
+            return formatDistanceToNow(new Date(journal.tradedAt), {addSuffix: true, locale: ko});
         } catch {
             return journal.tradedAt;
         }
     };
 
-    // 시드 대비 비율
-    const getSeedRatio = () => {
+    const seedRatio = useMemo(() => {
         if (totalSeed <= 0) return 0;
         return (journal.investment / totalSeed) * 100;
-    };
+    }, [totalSeed, journal.investment]);
 
-    const importance = getImportanceLevel();
     const isProfit = journal.profit > 0;
-    const profitColor = isProfit ? 'emerald' : 'red';
-    const seedRatio = getSeedRatio();
+    const isLoss = journal.profit < 0;
+    const profitColor = isProfit ? 'emerald' : isLoss ? 'rose' : 'slate';
+
+    const parsedMemo = useMemo(() => parseMemo(journal.memo), [journal.memo]);
+
+    // Calculate R:R if stopLoss and takeProfit are available
+    const riskReward = useMemo(() => {
+        if (!journal.stopLoss || !journal.takeProfit || !journal.buyPrice) return null;
+        const risk = Math.abs(journal.buyPrice - journal.stopLoss);
+        const reward = Math.abs(journal.takeProfit - journal.buyPrice);
+        if (risk === 0) return null;
+        return reward / risk;
+    }, [journal.buyPrice, journal.stopLoss, journal.takeProfit]);
+
+    const maxLoss = useMemo(() => {
+        if (!journal.stopLoss || !journal.buyPrice) return null;
+        const qty = parseFloat(journal.quantity) || 0;
+        return Math.abs(journal.buyPrice - journal.stopLoss) * qty;
+    }, [journal.buyPrice, journal.stopLoss, journal.quantity]);
+
+    const canGoPrev = journals && currentIndex !== undefined && currentIndex > 0;
+    const canGoNext = journals && currentIndex !== undefined && currentIndex < journals.length - 1;
+
+    const handleCopy = async () => {
+        const textToCopy = `${journal.symbol} | ${journal.profit > 0 ? '+' : ''}${journal.profit.toLocaleString()}원 (${journal.roi > 0 ? '+' : ''}${journal.roi.toFixed(2)}%)`;
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            setCopiedText(textToCopy);
+            setShowCopyToast(true);
+            setTimeout(() => setShowCopyToast(false), 3000);
+        } catch (err) {
+            console.error('복사 실패:', err);
+        }
+    };
 
     const modalContent = (
         <AnimatePresence>
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-                style={{ zIndex: 999999, willChange: 'opacity' }}
+                initial={{opacity: 0}}
+                animate={{opacity: 1}}
+                exit={{opacity: 0}}
+                transition={{duration: 0.15}}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4"
+                style={{zIndex: 999999, willChange: 'opacity'}}
                 onMouseDown={(e) => {
                     if (e.target === e.currentTarget) {
                         onClose();
@@ -87,297 +182,427 @@ export default function JournalDetailModal({ journal, onClose, onEdit, onDelete,
                 }}
             >
                 <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl"
-                    style={{ willChange: 'transform, opacity' }}
+                    initial={{scale: 0.95, opacity: 0, y: 20}}
+                    animate={{scale: 1, opacity: 1, y: 0}}
+                    exit={{scale: 0.95, opacity: 0, y: 20}}
+                    transition={{duration: 0.15, ease: "easeOut"}}
+                    className="bg-slate-900 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-slate-800 flex flex-col"
+                    style={{willChange: 'transform, opacity'}}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {/* 헤더 */}
-                    <div className={`relative px-6 py-5 bg-gradient-to-r ${
-                        importance === 'high' 
-                            ? isProfit 
-                                ? 'from-emerald-600 via-teal-600 to-cyan-700' 
-                                : 'from-rose-600 via-red-600 to-pink-700'
-                            : importance === 'medium'
-                            ? isProfit 
-                                ? 'from-emerald-500 via-teal-500 to-green-600' 
-                                : 'from-rose-500 via-red-500 to-pink-600'
-                            : isProfit 
-                                ? 'from-slate-600 via-emerald-500 to-teal-600' 
-                                : 'from-slate-600 via-rose-500 to-red-600'
-                    } text-white`}>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-lg">
-                                    {isProfit ? (
-                                        <TrendingUp className="w-6 h-6" />
-                                    ) : (
-                                        <TrendingDown className="w-6 h-6" />
-                                    )}
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-bold">{journal.symbol}</h2>
-                                    <p className="text-white/80 text-sm">{TradeTypeLabel[journal.tradeType]} 거래</p>
-                                </div>
-                                {importance === 'high' && (
-                                    <div className="px-3 py-1 bg-white/25 rounded-full backdrop-blur-sm border border-white/20">
-                                        <span className="text-sm font-semibold flex items-center gap-1">
-                                            {isProfit ? <Zap className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                                            {isProfit ? '대박' : '주의'}
-                                        </span>
-                                    </div>
+                    {/* Header - clean, white, with actions */}
+                    <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <h2 className="text-xl font-bold text-white truncate">{journal.symbol}</h2>
+                                {journal.tradeType === TradeType.FUTURE && journal.position && (
+                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                                        journal.position === 'LONG'
+                                            ? 'bg-emerald-900/30 text-emerald-400'
+                                            : 'bg-red-900/30 text-red-400'
+                                    }`}>
+                                        {PositionTypeLabel[journal.position]}
+                                        {journal.leverage && journal.leverage > 1 ? ` ${journal.leverage}x` : ''}
+                                    </span>
+                                )}
+                                {journal.tradeType === TradeType.SPOT && (
+                                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 shrink-0">
+                                        현물
+                                    </span>
                                 )}
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={onEdit}
-                                    className="p-2 bg-white/15 hover:bg-white/25 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/30"
-                                >
-                                    <Edit className="w-5 h-5" />
-                                </button>
-                                <button
-                                    onClick={onDelete}
-                                    className="p-2 bg-white/15 hover:bg-white/25 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/30"
-                                >
-                                    <Trash2 className="w-5 h-5" />
-                                </button>
-                                <button
-                                    onClick={onClose}
-                                    className="p-2 bg-white/15 hover:bg-white/25 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/30"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
+                            <span className="text-sm text-slate-400 shrink-0 hidden sm:inline">
+                                {formatTradeDateFull(journal.tradedAt)}
+                                <span className="ml-1 text-slate-300">({getRelativeTime()})</span>
+                            </span>
                         </div>
-                        
-                        {/* 메인 손익 표시 */}
-                        <div className="mt-6 text-center">
-                            <div className="text-3xl sm:text-4xl font-bold mb-2">
-                                {journal.profit > 0 ? '+' : ''}{journal.profit.toLocaleString()}원
-                            </div>
-                            <div className="text-lg opacity-90">
-                                수익률: {journal.roi > 0 ? '+' : ''}{journal.roi.toFixed(2)}%
-                            </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                                onClick={onEdit}
+                                className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-200"
+                                title="수정"
+                            >
+                                <Edit size={18}/>
+                            </button>
+                            <button
+                                onClick={onDelete}
+                                className="p-2 hover:bg-red-900/20 rounded-lg transition-colors text-slate-400 hover:text-red-400"
+                                title="삭제"
+                            >
+                                <Trash2 size={18}/>
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-200"
+                                title="닫기"
+                            >
+                                <X size={18}/>
+                            </button>
                         </div>
                     </div>
 
-                    {/* 본문 */}
-                    <div className="p-6 overflow-y-auto max-h-[60vh]">
-                        {/* 핵심 지표 카드들 */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            {/* 투자 정보 */}
-                            <div className="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-800/50 dark:to-blue-900/30 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                                        <DollarSign className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">투자 규모</h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">시드 대비 {seedRatio.toFixed(1)}%</p>
-                                    </div>
+                    {/* Mobile date (shown only on small screens) */}
+                    <div className="px-6 py-2 text-sm text-slate-400 sm:hidden border-b border-slate-800">
+                        {formatTradeDateFull(journal.tradedAt)} ({getRelativeTime()})
+                    </div>
+
+                    {/* Scrollable body */}
+                    <div className="overflow-y-auto flex-1">
+                        {/* P&L Hero Section */}
+                        <div className={`px-6 py-6 ${
+                            isProfit ? 'bg-emerald-900/20' : isLoss ? 'bg-red-900/20' : 'bg-slate-800/50'
+                        }`}>
+                            <div className="text-center mb-6">
+                                <div className="flex items-center justify-center gap-2 mb-1">
+                                    {isProfit && <TrendingUp className="w-6 h-6 text-emerald-500"/>}
+                                    {isLoss && <TrendingDown className="w-6 h-6 text-red-400"/>}
+                                    <span className={`text-3xl sm:text-4xl font-bold ${
+                                        isProfit ? 'text-emerald-400' : isLoss ? 'text-red-400' : 'text-slate-400'
+                                    }`}>
+                                        {journal.profit > 0 ? '+' : ''}{journal.profit.toLocaleString()}원
+                                    </span>
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">투자금</span>
-                                        <span className="font-medium">{journal.investment.toLocaleString()}원</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">단가</span>
-                                        <span className="font-medium">{journal.buyPrice.toLocaleString()}원</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">수량</span>
-                                        <span className="font-medium">{journal.quantity}</span>
-                                    </div>
+                                <div className={`text-lg font-medium ${
+                                    isProfit ? 'text-emerald-500' : isLoss ? 'text-red-400' : 'text-slate-400'
+                                }`}>
+                                    {journal.roi > 0 ? '+' : ''}{journal.roi.toFixed(2)}%
                                 </div>
                             </div>
 
-                            {/* 거래 정보 */}
-                            <div className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 rounded-xl p-4 border border-violet-200 dark:border-violet-700 shadow-sm">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
-                                        <BarChart3 className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">거래 상세</h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">{journal.assetType}</p>
+                            {/* Key metrics grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-400 mb-1">진입가</div>
+                                    <div className="text-sm font-bold text-white">
+                                        {journal.entryPrice
+                                            ? journal.entryPrice.toLocaleString() + '원'
+                                            : journal.buyPrice.toLocaleString() + '원'}
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">시장</span>
-                                        <span className="font-medium">{TradeTypeLabel[journal.tradeType]}</span>
+                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-400 mb-1">청산가</div>
+                                    <div className="text-sm font-bold text-white">
+                                        {journal.profit !== 0 && journal.buyPrice
+                                            ? (() => {
+                                                const qty = parseFloat(journal.quantity) || 1;
+                                                const exitPrice = journal.buyPrice + (journal.profit / qty);
+                                                return exitPrice.toLocaleString() + '원';
+                                            })()
+                                            : '-'}
+                                    </div>
+                                </div>
+                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-400 mb-1">수량</div>
+                                    <div className="text-sm font-bold text-white">
+                                        {journal.quantity}{journal.assetType === 'STOCK' ? '주' : ''}
+                                    </div>
+                                </div>
+                                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
+                                    <div className="text-xs text-slate-400 mb-1">투자금</div>
+                                    <div className="text-sm font-bold text-white">
+                                        {journal.investment.toLocaleString()}원
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Chart Screenshot (if available) */}
+                        {journal.chartScreenshotUrl && (
+                            <div className="px-6 py-5">
+                                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                                    <ImageIcon size={16} className="text-slate-400"/>
+                                    차트 스크린샷
+                                </h3>
+                                <div
+                                    className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden border border-slate-800 cursor-pointer hover:shadow-md transition-shadow"
+                                    onClick={() => setShowFullImage(true)}
+                                >
+                                    <Image
+                                        src={journal.chartScreenshotUrl}
+                                        alt={`${journal.symbol} 차트`}
+                                        fill
+                                        className="object-contain bg-slate-800/50"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Trade Analysis Section */}
+                        <div className="px-6 py-5 space-y-5">
+                            {/* Trade Details */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-white mb-3">거래 정보</h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <div className="bg-slate-800/50 rounded-lg p-3">
+                                        <div className="text-xs text-slate-400 mb-0.5">자산 유형</div>
+                                        <div className="text-sm font-medium text-white">
+                                            {AssetTypeLabel[journal.assetType] || journal.assetType}
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 rounded-lg p-3">
+                                        <div className="text-xs text-slate-400 mb-0.5">시장</div>
+                                        <div className="text-sm font-medium text-white">
+                                            {TradeTypeLabel[journal.tradeType]}
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 rounded-lg p-3">
+                                        <div className="text-xs text-slate-400 mb-0.5">화폐</div>
+                                        <div className="text-sm font-medium text-white">{journal.currency}</div>
                                     </div>
                                     {journal.tradeType === TradeType.FUTURE && (
                                         <>
-                                            <div className="flex justify-between">
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">포지션</span>
-                                                <span className="font-medium">{journal.position ? PositionTypeLabel[journal.position] : '-'}</span>
+                                            <div className="bg-slate-800/50 rounded-lg p-3">
+                                                <div className="text-xs text-slate-400 mb-0.5">포지션</div>
+                                                <div className="text-sm font-medium text-white">
+                                                    {journal.position ? PositionTypeLabel[journal.position] : '-'}
+                                                </div>
                                             </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">레버리지</span>
-                                                <span className="font-medium">{journal.leverage ? `${journal.leverage}배` : '-'}</span>
+                                            <div className="bg-slate-800/50 rounded-lg p-3">
+                                                <div className="text-xs text-slate-400 mb-0.5">레버리지</div>
+                                                <div className="text-sm font-medium text-white">
+                                                    {journal.leverage ? `${journal.leverage}배` : '-'}
+                                                </div>
                                             </div>
                                         </>
                                     )}
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">화폐</span>
-                                        <span className="font-medium">{journal.currency}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* 시간 정보 */}
-                            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl p-4 border border-emerald-200 dark:border-emerald-700 shadow-sm">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-sm">
-                                        <Calendar className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">거래 시점</h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">{getRelativeTime()}</p>
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">날짜</span>
-                                        <span className="font-medium">{journal.tradedAt}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 수익률 시각화 */}
-                        <div className="bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-800/50 dark:to-gray-800/50 rounded-xl p-6 mb-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                <Activity className="w-5 h-5" />
-                                수익률 분석
-                            </h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">투자 대비 수익률</span>
-                                        <span className={`font-bold ${
-                                            journal.roi >= 0 ? 'text-emerald-600' : 'text-red-600'
-                                        }`}>
-                                            {journal.roi > 0 ? '+' : ''}{journal.roi.toFixed(2)}%
-                                        </span>
-                                    </div>
-                                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 shadow-inner">
-                                        <div 
-                                            className={`h-3 rounded-full shadow-sm ${
-                                                journal.roi >= 0 
-                                                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600' 
-                                                    : 'bg-gradient-to-r from-rose-500 to-red-600'
-                                            }`}
-                                            style={{ 
-                                                width: `${Math.min(Math.abs(journal.roi) * 3, 100)}%`,
-                                                marginLeft: journal.roi < 0 ? 'auto' : '0'
-                                            }}
-                                        ></div>
-                                    </div>
-                                </div>
-                                
-                                {seedRatio > 0 && (
-                                    <div>
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">시드 투입 비율</span>
-                                            <span className="font-bold text-blue-600">
+                                    {seedRatio > 0 && (
+                                        <div className="bg-slate-800/50 rounded-lg p-3">
+                                            <div className="text-xs text-slate-400 mb-0.5">시드 비율</div>
+                                            <div className={`text-sm font-medium ${seedRatio > 20 ? 'text-red-400' : 'text-white'}`}>
                                                 {seedRatio.toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Risk Management (if stopLoss/takeProfit available) */}
+                            {(journal.stopLoss || journal.takeProfit) && (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-white mb-3">리스크 관리</h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        {journal.stopLoss && (
+                                            <div className="bg-red-900/20 rounded-lg p-3">
+                                                <div className="text-xs text-red-400 mb-0.5">손절가</div>
+                                                <div className="text-sm font-medium text-red-400">
+                                                    {journal.stopLoss.toLocaleString()}원
+                                                </div>
+                                            </div>
+                                        )}
+                                        {journal.takeProfit && (
+                                            <div className="bg-emerald-900/20 rounded-lg p-3">
+                                                <div className="text-xs text-emerald-400 mb-0.5">익절가</div>
+                                                <div className="text-sm font-medium text-emerald-400">
+                                                    {journal.takeProfit.toLocaleString()}원
+                                                </div>
+                                            </div>
+                                        )}
+                                        {riskReward !== null && (
+                                            <div className="bg-slate-800/50 rounded-lg p-3">
+                                                <div className="text-xs text-slate-400 mb-0.5">R:R</div>
+                                                <div className="text-sm font-medium text-white">
+                                                    1:{riskReward.toFixed(2)}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {maxLoss !== null && (
+                                            <div className="bg-red-900/20 rounded-lg p-3">
+                                                <div className="text-xs text-red-400 mb-0.5">최대 손실</div>
+                                                <div className="text-sm font-medium text-red-400">
+                                                    -{maxLoss.toLocaleString()}원
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ROI Progress Bar (Fixed: proper percentage mapping) */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-white mb-3">수익률 분석</h3>
+                                <div className="space-y-3">
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1.5">
+                                            <span className="text-xs text-slate-400">투자 대비 수익률</span>
+                                            <span className={`text-sm font-bold ${
+                                                isProfit ? 'text-emerald-400' : isLoss ? 'text-red-400' : 'text-slate-400'
+                                            }`}>
+                                                {journal.roi > 0 ? '+' : ''}{journal.roi.toFixed(2)}%
                                             </span>
                                         </div>
-                                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 shadow-inner">
-                                            <div 
-                                                className="h-2 rounded-full bg-gradient-to-r from-slate-500 to-blue-600 shadow-sm"
-                                                style={{ width: `${Math.min(seedRatio, 100)}%` }}
-                                            ></div>
+                                        <div className="w-full bg-slate-800 rounded-full h-2.5">
+                                            <div
+                                                className={`h-2.5 rounded-full transition-all ${
+                                                    isProfit
+                                                        ? 'bg-emerald-500'
+                                                        : isLoss
+                                                            ? 'bg-red-500'
+                                                            : 'bg-slate-600'
+                                                }`}
+                                                style={{
+                                                    width: `${Math.min(Math.abs(journal.roi), 100)}%`,
+                                                }}
+                                            />
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        </div>
 
-                        {/* 메모 */}
-                        {journal.memo && (
-                            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-xl p-6 border border-amber-200 dark:border-amber-700 shadow-sm">
-                                <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                                    <Award className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                                    트레이딩 메모
-                                </h3>
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                                    {journal.memo}
-                                </p>
+                                    {seedRatio > 0 && (
+                                        <div>
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <span className="text-xs text-slate-400">시드 투입 비율</span>
+                                                <span className={`text-sm font-bold ${seedRatio > 20 ? 'text-red-400' : 'text-blue-400'}`}>
+                                                    {seedRatio.toFixed(1)}%
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-slate-800 rounded-full h-2">
+                                                <div
+                                                    className={`h-2 rounded-full transition-all ${
+                                                        seedRatio > 20 ? 'bg-red-500' : 'bg-blue-400'
+                                                    }`}
+                                                    style={{width: `${Math.min(seedRatio, 100)}%`}}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Structured memo sections (if parsed from JSON) */}
+                            {parsedMemo.isStructured && (
+                                <>
+                                    {parsedMemo.timeframes && parsedMemo.timeframes.length > 0 && (
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-white mb-2">타임프레임</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {parsedMemo.timeframes.map((tf, i) => (
+                                                    <span key={i}
+                                                          className="px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs font-medium">
+                                                        {tf}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {parsedMemo.keyLevels && (
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-white mb-2">주요 가격대</h3>
+                                            <p className="text-sm text-slate-400">{parsedMemo.keyLevels}</p>
+                                        </div>
+                                    )}
+                                    {parsedMemo.riskManagement && (
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-white mb-2">리스크 관리 노트</h3>
+                                            <p className="text-sm text-slate-400">{parsedMemo.riskManagement}</p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {/* Memo / Narrative */}
+                            {journal.memo && (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-white mb-3">트레이딩 메모</h3>
+                                    <div className="bg-amber-900/20 rounded-xl p-4 border border-amber-800/30">
+                                        <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                            {parsedMemo.isStructured
+                                                ? (parsedMemo.narrative || parsedMemo.rawText)
+                                                : parsedMemo.rawText}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Bottom Action Bar */}
+                    <div className="px-6 py-3 bg-slate-950/50 border-t border-slate-800 flex items-center justify-between shrink-0">
+                        <button
+                            onClick={handleCopy}
+                            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-200 transition-colors"
+                        >
+                            <Copy size={14}/>
+                            결과 복사
+                        </button>
+
+                        {journals && journals.length > 1 && (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => canGoPrev && onNavigate?.(journals[currentIndex! - 1])}
+                                    disabled={!canGoPrev}
+                                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronLeft size={16}/>
+                                    이전
+                                </button>
+                                <span className="text-xs text-slate-400">
+                                    {(currentIndex ?? 0) + 1} / {journals.length}
+                                </span>
+                                <button
+                                    onClick={() => canGoNext && onNavigate?.(journals[currentIndex! + 1])}
+                                    disabled={!canGoNext}
+                                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    다음
+                                    <ChevronRight size={16}/>
+                                </button>
                             </div>
                         )}
                     </div>
 
-                    {/* 하단 액션 버튼들 */}
-                    <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 border-t border-slate-200 dark:border-slate-700">
-                        <div className="flex justify-between items-center">
-                            <button
-                                onClick={async () => {
-                                    const textToCopy = `${journal.symbol} | ${journal.profit > 0 ? '+' : ''}${journal.profit.toLocaleString()}원 (${journal.roi > 0 ? '+' : ''}${journal.roi.toFixed(2)}%)`;
-                                    try {
-                                        await navigator.clipboard.writeText(textToCopy);
-                                        setCopiedText(textToCopy);
-                                        setShowCopyToast(true);
-                                        setTimeout(() => setShowCopyToast(false), 3000);
-                                    } catch (err) {
-                                        console.error('복사 실패:', err);
-                                    }
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-                            >
-                                <Copy className="w-4 h-4" />
-                                결과 복사
-                            </button>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={onEdit}
-                                    className="btn-trendy-secondary flex items-center gap-2"
-                                >
-                                    <Edit className="w-4 h-4" />
-                                    수정
-                                </button>
-                                <button
-                                    onClick={onDelete}
-                                    className="btn-trendy-danger flex items-center gap-2"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                    삭제
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 복사 완료 토스트 */}
+                    {/* Copy Toast */}
                     <AnimatePresence>
                         {showCopyToast && (
                             <motion.div
-                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-50"
+                                initial={{opacity: 0, y: 20, scale: 0.95}}
+                                animate={{opacity: 1, y: 0, scale: 1}}
+                                exit={{opacity: 0, y: 20, scale: 0.95}}
+                                transition={{duration: 0.2, ease: "easeOut"}}
+                                className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-50"
                             >
-                                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm border border-emerald-500/20">
-                                    <div className="w-8 h-8 bg-white/25 rounded-full flex items-center justify-center flex-shrink-0 border border-white/20">
-                                        <Check className="w-5 h-5" />
+                                <div
+                                    className="bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 max-w-xs">
+                                    <div
+                                        className="w-6 h-6 bg-white/25 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <Check className="w-4 h-4"/>
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="font-semibold text-sm mb-1">클립보드에 복사되었습니다</p>
-                                        <p className="text-emerald-100 text-xs truncate">
-                                            {copiedText}
-                                        </p>
+                                        <p className="font-medium text-sm">복사 완료</p>
+                                        <p className="text-emerald-100 text-xs truncate">{copiedText}</p>
                                     </div>
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </motion.div>
+
+                {/* Full image overlay */}
+                <AnimatePresence>
+                    {showFullImage && journal.chartScreenshotUrl && (
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            exit={{opacity: 0}}
+                            className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+                            style={{zIndex: 1000000}}
+                            onClick={() => setShowFullImage(false)}
+                        >
+                            <button
+                                className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"
+                                onClick={() => setShowFullImage(false)}
+                            >
+                                <X size={24}/>
+                            </button>
+                            <div className="relative w-full h-full max-w-5xl max-h-[85vh]">
+                                <Image
+                                    src={journal.chartScreenshotUrl}
+                                    alt={`${journal.symbol} 차트`}
+                                    fill
+                                    className="object-contain"
+                                />
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </motion.div>
         </AnimatePresence>
     );

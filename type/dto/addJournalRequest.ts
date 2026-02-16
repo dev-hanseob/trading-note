@@ -4,8 +4,8 @@ import {Journal} from "@/type/domain/journal";
 export interface addJournalRequest {
     assetType: AssetType;
     symbol: string;
-    tradeType: TradeType
-    position?: PositionType | null
+    tradeType: TradeType;
+    position?: PositionType | null;
     currency: string;
     quantity: string;
     buyPrice: number;
@@ -15,13 +15,26 @@ export interface addJournalRequest {
     roi: number;
     memo: string;
     tradedAt: string;
+    // Extended fields supported by backend
+    tradeStatus?: string;
+    entryPrice?: number;
+    stopLoss?: number;
+    takeProfitPrice?: number;
+    positionSize?: number;
+    chartScreenshotUrl?: string;
+    timeframes?: string;
+    setupType?: string;
+    keyLevels?: string;
+    emotion?: string;
+    narrative?: string;
+    exitPrice?: number;
 }
 
 export interface updateJournalRequest {
     assetType: AssetType | null;
-    symbol: string | null
-    tradeType: TradeType | null
-    position?: PositionType | null
+    symbol: string | null;
+    tradeType: TradeType | null;
+    position?: PositionType | null;
     currency: string | null;
     quantity: string | null;
     buyPrice: number | null;

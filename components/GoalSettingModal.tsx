@@ -92,7 +92,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg shadow-xl"
+        className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-lg shadow-xl"
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
@@ -101,7 +101,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
           >
             <X size={20} />
           </button>
@@ -109,7 +109,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
 
         <div className="space-y-6">
           {/* 월간 목표 */}
-          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
             <h3 className="font-medium flex items-center gap-2 mb-4">
               <Calendar size={16} className="text-blue-500" />
               이번 달 목표 ({new Date().getMonth() + 1}월)
@@ -117,19 +117,19 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   목표 금액 (원)
                 </label>
                 <input
                   type="number"
                   value={monthlyTarget.amount}
                   onChange={(e) => setMonthlyTarget(prev => ({ ...prev, amount: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white"
                   placeholder="1000000"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   목표 수익률 (%)
                 </label>
                 <input
@@ -137,7 +137,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
                   step="0.1"
                   value={monthlyTarget.percent}
                   onChange={(e) => setMonthlyTarget(prev => ({ ...prev, percent: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white"
                   placeholder="10"
                 />
               </div>
@@ -145,7 +145,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
           </div>
 
           {/* 연간 목표 */}
-          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
             <h3 className="font-medium flex items-center gap-2 mb-4">
               <TrendingUp size={16} className="text-purple-500" />
               올해 목표 ({new Date().getFullYear()}년)
@@ -153,19 +153,19 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   목표 금액 (원)
                 </label>
                 <input
                   type="number"
                   value={yearlyTarget.amount}
                   onChange={(e) => setYearlyTarget(prev => ({ ...prev, amount: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white"
                   placeholder="15000000"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   목표 수익률 (%)
                 </label>
                 <input
@@ -173,7 +173,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
                   step="0.1"
                   value={yearlyTarget.percent}
                   onChange={(e) => setYearlyTarget(prev => ({ ...prev, percent: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white"
                   placeholder="150"
                 />
               </div>
@@ -191,7 +191,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
           <div className="flex gap-3">
             <button
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700"
             >
               취소
             </button>
