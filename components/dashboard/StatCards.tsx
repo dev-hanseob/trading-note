@@ -11,6 +11,7 @@ import {
   Repeat2,
   TrendingUp,
   Flame,
+  ListChecks,
 } from 'lucide-react';
 import { Journal } from '@/type/domain/journal';
 
@@ -21,6 +22,7 @@ interface StatCardsProps {
   winRate: number;
   tradeCount: number;
   journals: Journal[];
+  ruleComplianceRate: number;
 }
 
 function calculateStreak(journals: Journal[]): {
@@ -98,6 +100,7 @@ export default function StatCards({
   winRate,
   tradeCount,
   journals,
+  ruleComplianceRate,
 }: StatCardsProps) {
   const totalBalance = totalSeed + totalProfit;
   const isProfitPositive = totalProfit >= 0;
@@ -119,17 +122,11 @@ export default function StatCards({
     visible: { opacity: 1, y: 0 },
   };
 
-  // Hero cards configuration
+  // Hero cards: 누적 손익, 총 수익률, 원칙 준수율 (심법 강조)
+  const complianceGood = ruleComplianceRate >= 70;
+  const complianceWarn = ruleComplianceRate >= 40 && ruleComplianceRate < 70;
+
   const heroCards = [
-    {
-      label: '총 잔고',
-      value: totalBalance.toLocaleString() + '원',
-      icon: Landmark,
-      iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-      valueColor: 'text-slate-900 dark:text-slate-100',
-      subLabel: `시드 ${totalSeed.toLocaleString()}원`,
-    },
     {
       label: '누적 손익',
       value: (isProfitPositive ? '+' : '') + totalProfit.toLocaleString() + '원',
@@ -159,6 +156,27 @@ export default function StatCards({
         ? 'text-emerald-600 dark:text-emerald-400'
         : 'text-red-600 dark:text-red-400',
       subLabel: 'ROI',
+    },
+    {
+      label: '원칙 준수율',
+      value: ruleComplianceRate > 0 ? ruleComplianceRate.toFixed(0) + '%' : '-',
+      icon: ListChecks,
+      iconBg: complianceGood
+        ? 'bg-emerald-100 dark:bg-emerald-900/30'
+        : complianceWarn
+          ? 'bg-amber-100 dark:bg-amber-900/30'
+          : 'bg-slate-100 dark:bg-slate-800',
+      iconColor: complianceGood
+        ? 'text-emerald-600 dark:text-emerald-400'
+        : complianceWarn
+          ? 'text-amber-600 dark:text-amber-400'
+          : 'text-slate-500 dark:text-slate-400',
+      valueColor: complianceGood
+        ? 'text-emerald-600 dark:text-emerald-400'
+        : complianceWarn
+          ? 'text-amber-600 dark:text-amber-400'
+          : 'text-slate-900 dark:text-slate-100',
+      subLabel: '매매원칙',
     },
   ];
 
@@ -197,8 +215,24 @@ export default function StatCards({
         })}
       </div>
 
-      {/* Secondary Cards - 4 supporting metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+      {/* Secondary Cards - 5 supporting metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3">
+        {/* Total Balance - demoted from hero */}
+        <motion.div
+          variants={itemVariants}
+          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4"
+        >
+          <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+            총 잔고
+          </span>
+          <div className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5 tabular-nums">
+            {totalBalance.toLocaleString()}원
+          </div>
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            시드 {totalSeed.toLocaleString()}원
+          </span>
+        </motion.div>
+
         {/* Win Rate */}
         <motion.div
           variants={itemVariants}

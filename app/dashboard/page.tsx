@@ -8,6 +8,7 @@ import GoalSettingModal from '@/components/GoalSettingModal';
 import GoalDashboard from '@/components/GoalDashboard';
 import JournalDetailModal from '@/components/JournalDetailModal';
 import { getJournals } from '@/lib/api/journal';
+import { getTradingRuleStats } from '@/lib/api/tradingRule';
 import { Journal } from '@/type/domain/journal';
 import { useSeed } from '@/hooks/useSeed';
 import TodaySummary from '@/components/dashboard/TodaySummary';
@@ -15,6 +16,8 @@ import StatCards from '@/components/dashboard/StatCards';
 import RecentTrades from '@/components/dashboard/RecentTrades';
 import DateRangeFilter, { DatePreset } from '@/components/dashboard/DateRangeFilter';
 import CalendarHeatmap from '@/components/dashboard/CalendarHeatmap';
+import MobileDashboardTabs, { DashboardTab } from '@/components/dashboard/MobileDashboardTabs';
+import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState';
 import { subWeeks, subMonths, startOfYear, parseISO, isAfter } from 'date-fns';
 
 const EquityCurve = dynamic(
@@ -74,6 +77,10 @@ export default function DashboardPage() {
     const [showGoalModal, setShowGoalModal] = useState(false);
     const [datePreset, setDatePreset] = useState<DatePreset>('ALL');
 
+    const [ruleComplianceRate, setRuleComplianceRate] = useState(0);
+    const [hasRules, setHasRules] = useState(false);
+    const [mobileTab, setMobileTab] = useState<DashboardTab>('summary');
+
     const [detailTarget, setDetailTarget] = useState<Journal | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
@@ -132,6 +139,18 @@ export default function DashboardPage() {
 
         fetchAllJournals();
         return () => { cancelled = true; };
+    }, []);
+
+    useEffect(() => {
+        getTradingRuleStats()
+            .then(stats => {
+                setRuleComplianceRate(stats.overallComplianceRate);
+                setHasRules(stats.ruleStats.length > 0);
+            })
+            .catch(() => {
+                setRuleComplianceRate(0);
+                setHasRules(false);
+            });
     }, []);
 
     const tableData = useMemo(
@@ -207,58 +226,79 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* Today Summary */}
-            <div className="mb-4">
-                <TodaySummary journals={allJournals} />
-            </div>
-
-            {/* Stat Cards */}
-            <StatCards
-                totalSeed={totalSeed}
-                totalProfit={totalProfit}
-                totalRoi={totalRoi}
-                winRate={winRate}
-                tradeCount={tradeCount}
-                journals={tableData}
-            />
-
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                <EquityCurve journals={tableData} seed={totalSeed} />
-                <CalendarHeatmap journals={allJournals} />
-            </div>
-
-            {/* Bottom Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                <MonthlyPnlChart journals={tableData} />
-                <RecentTrades
-                    journals={tableData}
-                    onSelect={(journal) => {
-                        setDetailTarget(journal);
-                        setShowDetailModal(true);
-                    }}
+            {/* Empty State - Onboarding */}
+            {allJournals.length === 0 ? (
+                <DashboardEmptyState
+                    hasSeed={totalSeed > 0}
+                    hasRules={hasRules}
+                    onOpenSeedModal={() => setShowSeedModal(true)}
                 />
-            </div>
+            ) : (
+                <>
+                    {/* Today Summary */}
+                    <div className="mb-4">
+                        <TodaySummary journals={allJournals} />
+                    </div>
 
-            {/* Emotion Stats */}
-            <div className="mt-4">
-                <EmotionStats journals={tableData} />
-            </div>
+                    {/* Stat Cards - always visible */}
+                    <StatCards
+                        totalSeed={totalSeed}
+                        totalProfit={totalProfit}
+                        totalRoi={totalRoi}
+                        winRate={winRate}
+                        tradeCount={tradeCount}
+                        journals={tableData}
+                        ruleComplianceRate={ruleComplianceRate}
+                    />
 
-            {/* Rule Insights */}
-            <div className="mt-4">
-                <RuleInsights />
-            </div>
+                    {/* Mobile Tab Navigation */}
+                    <MobileDashboardTabs activeTab={mobileTab} onChange={setMobileTab} />
 
-            {/* Goal Dashboard */}
-            <div className="mt-4">
-                <GoalDashboard
-                    currentProfit={totalProfit}
-                    totalSeed={totalSeed}
-                    currentRoi={totalRoi}
-                    compact
-                />
-            </div>
+                    {/* Summary tab: Recent Trades */}
+                    <div className={`lg:block ${mobileTab === 'summary' ? 'block' : 'hidden'}`}>
+                        <div className="mt-4">
+                            <RecentTrades
+                                journals={tableData}
+                                onSelect={(journal) => {
+                                    setDetailTarget(journal);
+                                    setShowDetailModal(true);
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Charts tab: EquityCurve, Calendar, MonthlyPnl */}
+                    <div className={`lg:block ${mobileTab === 'charts' ? 'block' : 'hidden'}`}>
+                        <div className="mt-4">
+                            <EquityCurve journals={tableData} seed={totalSeed} />
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                            <CalendarHeatmap journals={allJournals} />
+                            <MonthlyPnlChart journals={tableData} />
+                        </div>
+                    </div>
+
+                    {/* Mindset tab: RuleInsights, EmotionStats */}
+                    <div className={`lg:block ${mobileTab === 'mindset' ? 'block' : 'hidden'}`}>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                            <RuleInsights />
+                            <EmotionStats journals={tableData} />
+                        </div>
+                    </div>
+
+                    {/* Goals tab */}
+                    <div className={`lg:block ${mobileTab === 'goals' ? 'block' : 'hidden'}`}>
+                        <div className="mt-4">
+                            <GoalDashboard
+                                currentProfit={totalProfit}
+                                totalSeed={totalSeed}
+                                currentRoi={totalRoi}
+                                compact
+                            />
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* Modals */}
             {showDetailModal && detailTarget && (

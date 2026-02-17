@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { ListChecks, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { getTradingRuleStats, getJournalAnalyticsByRules } from '@/lib/api/tradingRule';
 import { TradingRuleStatsResponse, RuleAnalyticsResponse } from '@/type/domain/tradingRule';
 
@@ -67,7 +67,7 @@ export default function RuleInsights() {
         return (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-4">
-                    <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                    <ListChecks className="w-5 h-5 text-emerald-500" />
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                         매매원칙 인사이트
                     </h3>
@@ -102,7 +102,7 @@ export default function RuleInsights() {
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                    <ListChecks className="w-5 h-5 text-emerald-500" />
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                         매매원칙 인사이트
                     </h3>
