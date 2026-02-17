@@ -32,6 +32,11 @@ const EmotionStats = dynamic(
     { ssr: false }
 );
 
+const RuleInsights = dynamic(
+    () => import('@/components/dashboard/RuleInsights'),
+    { ssr: false }
+);
+
 function filterByDatePreset(journals: Journal[], preset: DatePreset): Journal[] {
     if (preset === 'ALL') return journals;
 
@@ -238,6 +243,11 @@ export default function DashboardPage() {
             {/* Emotion Stats */}
             <div className="mt-4">
                 <EmotionStats journals={tableData} />
+            </div>
+
+            {/* Rule Insights */}
+            <div className="mt-4">
+                <RuleInsights />
             </div>
 
             {/* Goal Dashboard */}
