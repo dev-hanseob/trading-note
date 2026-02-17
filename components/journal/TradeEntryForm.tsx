@@ -1,16 +1,20 @@
 'use client';
 
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Crosshair, Shield, LineChart, FileText, ChevronDown,
     Upload, CheckSquare, Square, ArrowRight, Brain,
     TrendingUp, TrendingDown, X, ImageIcon, AlertCircle,
-    Calculator, Tag
+    Calculator, Tag, Settings
 } from 'lucide-react';
-import { createJournal, uploadChart } from '@/lib/api/journal';
+import { createJournal, updateJournal, uploadChart } from '@/lib/api/journal';
 import { AssetType, TradeType, PositionType } from '@/type/domain/journal.enum';
+import { getTradingRules } from '@/lib/api/tradingRule';
+import { TradingRule } from '@/type/domain/tradingRule';
+import { Journal } from '@/type/domain/journal';
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -40,18 +44,6 @@ const emotions: EmotionOption[] = [
     { value: 'REVENGE',    label: '탐욕',   icon: '🤑', activeClasses: 'border-amber-400 bg-amber-900/20',   textClass: 'text-amber-400' },
 ];
 
-interface ChecklistItem {
-    id: string;
-    label: string;
-    checked: boolean;
-}
-
-const defaultChecklist: ChecklistItem[] = [
-    { id: 'htf', label: '상위 타임프레임 추세 확인했는가?', checked: false },
-    { id: 'sl', label: '손절 레벨을 정했는가?', checked: false },
-    { id: 'fomo', label: 'FOMO로 진입하는 것은 아닌가?', checked: false },
-    { id: 'rr', label: 'R:R 비율이 적절한가?', checked: false },
-];
 
 /* ------------------------------------------------------------------ */
 /*  Validation                                                         */
@@ -67,7 +59,12 @@ interface FormErrors {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function TradeEntryForm() {
+interface TradeEntryFormProps {
+    onChartPreviewChange?: (preview: string | null) => void;
+    editTarget?: Journal | null;
+}
+
+export default function TradeEntryForm({ onChartPreviewChange, editTarget }: TradeEntryFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<FormErrors>({});
@@ -103,14 +100,112 @@ export default function TradeEntryForm() {
     const [chartUrl, setChartUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const chartSectionRef = useRef<HTMLDivElement>(null);
+    const [isChartVisible, setIsChartVisible] = useState(true);
+    const [showFullChart, setShowFullChart] = useState(false);
 
     // -- 심리 & 전략 --
     const [emotion, setEmotion] = useState<string | null>(null);
     const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
 
-    // -- 체크리스트 & 노트 --
-    const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
+    // -- 매매원칙 체크리스트 --
+    const [tradingRules, setTradingRules] = useState<TradingRule[]>([]);
+    const [checkedRuleIds, setCheckedRuleIds] = useState<Set<number>>(new Set());
     const [narrative, setNarrative] = useState('');
+
+    /* ---------------------------------------------------------------- */
+    /*  Load trading rules                                               */
+    /* ---------------------------------------------------------------- */
+
+    useEffect(() => {
+        getTradingRules()
+            .then(rules => setTradingRules(rules.filter(r => r.isActive).sort((a, b) => a.displayOrder - b.displayOrder)))
+            .catch(() => {});
+    }, []);
+
+    /* ---------------------------------------------------------------- */
+    /*  Prefill form fields when editing                                  */
+    /* ---------------------------------------------------------------- */
+
+    useEffect(() => {
+        if (!editTarget) return;
+
+        setAssetType(editTarget.assetType);
+        setAssetPair(editTarget.symbol);
+        setTradeType(editTarget.tradeType);
+        setTradePosition(editTarget.position === PositionType.SHORT ? 'SHORT' : 'LONG');
+        setTradeDate(editTarget.tradedAt ? editTarget.tradedAt.split('T')[0] : new Date().toISOString().split('T')[0]);
+        setCurrency(editTarget.currency || 'USDT');
+
+        if (editTarget.entryPrice) setEntryPrice(String(editTarget.entryPrice));
+        else if (editTarget.buyPrice) setEntryPrice(String(editTarget.buyPrice));
+        if (editTarget.exitPrice) setExitPrice(String(editTarget.exitPrice));
+        if (editTarget.stopLoss) setStopLoss(String(editTarget.stopLoss));
+        if (editTarget.takeProfitPrice ?? editTarget.takeProfit) setTakeProfit(String(editTarget.takeProfitPrice ?? editTarget.takeProfit));
+        if (editTarget.positionSize) setPositionSize(String(editTarget.positionSize));
+        else if (editTarget.quantity) setPositionSize(editTarget.quantity);
+        if (editTarget.leverage) setLeverage(String(editTarget.leverage));
+
+        const closed = editTarget.tradeStatus === 'CLOSED';
+        setIsClosed(closed);
+        if (closed && editTarget.profit) setProfitAmount(String(editTarget.profit));
+        if (closed && editTarget.roi) setRoiAmount(String(editTarget.roi));
+
+        if (editTarget.timeframes) setSelectedTimeframes(editTarget.timeframes.split(',').map(s => s.trim()));
+        if (editTarget.keyLevels) setKeyLevels(editTarget.keyLevels);
+
+        if (editTarget.chartScreenshotUrl) {
+            setChartPreview(editTarget.chartScreenshotUrl);
+            setChartUrl(editTarget.chartScreenshotUrl);
+            onChartPreviewChange?.(editTarget.chartScreenshotUrl);
+        }
+
+        if (editTarget.emotion) setEmotion(editTarget.emotion);
+
+        // Parse strategies from memo
+        if (editTarget.memo) {
+            try {
+                const parts = editTarget.memo.split('\n\n---\n');
+                if (parts.length > 1) {
+                    const extra = JSON.parse(parts[parts.length - 1]);
+                    if (Array.isArray(extra.strategies)) setSelectedStrategies(extra.strategies);
+                    setNarrative(parts.slice(0, -1).join('\n\n---\n'));
+                } else {
+                    // Try direct JSON parse
+                    try {
+                        const parsed = JSON.parse(editTarget.memo);
+                        if (Array.isArray(parsed.strategies)) setSelectedStrategies(parsed.strategies);
+                    } catch {
+                        setNarrative(editTarget.memo);
+                    }
+                }
+            } catch {
+                setNarrative(editTarget.memo);
+            }
+        }
+
+        if (editTarget.narrative) setNarrative(editTarget.narrative);
+
+        if (editTarget.checkedRuleIds) {
+            const ids = editTarget.checkedRuleIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            setCheckedRuleIds(new Set(ids));
+        }
+    }, [editTarget, onChartPreviewChange]);
+
+    /* ---------------------------------------------------------------- */
+    /*  Chart visibility observer (mobile mini preview)                   */
+    /* ---------------------------------------------------------------- */
+
+    useEffect(() => {
+        const el = chartSectionRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsChartVisible(entry.isIntersecting),
+            { threshold: 0 }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
 
     /* ---------------------------------------------------------------- */
     /*  Calculations                                                     */
@@ -162,10 +257,13 @@ export default function TradeEntryForm() {
         );
     };
 
-    const toggleChecklist = (id: string) => {
-        setChecklist(prev => prev.map(item =>
-            item.id === id ? { ...item, checked: !item.checked } : item
-        ));
+    const toggleRule = (id: number) => {
+        setCheckedRuleIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
     };
 
     // -- Chart Upload --
@@ -175,7 +273,11 @@ export default function TradeEntryForm() {
 
         setChartFile(file);
         const reader = new FileReader();
-        reader.onload = (e) => setChartPreview(e.target?.result as string);
+        reader.onload = (e) => {
+            const result = e.target?.result as string;
+            setChartPreview(result);
+            onChartPreviewChange?.(result);
+        };
         reader.readAsDataURL(file);
 
         // Upload immediately
@@ -188,7 +290,7 @@ export default function TradeEntryForm() {
         } finally {
             setIsUploading(false);
         }
-    }, []);
+    }, [onChartPreviewChange]);
 
     const handleDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -204,6 +306,7 @@ export default function TradeEntryForm() {
         setChartFile(null);
         setChartPreview(null);
         setChartUrl(null);
+        onChartPreviewChange?.(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
@@ -224,9 +327,6 @@ export default function TradeEntryForm() {
         try {
             const extraMemo: Record<string, unknown> = {};
             if (selectedStrategies.length > 0) extraMemo.strategies = selectedStrategies;
-            if (checklist.filter(c => c.checked).length > 0) {
-                extraMemo.checklist = checklist.filter(c => c.checked).map(c => c.label);
-            }
 
             const memoContent = narrative
                 ? (Object.keys(extraMemo).length > 0
@@ -236,7 +336,7 @@ export default function TradeEntryForm() {
                     ? JSON.stringify(extraMemo)
                     : '');
 
-            await createJournal({
+            const requestData = {
                 assetType,
                 symbol: assetPair,
                 tradeType,
@@ -262,12 +362,19 @@ export default function TradeEntryForm() {
                 emotion: emotion || undefined,
                 narrative: narrative || undefined,
                 exitPrice: isClosed ? (calcs.exit || undefined) : undefined,
-            });
+                checkedRuleIds: checkedRuleIds.size > 0 ? Array.from(checkedRuleIds).join(',') : undefined,
+            };
+
+            if (editTarget) {
+                await updateJournal(editTarget.id, requestData);
+            } else {
+                await createJournal(requestData);
+            }
 
             router.push('/journal');
         } catch (error) {
-            console.error('Failed to create journal:', error);
-            setErrors({ submit: '저장 중 오류가 발생했습니다. 다시 시도해주세요.' });
+            console.error(editTarget ? 'Failed to update journal:' : 'Failed to create journal:', error);
+            setErrors({ submit: editTarget ? '수정 중 오류가 발생했습니다. 다시 시도해주세요.' : '저장 중 오류가 발생했습니다. 다시 시도해주세요.' });
         } finally {
             setIsSubmitting(false);
         }
@@ -288,6 +395,44 @@ export default function TradeEntryForm() {
 
     return (
         <div className="space-y-6">
+            {/* Mobile mini preview bar - shown when chart scrolls out of viewport */}
+            {chartPreview && !isChartVisible && (
+                <div
+                    className="fixed top-14 left-0 right-0 z-30 lg:hidden cursor-pointer"
+                    onClick={() => setShowFullChart(true)}
+                >
+                    <div className="mx-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-xl p-2 flex items-center gap-3 shadow-lg">
+                        <img
+                            src={chartPreview}
+                            alt="차트 미리보기"
+                            className="w-16 h-10 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
+                        />
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200">차트 스크린샷</p>
+                            <p className="text-[10px] text-slate-400">탭하여 전체화면으로 보기</p>
+                        </div>
+                        <ImageIcon className="w-4 h-4 text-slate-400 shrink-0" />
+                    </div>
+                </div>
+            )}
+
+            {/* Fullscreen chart overlay */}
+            {showFullChart && chartPreview && (
+                <div
+                    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                    onClick={() => setShowFullChart(false)}
+                >
+                    <img src={chartPreview} alt="차트" className="max-w-full max-h-full object-contain" />
+                    <button
+                        type="button"
+                        className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
+                        onClick={() => setShowFullChart(false)}
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                </div>
+            )}
+
             {/* ============================================== */}
             {/* Section 1: 거래 기본 정보                        */}
             {/* ============================================== */}
@@ -597,6 +742,7 @@ export default function TradeEntryForm() {
                 </div>
 
                 {/* Chart Upload */}
+                <div ref={chartSectionRef}>
                 {chartPreview ? (
                     <div className="relative mb-6 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700">
                         <img src={chartPreview} alt="차트 스크린샷" className="w-full max-h-64 object-contain bg-slate-900" />
@@ -643,6 +789,7 @@ export default function TradeEntryForm() {
                         if (file) handleFileSelect(file);
                     }}
                 />
+                </div>
 
                 <div className="space-y-4">
                     {/* Timeframes */}
@@ -736,26 +883,39 @@ export default function TradeEntryForm() {
                     </div>
                 </div>
 
-                {/* Checklist */}
+                {/* Trading Rules Checklist */}
                 <div>
-                    <label className={labelCls}>진입 체크리스트</label>
-                    <div className="space-y-2">
-                        {checklist.map(item => (
-                            <button
-                                key={item.id}
-                                type="button"
-                                onClick={() => toggleChecklist(item.id)}
-                                className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                    <label className={labelCls}>매매원칙 체크리스트</label>
+                    {tradingRules.length === 0 ? (
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
+                            <p className="text-sm text-slate-400 mb-2">등록된 매매원칙이 없습니다</p>
+                            <Link
+                                href="/settings"
+                                className="inline-flex items-center gap-1.5 text-sm text-emerald-500 hover:text-emerald-400 font-medium transition-colors"
                             >
-                                {item.checked ? (
-                                    <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0" />
-                                ) : (
-                                    <Square className="w-5 h-5 text-slate-500 shrink-0" />
-                                )}
-                                <span className={`text-sm ${item.checked ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}`}>{item.label}</span>
-                            </button>
-                        ))}
-                    </div>
+                                <Settings className="w-4 h-4" />
+                                설정에서 매매원칙 추가
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {tradingRules.map(rule => (
+                                <button
+                                    key={rule.id}
+                                    type="button"
+                                    onClick={() => toggleRule(rule.id)}
+                                    className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                                >
+                                    {checkedRuleIds.has(rule.id) ? (
+                                        <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0" />
+                                    ) : (
+                                        <Square className="w-5 h-5 text-slate-500 shrink-0" />
+                                    )}
+                                    <span className={`text-sm ${checkedRuleIds.has(rule.id) ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}`}>{rule.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -811,7 +971,7 @@ export default function TradeEntryForm() {
                             저장 중...
                         </>
                     ) : (
-                        '거래 기록 저장'
+                        editTarget ? '거래 수정 저장' : '거래 기록 저장'
                     )}
                 </button>
             </div>

@@ -28,22 +28,7 @@ export interface addJournalRequest {
     emotion?: string;
     narrative?: string;
     exitPrice?: number;
-}
-
-export interface updateJournalRequest {
-    assetType: AssetType | null;
-    symbol: string | null;
-    tradeType: TradeType | null;
-    position?: PositionType | null;
-    currency: string | null;
-    quantity: string | null;
-    buyPrice: number | null;
-    leverage?: string | null;
-    investment: number | null;
-    profit: number | null;
-    roi: number | null;
-    memo: string | null;
-    tradedAt: string | null;
+    checkedRuleIds?: string;
 }
 
 export interface GetJournalsParams {

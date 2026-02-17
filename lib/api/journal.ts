@@ -3,15 +3,20 @@ import {
     GetJournalsParams,
     GetJournalsResponse,
     addJournalRequest,
-    updateJournalRequest
 } from "@/type/dto/addJournalRequest";
+import { Journal } from "@/type/domain/journal";
 
 export async function createJournal(request: addJournalRequest): Promise<any> {
     const { data } = await apiClient.post('/journals', request);
     return data;
 }
 
-export async function updateJournal(id:number, request: updateJournalRequest): Promise<any> {
+export async function getJournal(id: number): Promise<Journal> {
+    const { data } = await apiClient.get<Journal>(`/journals/${id}`);
+    return data;
+}
+
+export async function updateJournal(id: number, request: addJournalRequest): Promise<any> {
     const { data } = await apiClient.put(`/journals/${id}`, request);
     return data;
 }

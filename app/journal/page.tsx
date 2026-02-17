@@ -1,6 +1,7 @@
 'use client';
 
 import {useEffect, useMemo, useState, useCallback} from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -34,6 +35,7 @@ type SortField = 'symbol' | 'date' | 'pnl' | 'roi' | 'investment' | null;
 type SortDir = 'asc' | 'desc';
 
 export default function JournalPage() {
+    const router = useRouter();
     const {seed: totalSeed, isLoading: isSeedLoading} = useSeed();
     const { showToast } = useToast();
     const [tableData, setTableData] = useState<Journal[]>([]);
@@ -514,6 +516,7 @@ export default function JournalPage() {
             {showModal && (
                 <JournalRegisterModal
                     editTarget={editTarget ?? undefined}
+                    recentJournals={tableData}
                     onClose={() => { setShowModal(false); setEditTarget(null); if (detailTarget) setShowDetailModal(true); }}
                     onSuccessAction={(newData) => {
                         if (editTarget) { setTableData(prev => prev.map(item => item.id === newData.id ? newData : item)); if (detailTarget && detailTarget.id === newData.id) setDetailTarget(newData); }
@@ -530,7 +533,7 @@ export default function JournalPage() {
                     currentIndex={currentDetailIndex}
                     totalSeed={totalSeed}
                     onClose={() => { setShowDetailModal(false); setDetailTarget(null); }}
-                    onEdit={() => { setEditTarget(detailTarget); setShowDetailModal(false); setDetailTarget(null); setShowModal(true); }}
+                    onEdit={() => { router.push(`/journal/${detailTarget.id}/edit`); }}
                     onDelete={() => {
                         setSingleDeleteTarget(detailTarget.id);
                     }}

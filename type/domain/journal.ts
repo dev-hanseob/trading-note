@@ -33,4 +33,5 @@ export interface Journal {
     realizedPnl?: number;
     postTradeAnalysis?: string;
     executionResult?: string;
+    checkedRuleIds?: string;
 }

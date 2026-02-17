@@ -5,10 +5,12 @@ import {createPortal} from 'react-dom';
 import {AnimatePresence, motion} from 'framer-motion';
 import {
     X, Edit, Trash2, Copy, TrendingUp, TrendingDown,
-    ChevronLeft, ChevronRight, Check, Maximize2
+    ChevronLeft, ChevronRight, Check, Maximize2, CheckCircle2, Circle
 } from 'lucide-react';
+import { getTradingRules } from '@/lib/api/tradingRule';
+import { TradingRule } from '@/type/domain/tradingRule';
 import {Journal} from "@/type/domain/journal";
-import {TradeType, TradeTypeLabel, PositionTypeLabel, AssetTypeLabel} from "@/type/domain/journal.enum";
+import {TradeType, TradeTypeLabel, PositionTypeLabel, AssetTypeLabel, EmotionType, EmotionTypeLabel, EmotionTypeColor} from "@/type/domain/journal.enum";
 import {formatDistanceToNow} from 'date-fns';
 import {ko} from 'date-fns/locale';
 
@@ -81,6 +83,7 @@ export default function JournalDetailModal({
     const [showCopyToast, setShowCopyToast] = useState(false);
     const [copiedText, setCopiedText] = useState('');
     const [showFullImage, setShowFullImage] = useState(false);
+    const [allRules, setAllRules] = useState<TradingRule[]>([]);
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -115,6 +118,17 @@ export default function JournalDetailModal({
             window.removeEventListener('keydown', handleArrowKeys);
         };
     }, [onClose, journals, onNavigate, currentIndex, showFullImage]);
+
+    useEffect(() => {
+        getTradingRules()
+            .then(rules => setAllRules(rules.filter(r => r.isActive)))
+            .catch(err => console.error('Failed to load trading rules:', err));
+    }, []);
+
+    const checkedIds = useMemo(() => {
+        if (!journal.checkedRuleIds) return new Set<number>();
+        return new Set(journal.checkedRuleIds.split(',').map(Number).filter(n => !isNaN(n)));
+    }, [journal.checkedRuleIds]);
 
     const getRelativeTime = () => {
         try {
@@ -211,6 +225,11 @@ export default function JournalDetailModal({
                                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">
                                     {AssetTypeLabel[journal.assetType] || journal.assetType}
                                 </span>
+                                {journal.emotion && EmotionTypeColor[journal.emotion as EmotionType] && (
+                                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${EmotionTypeColor[journal.emotion as EmotionType].bg} ${EmotionTypeColor[journal.emotion as EmotionType].text} shrink-0`}>
+                                        {EmotionTypeLabel[journal.emotion as EmotionType]}
+                                    </span>
+                                )}
                             </div>
                             <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0 hidden sm:inline">
                                 {formatTradeDateFull(journal.tradedAt)}
@@ -293,6 +312,11 @@ export default function JournalDetailModal({
                                         </span>
                                     )}
                                 </div>
+                                {journal.emotion && ['FOMO', 'REVENGE', 'ANXIOUS'].includes(journal.emotion) && (
+                                    <div className="text-xs text-center text-amber-500 dark:text-amber-400 mt-1">
+                                        {EmotionTypeLabel[journal.emotion as EmotionType]} 상태에서의 거래
+                                    </div>
+                                )}
                             </div>
 
                             {/* Key metrics grid */}
@@ -404,6 +428,37 @@ export default function JournalDetailModal({
                                         </div>
                                     )}
                                 </>
+                            )}
+
+                            {/* Trading Rules Check */}
+                            {allRules.length > 0 && checkedIds.size > 0 && (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
+                                        매매 원칙
+                                        <span className="ml-2 text-xs font-normal text-slate-400">
+                                            {checkedIds.size}/{allRules.length} 준수
+                                        </span>
+                                    </h3>
+                                    <div className="space-y-1.5">
+                                        {allRules.map(rule => (
+                                            <div
+                                                key={rule.id}
+                                                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
+                                                    checkedIds.has(rule.id)
+                                                        ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300'
+                                                        : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500'
+                                                }`}
+                                            >
+                                                {checkedIds.has(rule.id) ? (
+                                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                ) : (
+                                                    <Circle className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0" />
+                                                )}
+                                                <span className={checkedIds.has(rule.id) ? '' : 'line-through'}>{rule.label}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             )}
 
                             {/* Memo / Narrative */}

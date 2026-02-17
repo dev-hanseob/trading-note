@@ -27,6 +27,11 @@ const MonthlyPnlChart = dynamic(
     { ssr: false }
 );
 
+const EmotionStats = dynamic(
+    () => import('@/components/dashboard/EmotionStats'),
+    { ssr: false }
+);
+
 function filterByDatePreset(journals: Journal[], preset: DatePreset): Journal[] {
     if (preset === 'ALL') return journals;
 
@@ -228,6 +233,11 @@ export default function DashboardPage() {
                         setShowDetailModal(true);
                     }}
                 />
+            </div>
+
+            {/* Emotion Stats */}
+            <div className="mt-4">
+                <EmotionStats journals={tableData} />
             </div>
 
             {/* Goal Dashboard */}

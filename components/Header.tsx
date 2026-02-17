@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, X, BookOpen, BarChart3, LogIn } from 'lucide-react';
+import { Menu, X, BookOpen, BarChart3, LogIn, Settings } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Header() {
@@ -13,6 +13,7 @@ export default function Header() {
     const navLinks = [
         { href: '/dashboard', label: '대시보드', icon: BarChart3 },
         { href: '/journal', label: '매매일지', icon: BookOpen },
+        { href: '/settings', label: '설정', icon: Settings },
     ];
 
     const isLanding = pathname === '/';

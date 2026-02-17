@@ -10,19 +10,24 @@ import {
     AlertCircle, HelpCircle, Smartphone, Laptop
 } from 'lucide-react';
 import {createJournal, updateJournal} from '@/lib/api/journal';
-import {AssetType, PositionType, TradeType, TradeTypeLabel, PositionTypeLabel} from "@/type/domain/journal.enum";
+import {getTradingRules} from '@/lib/api/tradingRule';
+import {AssetType, PositionType, TradeType, TradeTypeLabel, PositionTypeLabel, EmotionType, EmotionTypeLabel, EmotionTypeColor} from "@/type/domain/journal.enum";
 import {addJournalRequest} from "@/type/dto/addJournalRequest";
 import {Journal} from "@/type/domain/journal";
+import {TradingRule} from '@/type/domain/tradingRule';
+import RiskWarningBanner from "@/components/RiskWarningBanner";
+import Link from 'next/link';
 
 interface Props {
     onClose: () => void;
     onSuccessAction: (data: Journal) => void;
     editTarget?: Journal;
+    recentJournals?: Journal[];
 }
 
 type WizardStep = 'asset' | 'basic' | 'trading' | 'profit' | 'review';
 
-export default function JournalRegisterModal({ onClose, onSuccessAction, editTarget }: Props) {
+export default function JournalRegisterModal({ onClose, onSuccessAction, editTarget, recentJournals = [] }: Props) {
     const [currentStep, setCurrentStep] = useState<WizardStep>('asset');
     const [isQuickMode, setIsQuickMode] = useState(!editTarget); // Quick mode by default for new entries
     // Form states
@@ -40,7 +45,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
     const [roi, setRoi] = useState(0);
     const [memo, setMemo] = useState('');
     const [activeCalculation, setActiveCalculation] = useState<'roi' | 'profit' | null>(null);
-    
+    const [emotion, setEmotion] = useState<EmotionType | null>(null);
+    const [tradingRules, setTradingRules] = useState<TradingRule[]>([]);
+    const [checkedRuleIds, setCheckedRuleIds] = useState<Set<number>>(new Set());
+
     // Validation states
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,6 +108,8 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
             setProfitDisplay('0');
             setRoi(0);
             setMemo('');
+            setEmotion(null);
+            setCheckedRuleIds(new Set());
             setActiveCalculation(null);
             setErrors({});
             return;
@@ -119,9 +129,22 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
         setProfitDisplay(formatNumber(editTarget.profit || 0));
         setRoi(editTarget.roi || 0);
         setMemo(editTarget.memo || '');
+        setEmotion((editTarget.emotion as EmotionType) || null);
+        if (editTarget?.checkedRuleIds) {
+            const ids = editTarget.checkedRuleIds.split(',').map(Number).filter(n => !isNaN(n));
+            setCheckedRuleIds(new Set(ids));
+        } else {
+            setCheckedRuleIds(new Set());
+        }
         setActiveCalculation(null);
         setErrors({});
     }, [editTarget]);
+
+    useEffect(() => {
+        getTradingRules()
+            .then(rules => setTradingRules(rules.filter(r => r.isActive)))
+            .catch(err => console.error('Failed to load trading rules:', err));
+    }, []);
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -275,7 +298,11 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
             profit: getProfit(),
             roi,
             memo,
-            tradedAt: date
+            tradedAt: date,
+            emotion: emotion || undefined,
+            checkedRuleIds: checkedRuleIds.size > 0
+                ? Array.from(checkedRuleIds).join(',')
+                : undefined,
         };
 
         try {
@@ -338,6 +365,107 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
             </div>
         </div>
     );
+
+    // Reusable emotion picker section
+    const EmotionPicker = () => (
+        <div>
+            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                지금 감정 상태 (선택)
+            </label>
+            <div className="flex flex-wrap gap-2">
+                {Object.values(EmotionType).map((type) => {
+                    const isSelected = emotion === type;
+                    const colors = EmotionTypeColor[type];
+                    return (
+                        <button
+                            key={type}
+                            type="button"
+                            onClick={() => setEmotion(isSelected ? null : type)}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                                isSelected
+                                    ? `${colors.bg} ${colors.text} ${colors.border}`
+                                    : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                            }`}
+                        >
+                            {EmotionTypeLabel[type]}
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+
+    const RulesChecklist = () => {
+        if (tradingRules.length === 0) {
+            return (
+                <div>
+                    <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                        매매 원칙 체크 (선택)
+                    </label>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
+                        <p className="text-sm text-slate-400 dark:text-slate-500 mb-1">설정된 매매 원칙이 없습니다</p>
+                        <Link
+                            href="/settings"
+                            className="text-xs text-emerald-500 hover:text-emerald-400 underline"
+                            onClick={onClose}
+                        >
+                            설정에서 원칙 추가하기
+                        </Link>
+                    </div>
+                </div>
+            );
+        }
+
+        const toggleRule = (id: number) => {
+            setCheckedRuleIds(prev => {
+                const next = new Set(prev);
+                if (next.has(id)) {
+                    next.delete(id);
+                } else {
+                    next.add(id);
+                }
+                return next;
+            });
+        };
+
+        return (
+            <div>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                    매매 원칙 체크 (선택)
+                    {checkedRuleIds.size > 0 && (
+                        <span className="ml-2 text-emerald-500">
+                            {checkedRuleIds.size}/{tradingRules.length}
+                        </span>
+                    )}
+                </label>
+                <div className="space-y-1.5">
+                    {tradingRules.map(rule => (
+                        <button
+                            key={rule.id}
+                            type="button"
+                            onClick={() => toggleRule(rule.id)}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors border ${
+                                checkedRuleIds.has(rule.id)
+                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                                    : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600'
+                            }`}
+                        >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                                checkedRuleIds.has(rule.id)
+                                    ? 'bg-emerald-500 border-emerald-500'
+                                    : 'border-slate-300 dark:border-slate-600'
+                            }`}>
+                                {checkedRuleIds.has(rule.id) && (
+                                    <Check className="w-3 h-3 text-white" />
+                                )}
+                            </div>
+                            {rule.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    };
 
     const modalContent = (
         <AnimatePresence>
@@ -407,6 +535,13 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
 
                     {/* Content */}
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6 modal-content-scrollable">
+                      {/* Risk Warning Banner */}
+                      {!editTarget && recentJournals.length > 0 && (
+                        <div className="mb-4">
+                          <RiskWarningBanner journals={recentJournals} />
+                        </div>
+                      )}
+
                       {isQuickMode ? (
                         <div className="space-y-4">
                           {/* Asset Type Toggle */}
@@ -609,6 +744,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                               className="w-full px-3 py-2.5 bg-slate-100 border border-slate-300 dark:bg-slate-800 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
                             />
                           </div>
+
+                          {/* Emotion Picker */}
+                          <EmotionPicker />
+                          <RulesChecklist />
 
                           {/* Submit Error */}
                           {errors.submit && (
@@ -1113,18 +1252,22 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                                                 메모 (선택사항)
                                             </label>
-                                            <textarea 
-                                                value={memo} 
-                                                onChange={(e) => setMemo(e.target.value)} 
-                                                rows={3} 
+                                            <textarea
+                                                value={memo}
+                                                onChange={(e) => setMemo(e.target.value)}
+                                                rows={3}
                                                 placeholder="거래에 대한 메모나 분석을 자유롭게 작성하세요"
                                                 className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white focus:border-emerald-500 transition-colors resize-none"
                                             />
                                         </div>
+
+                                        {/* Emotion Picker */}
+                                        <EmotionPicker />
+                                        <RulesChecklist />
                                     </div>
                                 </motion.div>
                             )}
-                            
+
                             {currentStep === 'review' && (
                                 <motion.div
                                     key="review"
@@ -1213,6 +1356,15 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                                                 <div className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">메모</div>
                                                 <p className="text-sm text-slate-500 dark:text-slate-400 whitespace-pre-wrap">{memo}</p>
+                                            </div>
+                                        )}
+
+                                        {emotion && (
+                                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                                <div className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">감정 상태</div>
+                                                <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium border ${EmotionTypeColor[emotion].bg} ${EmotionTypeColor[emotion].text} ${EmotionTypeColor[emotion].border}`}>
+                                                    {EmotionTypeLabel[emotion]}
+                                                </span>
                                             </div>
                                         )}
 
