@@ -5,8 +5,10 @@ import com.example.tradingnotebe.domain.journal.entity.TradeStatus
 import com.example.tradingnotebe.domain.journal.model.AddJournalRequest
 import com.example.tradingnotebe.domain.journal.model.ClosePositionRequest
 import com.example.tradingnotebe.domain.journal.model.JournalResponse
+import com.example.tradingnotebe.domain.journal.model.RuleAnalyticsResponse
 import com.example.tradingnotebe.domain.journal.service.FileStorageService
 import com.example.tradingnotebe.domain.journal.service.JournalService
+import com.example.tradingnotebe.domain.journal.service.TradingRuleService
 import com.example.tradingnotebe.domain.user.domain.User
 import com.example.tradingnotebe.domain.user.entity.SocialProvider
 import com.example.tradingnotebe.domain.user.repository.UserJpaRepository
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile
 class JournalController(
     private val journalService: JournalService,
     private val fileStorageService: FileStorageService,
+    private val tradingRuleService: TradingRuleService,
     private val userJpaRepository: UserJpaRepository
 ) {
 
@@ -128,6 +131,15 @@ class JournalController(
         val userId = 1L
         val url = fileStorageService.store(file, userId)
         return ResponseEntity.ok(mapOf("url" to url))
+    }
+
+    // TODO: dev workaround - user filtering disabled for analytics
+    @GetMapping("/analytics/by-rules")
+    fun getAnalyticsByRules(
+        @CurrentUser(required = false) user: User?
+    ): ResponseEntity<RuleAnalyticsResponse> {
+        val analytics = tradingRuleService.getRuleAnalytics()
+        return ResponseEntity.ok(analytics)
     }
 
     @DeleteMapping("/{id}")

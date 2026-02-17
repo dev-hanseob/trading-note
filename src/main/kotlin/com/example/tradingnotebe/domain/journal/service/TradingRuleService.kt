@@ -1,16 +1,21 @@
 package com.example.tradingnotebe.domain.journal.service
 
+import com.example.tradingnotebe.domain.journal.entity.Journal
 import com.example.tradingnotebe.domain.journal.entity.TradingRule
+import com.example.tradingnotebe.domain.journal.model.*
+import com.example.tradingnotebe.domain.journal.repository.JournalRepository
 import com.example.tradingnotebe.domain.journal.repository.TradingRuleRepository
 import com.example.tradingnotebe.domain.user.domain.User
 import com.example.tradingnotebe.domain.user.entity.UserEntity
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.format.DateTimeFormatter
 
 @Transactional
 @Service
 class TradingRuleService(
-    private val tradingRuleRepository: TradingRuleRepository
+    private val tradingRuleRepository: TradingRuleRepository,
+    private val journalRepository: JournalRepository
 ) {
 
     // TODO: dev workaround - returns all rules regardless of user
@@ -64,5 +69,188 @@ class TradingRuleService(
             )
         }
         return tradingRuleRepository.saveAll(rules)
+    }
+
+    // --- Analytics methods ---
+
+    fun getStats(): TradingRuleStatsResponse {
+        val allJournals = journalRepository.findAll()
+        val allRules = tradingRuleRepository.findAllByOrderByDisplayOrderAsc()
+        val activeRules = allRules.filter { it.isActive }
+        val activeRuleCount = activeRules.size
+
+        val journalsWithRules = allJournals.filter { !it.checkedRuleIds.isNullOrBlank() }
+
+        val overallComplianceRate = if (allJournals.isEmpty() || activeRuleCount == 0) {
+            0.0
+        } else {
+            allJournals.map { journal ->
+                val checkedCount = parseCheckedRuleIds(journal.checkedRuleIds).size
+                checkedCount.toDouble() / activeRuleCount * 100
+            }.average()
+        }
+
+        val monthFormatter = DateTimeFormatter.ofPattern("yyyy-MM")
+        val monthlyComplianceRates = allJournals
+            .groupBy { it.tradedAt.format(monthFormatter) }
+            .map { (month, journals) ->
+                val rate = if (activeRuleCount == 0) {
+                    0.0
+                } else {
+                    journals.map { journal ->
+                        val checkedCount = parseCheckedRuleIds(journal.checkedRuleIds).size
+                        checkedCount.toDouble() / activeRuleCount * 100
+                    }.average()
+                }
+                MonthlyComplianceRate(
+                    month = month,
+                    rate = Math.round(rate * 100.0) / 100.0,
+                    journalCount = journals.size
+                )
+            }
+            .sortedBy { it.month }
+
+        val totalJournalCount = allJournals.size
+        val ruleStats = allRules.map { rule ->
+            val checkCount = allJournals.count { journal ->
+                parseCheckedRuleIds(journal.checkedRuleIds).contains(rule.id!!)
+            }
+            RuleStat(
+                ruleId = rule.id!!,
+                label = rule.label,
+                checkCount = checkCount,
+                totalJournals = totalJournalCount,
+                checkRate = if (totalJournalCount == 0) 0.0
+                else Math.round(checkCount.toDouble() / totalJournalCount * 100 * 100.0) / 100.0,
+                isActive = rule.isActive
+            )
+        }
+
+        return TradingRuleStatsResponse(
+            totalJournals = totalJournalCount,
+            journalsWithRules = journalsWithRules.size,
+            overallComplianceRate = Math.round(overallComplianceRate * 100.0) / 100.0,
+            monthlyComplianceRates = monthlyComplianceRates,
+            ruleStats = ruleStats
+        )
+    }
+
+    fun getRulePerformance(ruleId: Long): RulePerformanceResponse {
+        val rule = tradingRuleRepository.findById(ruleId).orElseThrow {
+            IllegalArgumentException("Trading rule not found with id: $ruleId")
+        }
+        val allJournals = journalRepository.findAll()
+
+        val (checked, unchecked) = allJournals.partition { journal ->
+            parseCheckedRuleIds(journal.checkedRuleIds).contains(ruleId)
+        }
+
+        return RulePerformanceResponse(
+            ruleId = rule.id!!,
+            label = rule.label,
+            checkedStats = computeTradeStats(checked),
+            uncheckedStats = computeTradeStats(unchecked)
+        )
+    }
+
+    fun getRuleAnalytics(): RuleAnalyticsResponse {
+        val allJournals = journalRepository.findAll()
+        val allRules = tradingRuleRepository.findAllByOrderByDisplayOrderAsc()
+        val activeRules = allRules.filter { it.isActive }
+        val activeRuleCount = activeRules.size
+
+        // Pre-compute parsed rule IDs for each journal to avoid redundant parsing
+        val journalRuleIds = allJournals.map { it to parseCheckedRuleIds(it.checkedRuleIds) }
+
+        val topPerformingRules = allRules.mapNotNull { rule ->
+            val ruleId = rule.id ?: return@mapNotNull null
+            val checkedJournals = journalRuleIds.filter { (_, ruleIds) -> ruleIds.contains(ruleId) }.map { it.first }
+            if (checkedJournals.isEmpty()) return@mapNotNull null
+            val winCount = checkedJournals.count { it.profit > 0 }
+            RulePerformance(
+                ruleId = ruleId,
+                label = rule.label,
+                avgProfit = Math.round(checkedJournals.map { it.profit }.average() * 100.0) / 100.0,
+                winRate = Math.round(winCount.toDouble() / checkedJournals.size * 100 * 100.0) / 100.0,
+                tradeCount = checkedJournals.size
+            )
+        }.sortedByDescending { it.avgProfit }
+
+        val totalJournalCount = allJournals.size
+        val mostIgnoredRules = allRules.mapNotNull { rule ->
+            val ruleId = rule.id ?: return@mapNotNull null
+            val (checked, unchecked) = journalRuleIds.partition { (_, ruleIds) -> ruleIds.contains(ruleId) }
+            val checkedJournals = checked.map { it.first }
+            val uncheckedJournals = unchecked.map { it.first }
+
+            val ignoreRate = if (totalJournalCount == 0) 0.0
+            else Math.round(uncheckedJournals.size.toDouble() / totalJournalCount * 100 * 100.0) / 100.0
+
+            val checkedAvgProfit = if (checkedJournals.isEmpty()) 0.0 else checkedJournals.map { it.profit }.average()
+            val uncheckedAvgProfit = if (uncheckedJournals.isEmpty()) 0.0 else uncheckedJournals.map { it.profit }.average()
+            val missedProfit = Math.round((checkedAvgProfit - uncheckedAvgProfit) * 100.0) / 100.0
+
+            IgnoredRule(
+                ruleId = ruleId,
+                label = rule.label,
+                ignoreRate = ignoreRate,
+                missedProfit = missedProfit
+            )
+        }.sortedByDescending { it.ignoreRate }
+
+        val complianceByEmotion = allJournals
+            .filter { it.emotion != null }
+            .groupBy { it.emotion!!.name }
+            .map { (emotion, journals) ->
+                val avgCompliance = if (activeRuleCount == 0) {
+                    0.0
+                } else {
+                    journals.map { journal ->
+                        val checkedCount = parseCheckedRuleIds(journal.checkedRuleIds).size
+                        checkedCount.toDouble() / activeRuleCount * 100
+                    }.average()
+                }
+                EmotionCompliance(
+                    emotion = emotion,
+                    avgComplianceRate = Math.round(avgCompliance * 100.0) / 100.0,
+                    avgProfit = Math.round(journals.map { it.profit }.average() * 100.0) / 100.0
+                )
+            }
+
+        return RuleAnalyticsResponse(
+            topPerformingRules = topPerformingRules,
+            mostIgnoredRules = mostIgnoredRules,
+            complianceByEmotion = complianceByEmotion
+        )
+    }
+
+    private fun parseCheckedRuleIds(checkedRuleIds: String?): Set<Long> {
+        if (checkedRuleIds.isNullOrBlank()) return emptySet()
+        return checkedRuleIds.split(",")
+            .mapNotNull { it.trim().toLongOrNull() }
+            .toSet()
+    }
+
+    private fun computeTradeStats(journals: List<Journal>): TradeStats {
+        if (journals.isEmpty()) {
+            return TradeStats(
+                tradeCount = 0,
+                winCount = 0,
+                winRate = 0.0,
+                totalProfit = 0.0,
+                avgProfit = 0.0,
+                avgRoi = 0.0
+            )
+        }
+        val winCount = journals.count { it.profit > 0 }
+        val totalProfit = journals.sumOf { it.profit }
+        return TradeStats(
+            tradeCount = journals.size,
+            winCount = winCount,
+            winRate = Math.round(winCount.toDouble() / journals.size * 100 * 100.0) / 100.0,
+            totalProfit = Math.round(totalProfit * 100.0) / 100.0,
+            avgProfit = Math.round(totalProfit / journals.size * 100.0) / 100.0,
+            avgRoi = Math.round(journals.map { it.roi }.average() * 100.0) / 100.0
+        )
     }
 }

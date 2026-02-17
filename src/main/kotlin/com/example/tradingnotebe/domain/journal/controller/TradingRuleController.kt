@@ -2,6 +2,8 @@ package com.example.tradingnotebe.domain.journal.controller
 
 import com.example.tradingnotebe.config.CurrentUser
 import com.example.tradingnotebe.domain.journal.entity.TradingRule
+import com.example.tradingnotebe.domain.journal.model.RulePerformanceResponse
+import com.example.tradingnotebe.domain.journal.model.TradingRuleStatsResponse
 import com.example.tradingnotebe.domain.journal.service.TradingRuleService
 import com.example.tradingnotebe.domain.user.domain.User
 import com.example.tradingnotebe.domain.user.entity.UserEntity
@@ -82,5 +84,24 @@ class TradingRuleController(
         val resolved = resolveUser(user)
         val rules = tradingRuleService.seedDefaults(resolved)
         return ResponseEntity.ok(rules)
+    }
+
+    // TODO: dev workaround - user filtering disabled for analytics
+    @GetMapping("/stats")
+    fun getStats(
+        @CurrentUser(required = false) user: User?
+    ): ResponseEntity<TradingRuleStatsResponse> {
+        val stats = tradingRuleService.getStats()
+        return ResponseEntity.ok(stats)
+    }
+
+    // TODO: dev workaround - user filtering disabled for analytics
+    @GetMapping("/{id}/performance")
+    fun getRulePerformance(
+        @PathVariable id: Long,
+        @CurrentUser(required = false) user: User?
+    ): ResponseEntity<RulePerformanceResponse> {
+        val performance = tradingRuleService.getRulePerformance(id)
+        return ResponseEntity.ok(performance)
     }
 }
