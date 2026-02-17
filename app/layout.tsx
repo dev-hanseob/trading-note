@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import { ToastProvider } from '@/components/Toast';
 import { ThemeProvider } from 'next-themes';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `}
         >
         <ThemeProvider attribute="class" defaultTheme="dark">
+        <AuthProvider>
         <ToastProvider>
         <Header />
         <div id="modal-root" />
@@ -31,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
         </div>
         </ToastProvider>
+        </AuthProvider>
         </ThemeProvider>
         </body>
         </html>
