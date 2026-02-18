@@ -5,6 +5,7 @@ import {
     addJournalRequest,
 } from "@/type/dto/addJournalRequest";
 import { Journal } from "@/type/domain/journal";
+import { CsvAnalyzeResponse, CsvConfirmResponse, CsvPreviewRow } from '@/type/dto/csvImport';
 
 export async function createJournal(request: addJournalRequest): Promise<any> {
     const { data } = await apiClient.post('/journals', request);
@@ -39,4 +40,26 @@ export async function uploadChart(file: File): Promise<string> {
         timeout: 30000,
     });
     return data.url;
+}
+
+export async function analyzeCsv(file: File): Promise<CsvAnalyzeResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await apiClient.post<CsvAnalyzeResponse>(
+        '/journals/import/csv/analyze',
+        formData,
+        {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 60000,
+        }
+    );
+    return data;
+}
+
+export async function confirmCsvImport(rows: CsvPreviewRow[]): Promise<CsvConfirmResponse> {
+    const { data } = await apiClient.post<CsvConfirmResponse>(
+        '/journals/import/csv/confirm',
+        { rows }
+    );
+    return data;
 }
