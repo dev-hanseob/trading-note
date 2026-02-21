@@ -47,7 +47,7 @@ export default function DashboardEmptyState({ hasSeed, hasRules, onOpenSeedModal
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8">
       <div className="text-center mb-8">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-          Trading Note 시작하기
+          트래빗 시작하기
         </h2>
         <p className="text-sm text-slate-500 dark:text-slate-400">
           3단계만 완료하면 대시보드가 활성화됩니다

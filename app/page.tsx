@@ -45,7 +45,7 @@ export default function HomePage() {
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="px-3 py-0.5 bg-slate-200 dark:bg-slate-800/50 rounded text-[10px] text-slate-400 dark:text-slate-600 font-mono">
-                  trading-note.app/dashboard
+                  trabit.app/dashboard
                 </div>
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="w-full px-4 sm:px-6 lg:px-8 py-6 border-t border-slate-200 dark:border-slate-900">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-xs font-medium text-slate-600">Trading Note</span>
+          <span className="text-xs font-medium text-slate-600">Trabit</span>
           <div className="flex items-center gap-6 text-xs text-slate-700">
             <Link href="/journal" className="hover:text-slate-400 transition-colors">서비스</Link>
             <Link href="/dashboard" className="hover:text-slate-400 transition-colors">대시보드</Link>

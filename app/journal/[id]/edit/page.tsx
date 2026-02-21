@@ -16,7 +16,7 @@ export default function EditJournalPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-    const [chartPreview, setChartPreview] = useState<string | null>(null);
+    const [chartPreviews, setChartPreviews] = useState<string[]>([]);
 
     useEffect(() => {
         if (isNaN(id)) {
@@ -27,7 +27,9 @@ export default function EditJournalPage() {
         getJournal(id)
             .then(j => {
                 setJournal(j);
-                setChartPreview(j.chartScreenshotUrl || null);
+                if (j.chartScreenshotUrl) {
+                    setChartPreviews(j.chartScreenshotUrl.split(',').filter(Boolean));
+                }
             })
             .catch(() => setError(true))
             .finally(() => setLoading(false));
@@ -79,7 +81,7 @@ export default function EditJournalPage() {
                 <TradeSidebar
                     collapsed={sidebarCollapsed}
                     onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-                    pinnedChart={chartPreview}
+                    pinnedCharts={chartPreviews}
                 />
             </div>
 
@@ -100,7 +102,7 @@ export default function EditJournalPage() {
                     </div>
 
                     {/* Form */}
-                    <TradeEntryForm editTarget={journal} onChartPreviewChange={setChartPreview} />
+                    <TradeEntryForm editTarget={journal} onChartPreviewsChange={setChartPreviews} />
                 </div>
             </div>
         </div>

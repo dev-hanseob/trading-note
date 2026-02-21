@@ -9,8 +9,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: 'Trading Note',
-    description: '매매일지를 기록하고 분석해보자!',
+    title: 'Trabit - 트래빗',
+    description: '매매를 습관으로, 습관을 수익으로',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

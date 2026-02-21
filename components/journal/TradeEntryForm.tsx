@@ -60,11 +60,11 @@ interface FormErrors {
 /* ------------------------------------------------------------------ */
 
 interface TradeEntryFormProps {
-    onChartPreviewChange?: (preview: string | null) => void;
+    onChartPreviewsChange?: (previews: string[]) => void;
     editTarget?: Journal | null;
 }
 
-export default function TradeEntryForm({ onChartPreviewChange, editTarget }: TradeEntryFormProps) {
+export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: TradeEntryFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<FormErrors>({});
@@ -72,7 +72,7 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
     // -- 기본 정보 --
     const [assetType, setAssetType] = useState<AssetType>(AssetType.CRYPTO);
     const [assetPair, setAssetPair] = useState('');
-    const [tradeType, setTradeType] = useState<TradeType>(TradeType.FUTURE);
+    const [tradeType, setTradeType] = useState<TradeType>(TradeType.FUTURES);
     const [tradePosition, setTradePosition] = useState<'LONG' | 'SHORT'>('LONG');
     const [tradeDate, setTradeDate] = useState(new Date().toISOString().split('T')[0]);
     const [currency, setCurrency] = useState<string>('USDT');
@@ -94,15 +94,15 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
     const [selectedTimeframes, setSelectedTimeframes] = useState<string[]>([]);
     const [keyLevels, setKeyLevels] = useState('');
 
-    // -- 차트 업로드 --
-    const [chartFile, setChartFile] = useState<File | null>(null);
-    const [chartPreview, setChartPreview] = useState<string | null>(null);
-    const [chartUrl, setChartUrl] = useState<string | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
+    // -- 차트 업로드 (다중) --
+    const [chartPreviews, setChartPreviews] = useState<string[]>([]);
+    const [chartUrls, setChartUrls] = useState<string[]>([]);
+    const [uploadingCount, setUploadingCount] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const chartSectionRef = useRef<HTMLDivElement>(null);
     const [isChartVisible, setIsChartVisible] = useState(true);
     const [showFullChart, setShowFullChart] = useState(false);
+    const [fullChartIndex, setFullChartIndex] = useState(0);
 
     // -- 심리 & 전략 --
     const [emotion, setEmotion] = useState<string | null>(null);
@@ -155,9 +155,10 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
         if (editTarget.keyLevels) setKeyLevels(editTarget.keyLevels);
 
         if (editTarget.chartScreenshotUrl) {
-            setChartPreview(editTarget.chartScreenshotUrl);
-            setChartUrl(editTarget.chartScreenshotUrl);
-            onChartPreviewChange?.(editTarget.chartScreenshotUrl);
+            const urls = editTarget.chartScreenshotUrl.split(',').filter(Boolean);
+            setChartPreviews(urls);
+            setChartUrls(urls);
+            onChartPreviewsChange?.(urls);
         }
 
         if (editTarget.emotion) setEmotion(editTarget.emotion);
@@ -190,7 +191,7 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
             const ids = editTarget.checkedRuleIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
             setCheckedRuleIds(new Set(ids));
         }
-    }, [editTarget, onChartPreviewChange]);
+    }, [editTarget, onChartPreviewsChange]);
 
     /* ---------------------------------------------------------------- */
     /*  Chart visibility observer (mobile mini preview)                   */
@@ -266,47 +267,65 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
         });
     };
 
-    // -- Chart Upload --
-    const handleFileSelect = useCallback(async (file: File) => {
-        if (!file.type.startsWith('image/')) return;
-        if (file.size > 5 * 1024 * 1024) return; // 5MB limit
+    // -- Chart Upload (multiple) --
+    const handleFilesSelect = useCallback(async (files: File[]) => {
+        const validFiles = files.filter(f => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024);
+        if (validFiles.length === 0) return;
 
-        setChartFile(file);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const result = e.target?.result as string;
-            setChartPreview(result);
-            onChartPreviewChange?.(result);
-        };
-        reader.readAsDataURL(file);
-
-        // Upload immediately
-        setIsUploading(true);
-        try {
-            const url = await uploadChart(file);
-            setChartUrl(url);
-        } catch (err) {
-            console.error('Chart upload failed:', err);
-        } finally {
-            setIsUploading(false);
+        // Add previews immediately via FileReader
+        const newPreviews: string[] = [];
+        for (const file of validFiles) {
+            const preview = await new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target?.result as string);
+                reader.readAsDataURL(file);
+            });
+            newPreviews.push(preview);
         }
-    }, [onChartPreviewChange]);
+
+        setChartPreviews(prev => {
+            const updated = [...prev, ...newPreviews];
+            onChartPreviewsChange?.(updated);
+            return updated;
+        });
+
+        // Upload each file
+        setUploadingCount(prev => prev + validFiles.length);
+        for (const file of validFiles) {
+            try {
+                const url = await uploadChart(file);
+                setChartUrls(prev => [...prev, url]);
+            } catch (err) {
+                console.error('Chart upload failed:', err);
+            } finally {
+                setUploadingCount(prev => prev - 1);
+            }
+        }
+    }, [onChartPreviewsChange]);
 
     const handleDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) handleFileSelect(file);
-    }, [handleFileSelect]);
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) handleFilesSelect(files);
+    }, [handleFilesSelect]);
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
     }, []);
 
-    const removeChart = () => {
-        setChartFile(null);
-        setChartPreview(null);
-        setChartUrl(null);
-        onChartPreviewChange?.(null);
+    const removeChart = (index: number) => {
+        setChartPreviews(prev => {
+            const updated = prev.filter((_, i) => i !== index);
+            onChartPreviewsChange?.(updated);
+            return updated;
+        });
+        setChartUrls(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeAllCharts = () => {
+        setChartPreviews([]);
+        setChartUrls([]);
+        onChartPreviewsChange?.([]);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
@@ -356,7 +375,7 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
                 stopLoss: calcs.sl || undefined,
                 takeProfitPrice: calcs.tp || undefined,
                 positionSize: calcs.size || undefined,
-                chartScreenshotUrl: chartUrl || undefined,
+                chartScreenshotUrl: chartUrls.length > 0 ? chartUrls.join(',') : undefined,
                 timeframes: selectedTimeframes.length > 0 ? selectedTimeframes.join(',') : undefined,
                 keyLevels: keyLevels || undefined,
                 emotion: emotion || undefined,
@@ -396,19 +415,21 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
     return (
         <div className="space-y-6">
             {/* Mobile mini preview bar - shown when chart scrolls out of viewport */}
-            {chartPreview && !isChartVisible && (
+            {chartPreviews.length > 0 && !isChartVisible && (
                 <div
                     className="fixed top-14 left-0 right-0 z-30 lg:hidden cursor-pointer"
-                    onClick={() => setShowFullChart(true)}
+                    onClick={() => { setFullChartIndex(0); setShowFullChart(true); }}
                 >
                     <div className="mx-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-xl p-2 flex items-center gap-3 shadow-lg">
                         <img
-                            src={chartPreview}
+                            src={chartPreviews[0]}
                             alt="차트 미리보기"
                             className="w-16 h-10 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
                         />
                         <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200">차트 스크린샷</p>
+                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                차트 스크린샷 {chartPreviews.length > 1 && `(${chartPreviews.length})`}
+                            </p>
                             <p className="text-[10px] text-slate-400">탭하여 전체화면으로 보기</p>
                         </div>
                         <ImageIcon className="w-4 h-4 text-slate-400 shrink-0" />
@@ -417,12 +438,30 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
             )}
 
             {/* Fullscreen chart overlay */}
-            {showFullChart && chartPreview && (
+            {showFullChart && chartPreviews.length > 0 && (
                 <div
                     className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
                     onClick={() => setShowFullChart(false)}
                 >
-                    <img src={chartPreview} alt="차트" className="max-w-full max-h-full object-contain" />
+                    <img src={chartPreviews[fullChartIndex]} alt="차트" className="max-w-full max-h-full object-contain" />
+                    {chartPreviews.length > 1 && (
+                        <>
+                            <button
+                                type="button"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all"
+                                onClick={(e) => { e.stopPropagation(); setFullChartIndex(i => (i - 1 + chartPreviews.length) % chartPreviews.length); }}
+                            >
+                                <ChevronDown className="w-5 h-5 rotate-90" />
+                            </button>
+                            <button
+                                type="button"
+                                className="absolute right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all"
+                                onClick={(e) => { e.stopPropagation(); setFullChartIndex(i => (i + 1) % chartPreviews.length); }}
+                            >
+                                <ChevronDown className="w-5 h-5 -rotate-90" />
+                            </button>
+                        </>
+                    )}
                     <button
                         type="button"
                         className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
@@ -518,9 +557,9 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setTradeType(TradeType.FUTURE)}
+                                onClick={() => setTradeType(TradeType.FUTURES)}
                                 className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
-                                    tradeType === TradeType.FUTURE
+                                    tradeType === TradeType.FUTURES
                                         ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white shadow-lg'
                                         : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-slate-400 dark:hover:border-slate-600'
                                 }`}
@@ -621,7 +660,7 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
                         <label className={labelCls}>수량</label>
                         <input type="number" placeholder="0.00" value={positionSize} onChange={(e) => setPositionSize(e.target.value)} className={inputCls} />
                     </div>
-                    {tradeType === TradeType.FUTURE && (
+                    {tradeType === TradeType.FUTURES && (
                         <div>
                             <label className={labelCls}>레버리지</label>
                             <select value={leverage} onChange={(e) => setLeverage(e.target.value)} className={`${inputCls} appearance-none`}>
@@ -741,33 +780,70 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
                     <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">차트 & 분석</h2>
                 </div>
 
-                {/* Chart Upload */}
+                {/* Chart Upload (multiple) */}
                 <div ref={chartSectionRef}>
-                {chartPreview ? (
-                    <div className="relative mb-6 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700">
-                        <img src={chartPreview} alt="차트 스크린샷" className="w-full max-h-64 object-contain bg-slate-900" />
-                        <button
-                            type="button"
-                            onClick={removeChart}
-                            className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                        {isUploading && (
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <div className="flex items-center gap-2 text-white text-sm font-medium">
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    업로드 중...
+                {chartPreviews.length > 0 && (
+                    <div className="mb-4 space-y-3">
+                        {/* Image grid */}
+                        <div className={`grid gap-3 ${chartPreviews.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                            {chartPreviews.map((preview, i) => (
+                                <div key={i} className="relative rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 group">
+                                    <img
+                                        src={preview}
+                                        alt={`차트 ${i + 1}`}
+                                        className="w-full max-h-48 object-contain bg-slate-100 dark:bg-slate-900 cursor-pointer"
+                                        onClick={() => { setFullChartIndex(i); setShowFullChart(true); }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeChart(i)}
+                                        className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                    {i < chartUrls.length && (
+                                        <div className="absolute bottom-1.5 left-1.5 bg-emerald-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                            {i + 1}
+                                        </div>
+                                    )}
                                 </div>
+                            ))}
+                        </div>
+
+                        {/* Upload status + actions */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                {uploadingCount > 0 && (
+                                    <span className="flex items-center gap-1.5 text-xs text-slate-400">
+                                        <span className="w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                                        {uploadingCount}개 업로드 중...
+                                    </span>
+                                )}
+                                {uploadingCount === 0 && chartUrls.length > 0 && (
+                                    <span className="text-xs text-emerald-500 font-medium">{chartUrls.length}개 업로드 완료</span>
+                                )}
                             </div>
-                        )}
-                        {chartUrl && !isUploading && (
-                            <div className="absolute bottom-2 left-2 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                업로드 완료
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="text-xs text-slate-400 hover:text-emerald-400 font-medium transition-colors"
+                                >
+                                    + 추가
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={removeAllCharts}
+                                    className="text-xs text-slate-400 hover:text-red-400 font-medium transition-colors"
+                                >
+                                    전체 삭제
+                                </button>
                             </div>
-                        )}
+                        </div>
                     </div>
-                ) : (
+                )}
+
+                {chartPreviews.length === 0 && (
                     <div
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={handleDrop}
@@ -776,17 +852,19 @@ export default function TradeEntryForm({ onChartPreviewChange, editTarget }: Tra
                     >
                         <ImageIcon className="w-8 h-8 text-slate-500 mx-auto mb-2 group-hover:text-emerald-400 transition-colors" />
                         <p className="text-sm text-slate-500 font-medium">차트 스크린샷을 드래그하거나 클릭하여 업로드</p>
-                        <p className="text-xs text-slate-400 mt-1">PNG, JPG, WEBP (최대 5MB)</p>
+                        <p className="text-xs text-slate-400 mt-1">PNG, JPG, WEBP (최대 5MB) - 여러 장 선택 가능</p>
                     </div>
                 )}
                 <input
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
+                    multiple
                     className="hidden"
                     onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileSelect(file);
+                        const files = Array.from(e.target.files || []);
+                        if (files.length > 0) handleFilesSelect(files);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                 />
                 </div>

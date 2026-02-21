@@ -51,11 +51,11 @@ export default function SignupPage() {
       await signup({ email, password });
       router.push('/login?registered=true');
     } catch (err: unknown) {
-      const message =
+      const status =
         err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          ? (err as { response?: { status?: number } }).response?.status
           : undefined;
-      setError(message || '회원가입에 실패했습니다. 다시 시도해주세요.');
+      setError(status === 409 ? '이미 사용 중인 이메일입니다.' : '회원가입에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
     }
@@ -73,7 +73,7 @@ export default function SignupPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">회원가입</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">Trading Note를 시작해보세요</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">트래빗을 시작해보세요</p>
         </div>
 
         {/* Signup Form */}

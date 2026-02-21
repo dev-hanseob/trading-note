@@ -39,12 +39,8 @@ export default function LoginPage() {
     try {
       await login({ email, password });
       router.push('/dashboard');
-    } catch (err: unknown) {
-      const message =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-          : undefined;
-      setError(message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+    } catch {
+      setError('이메일 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setIsSubmitting(false);
     }
@@ -65,7 +61,7 @@ export default function LoginPage() {
               <path d="M8 13l2 2 2-3 2 1.5" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Trading Note</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Trabit</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">매매일지로 실력을 키워보세요</p>
         </div>
 

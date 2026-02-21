@@ -5,7 +5,7 @@ export enum AssetType {
 
 export enum TradeType {
     SPOT = 'SPOT',
-    FUTURE = 'FUTURE',
+    FUTURES = 'FUTURES',
 }
 
 export enum PositionType {
@@ -21,7 +21,7 @@ export const AssetTypeLabel: Record<AssetType, string> = {
 
 export const TradeTypeLabel: Record<TradeType, string> = {
     [TradeType.SPOT]: '현물',
-    [TradeType.FUTURE]: '선물',
+    [TradeType.FUTURES]: '선물',
 };
 
 export const PositionTypeLabel: Record<PositionType, string> = {

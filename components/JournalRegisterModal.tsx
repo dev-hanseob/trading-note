@@ -230,7 +230,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                 if (!quantity || parseFloat(quantity) <= 0) newErrors.quantity = '올바른 수량을 입력해주세요';
                 if (getPrice() <= 0) newErrors.price = '올바른 단가를 입력해주세요';
                 if (getInvestment() <= 0) newErrors.investment = '올바른 투자금을 입력해주세요';
-                if (tradeType === TradeType.FUTURE && !position) newErrors.position = '포지션을 선택해주세요';
+                if (tradeType === TradeType.FUTURES && !position) newErrors.position = '포지션을 선택해주세요';
                 break;
             case 'profit':
                 // Profit can be negative, so just check if it's a valid number
@@ -293,7 +293,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
             currency: currency,
             quantity,
             buyPrice: getPrice(),
-            leverage: tradeType == TradeType.FUTURE ? leverage : undefined,
+            leverage: tradeType == TradeType.FUTURES ? leverage : undefined,
             investment: getInvestment(),
             profit: getProfit(),
             roi,
@@ -600,9 +600,9 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                   현물
                                 </button>
                                 <button
-                                  onClick={() => setTradeType(TradeType.FUTURE)}
+                                  onClick={() => setTradeType(TradeType.FUTURES)}
                                   className={`flex-1 py-2 rounded-md text-xs font-medium transition-colors ${
-                                    tradeType === TradeType.FUTURE ? 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-white' : 'bg-slate-100/50 text-slate-400 dark:bg-slate-800/50 dark:text-slate-500'
+                                    tradeType === TradeType.FUTURES ? 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-white' : 'bg-slate-100/50 text-slate-400 dark:bg-slate-800/50 dark:text-slate-500'
                                   }`}
                                 >
                                   선물
@@ -625,7 +625,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                           </div>
 
                           {/* Position + Leverage (only for futures) */}
-                          {tradeType === TradeType.FUTURE && (
+                          {tradeType === TradeType.FUTURES && (
                             <div className="grid grid-cols-2 gap-3">
                               <div>
                                 <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">포지션</label>
@@ -1074,7 +1074,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                             )}
                                         </div>
 
-                                        {tradeType === TradeType.FUTURE && (
+                                        {tradeType === TradeType.FUTURES && (
                                             <>
                                                 <div>
                                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
@@ -1318,13 +1318,13 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                     <span className="font-medium text-slate-500 dark:text-slate-400">투자금</span>
                                                     <p className="text-slate-900 dark:text-white">{investmentDisplay} {currency}</p>
                                                 </div>
-                                                {tradeType === TradeType.FUTURE && position && (
+                                                {tradeType === TradeType.FUTURES && position && (
                                                     <div>
                                                         <span className="font-medium text-slate-500 dark:text-slate-400">포지션</span>
                                                         <p className="text-slate-900 dark:text-white">{PositionTypeLabel[position]}</p>
                                                     </div>
                                                 )}
-                                                {tradeType === TradeType.FUTURE && leverage && (
+                                                {tradeType === TradeType.FUTURES && leverage && (
                                                     <div>
                                                         <span className="font-medium text-slate-500 dark:text-slate-400">레버리지</span>
                                                         <p className="text-slate-900 dark:text-white">{leverage}배</p>

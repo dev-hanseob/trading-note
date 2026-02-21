@@ -83,7 +83,10 @@ export default function JournalDetailModal({
     const [showCopyToast, setShowCopyToast] = useState(false);
     const [copiedText, setCopiedText] = useState('');
     const [showFullImage, setShowFullImage] = useState(false);
+    const [fullImageIndex, setFullImageIndex] = useState(0);
     const [allRules, setAllRules] = useState<TradingRule[]>([]);
+
+    const chartUrls = journal.chartScreenshotUrl ? journal.chartScreenshotUrl.split(',').filter(Boolean) : [];
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -207,7 +210,7 @@ export default function JournalDetailModal({
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
                                 <h2 className="text-xl font-bold text-slate-900 dark:text-white truncate">{journal.symbol}</h2>
-                                {journal.tradeType === TradeType.FUTURE && journal.position && (
+                                {journal.tradeType === TradeType.FUTURES && journal.position && (
                                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${
                                         journal.position === 'LONG'
                                             ? 'bg-emerald-900/30 text-emerald-400'
@@ -268,23 +271,45 @@ export default function JournalDetailModal({
 
                     {/* Scrollable body */}
                     <div className="overflow-y-auto flex-1">
-                        {/* Chart Screenshot (top position) */}
-                        {journal.chartScreenshotUrl && (
-                            <div
-                                className="relative aspect-video bg-slate-100 dark:bg-slate-950 cursor-pointer group overflow-hidden"
-                                onClick={() => setShowFullImage(true)}
-                            >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={journal.chartScreenshotUrl}
-                                    alt={`${journal.symbol} 차트`}
-                                    className="w-full h-full object-contain"
-                                />
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-2.5">
-                                        <Maximize2 className="w-5 h-5 text-white" />
+                        {/* Chart Screenshot(s) (top position) */}
+                        {chartUrls.length > 0 && (
+                            <div className="relative">
+                                <div
+                                    className="relative aspect-video bg-slate-100 dark:bg-slate-950 cursor-pointer group overflow-hidden"
+                                    onClick={() => { setFullImageIndex(0); setShowFullImage(true); }}
+                                >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={chartUrls[0]}
+                                        alt={`${journal.symbol} 차트`}
+                                        className="w-full h-full object-contain"
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-2.5">
+                                            <Maximize2 className="w-5 h-5 text-white" />
+                                        </div>
                                     </div>
+                                    {chartUrls.length > 1 && (
+                                        <div className="absolute top-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                            1/{chartUrls.length}
+                                        </div>
+                                    )}
                                 </div>
+                                {chartUrls.length > 1 && (
+                                    <div className="flex gap-1.5 p-2 overflow-x-auto bg-slate-50 dark:bg-slate-950">
+                                        {chartUrls.map((url, i) => (
+                                            <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => { setFullImageIndex(i); setShowFullImage(true); }}
+                                                className="shrink-0 w-14 h-10 rounded-md overflow-hidden border-2 border-slate-200 dark:border-slate-700 hover:border-emerald-500 transition-all"
+                                            >
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={url} alt={`차트 ${i + 1}`} className="w-full h-full object-cover" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -540,7 +565,7 @@ export default function JournalDetailModal({
 
                 {/* Full image overlay */}
                 <AnimatePresence>
-                    {showFullImage && journal.chartScreenshotUrl && (
+                    {showFullImage && chartUrls.length > 0 && (
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
@@ -555,10 +580,29 @@ export default function JournalDetailModal({
                             >
                                 <X size={24}/>
                             </button>
+                            {chartUrls.length > 1 && (
+                                <>
+                                    <button
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                                        onClick={(e) => { e.stopPropagation(); setFullImageIndex(i => (i - 1 + chartUrls.length) % chartUrls.length); }}
+                                    >
+                                        <ChevronLeft size={24}/>
+                                    </button>
+                                    <button
+                                        className="absolute right-16 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                                        onClick={(e) => { e.stopPropagation(); setFullImageIndex(i => (i + 1) % chartUrls.length); }}
+                                    >
+                                        <ChevronRight size={24}/>
+                                    </button>
+                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/50 text-white text-sm font-medium px-3 py-1 rounded-full">
+                                        {fullImageIndex + 1} / {chartUrls.length}
+                                    </div>
+                                </>
+                            )}
                             <div className="relative w-full h-full max-w-5xl max-h-[85vh] flex items-center justify-center">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                    src={journal.chartScreenshotUrl}
+                                    src={chartUrls[fullImageIndex]}
                                     alt={`${journal.symbol} 차트`}
                                     className="max-w-full max-h-full object-contain"
                                 />

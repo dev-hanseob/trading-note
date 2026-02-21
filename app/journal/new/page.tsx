@@ -8,7 +8,7 @@ import TradeEntryForm from '@/components/journal/TradeEntryForm';
 
 export default function NewJournalPage() {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-    const [chartPreview, setChartPreview] = useState<string | null>(null);
+    const [chartPreviews, setChartPreviews] = useState<string[]>([]);
 
     return (
         <div className="flex h-[calc(100vh-64px)]">
@@ -17,7 +17,7 @@ export default function NewJournalPage() {
                 <TradeSidebar
                     collapsed={sidebarCollapsed}
                     onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-                    pinnedChart={chartPreview}
+                    pinnedCharts={chartPreviews}
                 />
             </div>
 
@@ -38,7 +38,7 @@ export default function NewJournalPage() {
                     </div>
 
                     {/* Form */}
-                    <TradeEntryForm onChartPreviewChange={setChartPreview} />
+                    <TradeEntryForm onChartPreviewsChange={setChartPreviews} />
                 </div>
             </div>
         </div>

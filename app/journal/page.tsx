@@ -3,7 +3,6 @@
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
     Plus, Trash2, BookOpen, ChevronLeft, ChevronRight,
     LayoutGrid, List, TrendingUp, TrendingDown, BarChart3,
@@ -61,7 +60,7 @@ export default function JournalPage() {
     const [tradeTypeFilter, setTradeTypeFilter] = useState<'all' | TradeType>('all');
     const [outcomeFilter, setOutcomeFilter] = useState<'all' | 'win' | 'loss' | 'open'>('all');
 
-    const [sortField, setSortField] = useState<SortField>(null);
+    const [sortField, setSortField] = useState<SortField>('date');
     const [sortDir, setSortDir] = useState<SortDir>('desc');
 
     const fetchJournals = useCallback(() => {
@@ -313,7 +312,7 @@ export default function JournalPage() {
                     </div>
                     <div className="relative">
                         <select value={tradeTypeFilter} onChange={e => setTradeTypeFilter(e.target.value as 'all' | TradeType)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
-                            <option value="all">전체 유형</option><option value={TradeType.SPOT}>현물</option><option value={TradeType.FUTURE}>선물</option>
+                            <option value="all">전체 유형</option><option value={TradeType.SPOT}>현물</option><option value={TradeType.FUTURES}>선물</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                     </div>
@@ -396,8 +395,8 @@ export default function JournalPage() {
                                             </div>
                                         </td>
                                         <td className="px-4 py-3.5">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
-                                                {entry.tradeType === TradeType.FUTURE ? `${entry.position || '선물'}${entry.leverage && entry.leverage > 1 ? ` ${entry.leverage}x` : ''}` : '현물'}
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${entry.tradeType === TradeType.FUTURES && entry.position === 'LONG' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' : entry.tradeType === TradeType.FUTURES && entry.position === 'SHORT' ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                                                {entry.tradeType === TradeType.FUTURES ? `${entry.position || '선물'}${entry.leverage && entry.leverage > 1 ? ` ${entry.leverage}x` : ''}` : '현물'}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300 text-sm tabular-nums font-medium">{formatTradeDate(entry.tradedAt)}</td>
@@ -438,25 +437,17 @@ export default function JournalPage() {
                                 onClick={() => { setDetailTarget(entry); setShowDetailModal(true); }}>
                                 <div className="relative h-40 overflow-hidden">
                                     {entry.chartScreenshotUrl ? (
-                                        <Image src={entry.chartScreenshotUrl} alt={`${entry.symbol} chart`} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                                        <img src={entry.chartScreenshotUrl.split(',')[0]} alt={`${entry.symbol} chart`} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                     ) : (
-                                        <div className={`w-full h-full flex items-center justify-center ${isWin ? 'bg-emerald-50 dark:bg-emerald-950/50' : isLoss ? 'bg-red-50 dark:bg-red-950/50' : 'bg-slate-100 dark:bg-slate-900'}`}>
-                                            <svg className="absolute inset-0 w-full h-full opacity-[0.15]" viewBox="0 0 400 160" preserveAspectRatio="none">
-                                                {isWin ? <polyline fill="none" stroke="#10b981" strokeWidth="2.5" points="0,120 40,110 80,100 120,115 160,90 200,70 240,80 280,50 320,40 360,30 400,15" />
-                                                : isLoss ? <polyline fill="none" stroke="#f43f5e" strokeWidth="2.5" points="0,30 40,35 80,50 120,40 160,70 200,90 240,80 280,110 320,120 360,130 400,145" />
-                                                : <polyline fill="none" stroke="#94a3b8" strokeWidth="2.5" points="0,80 40,75 80,85 120,78 160,82 200,76 240,84 280,79 320,81 360,77 400,80" />}
-                                            </svg>
-                                            <div className="relative flex flex-col items-center gap-1">
-                                                <BarChart3 className={`w-8 h-8 ${isWin ? 'text-emerald-300' : isLoss ? 'text-rose-300' : 'text-slate-300'}`} />
-                                                <span className={`text-xs font-medium ${isWin ? 'text-emerald-400' : isLoss ? 'text-rose-400' : 'text-slate-400'}`}>차트 없음</span>
-                                            </div>
+                                        <div className="w-full h-full bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center">
+                                            <BarChart3 className="w-6 h-6 text-slate-300 dark:text-slate-600" />
                                         </div>
                                     )}
                                     <div className="absolute top-2.5 left-2.5"><input type="checkbox" checked={isSelected} onClick={e => e.stopPropagation()} onChange={() => toggleRow(entry.id)} className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 text-emerald-500 focus:ring-emerald-500" /></div>
                                     <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
                                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full shadow-sm ${badge.className}`}>{badge.label}</span>
-                                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${entry.tradeType === TradeType.FUTURE && entry.position === 'LONG' ? 'bg-emerald-900/70 text-emerald-400' : entry.tradeType === TradeType.FUTURE && entry.position === 'SHORT' ? 'bg-red-900/70 text-red-400' : 'bg-slate-200 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400'}`}>
-                                            {entry.tradeType === TradeType.FUTURE ? entry.position : '현물'}{entry.leverage && entry.leverage > 1 ? ` ${entry.leverage}x` : ''}
+                                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${entry.tradeType === TradeType.FUTURES && entry.position === 'LONG' ? 'bg-emerald-900/70 text-emerald-400' : entry.tradeType === TradeType.FUTURES && entry.position === 'SHORT' ? 'bg-red-900/70 text-red-400' : 'bg-slate-200 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400'}`}>
+                                            {entry.tradeType === TradeType.FUTURES ? entry.position : '현물'}{entry.leverage && entry.leverage > 1 ? ` ${entry.leverage}x` : ''}
                                         </span>
                                     </div>
                                 </div>

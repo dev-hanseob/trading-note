@@ -54,8 +54,8 @@ export default function Header() {
                             </svg>
                         </div>
                         <span className="text-base font-bold text-slate-900 dark:text-white">
-                            <span className="hidden sm:inline">Trading Note</span>
-                            <span className="sm:hidden">TN</span>
+                            <span className="hidden sm:inline">Trabit</span>
+                            <span className="sm:hidden">Trabit</span>
                         </span>
                     </Link>
 
@@ -101,7 +101,7 @@ export default function Header() {
                                         <User className="w-3.5 h-3.5 text-white" />
                                     </div>
                                     <span className="hidden sm:inline max-w-[120px] truncate">
-                                        {user.name || user.email.split('@')[0]}
+                                        {user.name || user.email?.split('@')[0] || ''}
                                     </span>
                                     <ChevronDown className="w-3.5 h-3.5" />
                                 </button>
@@ -110,7 +110,7 @@ export default function Header() {
                                     <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1 z-50">
                                         <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-700">
                                             <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                                                {user.name || user.email.split('@')[0]}
+                                                {user.name || user.email?.split('@')[0] || ''}
                                             </p>
                                             <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                                                 {user.email}
