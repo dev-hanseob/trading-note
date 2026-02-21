@@ -68,9 +68,9 @@ class JournalService(
     }
 
     fun updateJournal(id: Long, request: AddJournalRequest, user: User): JournalResponse {
-        val existing = journalRepository.findById(id).orElseThrow {
-            IllegalArgumentException("Journal not found with id: $id")
-        }
+        val userEntity = UserEntity.toEntity(user)
+        val existing = journalRepository.findByIdAndUser(id, userEntity)
+            ?: throw IllegalArgumentException("Journal not found with id: $id")
 
         val updated = Journal(
             id = existing.id,
@@ -117,9 +117,9 @@ class JournalService(
     }
 
     fun closePosition(id: Long, request: ClosePositionRequest, user: User): JournalResponse {
-        val existing = journalRepository.findById(id).orElseThrow {
-            IllegalArgumentException("Journal not found with id: $id")
-        }
+        val userEntity = UserEntity.toEntity(user)
+        val existing = journalRepository.findByIdAndUser(id, userEntity)
+            ?: throw IllegalArgumentException("Journal not found with id: $id")
 
         if (existing.tradeStatus != TradeStatus.OPEN) {
             throw IllegalStateException("Only OPEN positions can be closed")
@@ -169,19 +169,19 @@ class JournalService(
         return JournalResponse.from(saved)
     }
 
-    // TODO: dev workaround - filtering disabled, returns all journals
-    fun findByUser(user: User?, pageable: Pageable, status: TradeStatus?, search: String?): Page<JournalResponse> {
+    fun findByUser(user: User, pageable: Pageable, status: TradeStatus?, search: String?): Page<JournalResponse> {
+        val userEntity = UserEntity.toEntity(user)
         val page = when {
-            status != null -> journalRepository.findByTradeStatusOrderByTradedAtDesc(status, pageable)
-            !search.isNullOrBlank() -> journalRepository.findBySymbolContainingIgnoreCaseOrderByTradedAtDesc(search, pageable)
-            else -> journalRepository.findAllByOrderByTradedAtDesc(pageable)
+            status != null -> journalRepository.findByUserAndTradeStatusOrderByTradedAtDesc(userEntity, status, pageable)
+            !search.isNullOrBlank() -> journalRepository.findByUserAndSymbolContainingIgnoreCaseOrderByTradedAtDesc(userEntity, search, pageable)
+            else -> journalRepository.findByUserOrderByTradedAtDesc(userEntity, pageable)
         }
         return page.map { JournalResponse.from(it) }
     }
 
-    // TODO: dev workaround - returns all OPEN positions regardless of user
-    fun getOpenPositions(user: User?, pageable: Pageable): Page<JournalResponse> {
-        val page = journalRepository.findByTradeStatusOrderByTradedAtDesc(TradeStatus.OPEN, pageable)
+    fun getOpenPositions(user: User, pageable: Pageable): Page<JournalResponse> {
+        val userEntity = UserEntity.toEntity(user)
+        val page = journalRepository.findByUserAndTradeStatusOrderByTradedAtDesc(userEntity, TradeStatus.OPEN, pageable)
         return page.map { JournalResponse.from(it) }
     }
 

@@ -18,9 +18,9 @@ class TradingRuleService(
     private val journalRepository: JournalRepository
 ) {
 
-    // TODO: dev workaround - returns all rules regardless of user
-    fun findAllByUser(user: User?): List<TradingRule> {
-        return tradingRuleRepository.findAllByOrderByDisplayOrderAsc()
+    fun findAllByUser(user: User): List<TradingRule> {
+        val userEntity = UserEntity.toEntity(user)
+        return tradingRuleRepository.findByUserOrderByDisplayOrderAsc(userEntity)
     }
 
     fun create(label: String, displayOrder: Int, user: User): TradingRule {
@@ -34,9 +34,9 @@ class TradingRuleService(
     }
 
     fun update(id: Long, label: String, displayOrder: Int, isActive: Boolean, user: User): TradingRule {
-        val existing = tradingRuleRepository.findById(id).orElseThrow {
-            IllegalArgumentException("Trading rule not found with id: $id")
-        }
+        val userEntity = UserEntity.toEntity(user)
+        val existing = tradingRuleRepository.findByIdAndUser(id, userEntity)
+            ?: throw IllegalArgumentException("Trading rule not found with id: $id")
         val updated = TradingRule(
             id = existing.id,
             label = label,
@@ -48,7 +48,8 @@ class TradingRuleService(
     }
 
     fun delete(id: Long, user: User) {
-        tradingRuleRepository.deleteById(id)
+        val userEntity = UserEntity.toEntity(user)
+        tradingRuleRepository.deleteByIdAndUser(id, userEntity)
     }
 
     fun seedDefaults(user: User): List<TradingRule> {
@@ -73,9 +74,10 @@ class TradingRuleService(
 
     // --- Analytics methods ---
 
-    fun getStats(): TradingRuleStatsResponse {
-        val allJournals = journalRepository.findAll()
-        val allRules = tradingRuleRepository.findAllByOrderByDisplayOrderAsc()
+    fun getStats(user: User): TradingRuleStatsResponse {
+        val userEntity = UserEntity.toEntity(user)
+        val allJournals = journalRepository.findByUser(userEntity)
+        val allRules = tradingRuleRepository.findByUserOrderByDisplayOrderAsc(userEntity)
         val activeRules = allRules.filter { it.isActive }
         val activeRuleCount = activeRules.size
 
@@ -135,11 +137,11 @@ class TradingRuleService(
         )
     }
 
-    fun getRulePerformance(ruleId: Long): RulePerformanceResponse {
-        val rule = tradingRuleRepository.findById(ruleId).orElseThrow {
-            IllegalArgumentException("Trading rule not found with id: $ruleId")
-        }
-        val allJournals = journalRepository.findAll()
+    fun getRulePerformance(ruleId: Long, user: User): RulePerformanceResponse {
+        val userEntity = UserEntity.toEntity(user)
+        val rule = tradingRuleRepository.findByIdAndUser(ruleId, userEntity)
+            ?: throw IllegalArgumentException("Trading rule not found with id: $ruleId")
+        val allJournals = journalRepository.findByUser(userEntity)
 
         val (checked, unchecked) = allJournals.partition { journal ->
             parseCheckedRuleIds(journal.checkedRuleIds).contains(ruleId)
@@ -153,9 +155,10 @@ class TradingRuleService(
         )
     }
 
-    fun getRuleAnalytics(): RuleAnalyticsResponse {
-        val allJournals = journalRepository.findAll()
-        val allRules = tradingRuleRepository.findAllByOrderByDisplayOrderAsc()
+    fun getRuleAnalytics(user: User): RuleAnalyticsResponse {
+        val userEntity = UserEntity.toEntity(user)
+        val allJournals = journalRepository.findByUser(userEntity)
+        val allRules = tradingRuleRepository.findByUserOrderByDisplayOrderAsc(userEntity)
         val activeRules = allRules.filter { it.isActive }
         val activeRuleCount = activeRules.size
 

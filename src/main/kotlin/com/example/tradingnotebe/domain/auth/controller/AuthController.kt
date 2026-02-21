@@ -33,15 +33,25 @@ class AuthController(
     private val restTemplate = RestTemplate()
     
     @PostMapping("/signup")
-    fun signup(@RequestBody request: SignupRequest): ResponseEntity<SignupResponse> {
-        val response = authService.signup(request)
-        return ResponseEntity.ok(response)
+    fun signup(@RequestBody request: SignupRequest): ResponseEntity<*> {
+        return try {
+            val response = authService.signup(request)
+            ResponseEntity.ok(response)
+        } catch (e: RuntimeException) {
+            ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(mapOf("message" to (e.message ?: "Signup failed")))
+        }
     }
-    
+
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
-        val response = authService.login(request)
-        return ResponseEntity.ok(response)
+    fun login(@RequestBody request: LoginRequest): ResponseEntity<*> {
+        return try {
+            val response = authService.login(request)
+            ResponseEntity.ok(response)
+        } catch (e: RuntimeException) {
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(mapOf("message" to (e.message ?: "Authentication failed")))
+        }
     }
     
     @GetMapping("/oauth2/{provider}")

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface JournalRepository : JpaRepository<Journal, Long> {
     fun findAllByOrderByTradedAtDesc(pageable: Pageable): Page<Journal>
     fun findByUserOrderByTradedAtDesc(user: UserEntity, pageable: Pageable): Page<Journal>
+    fun findByUser(user: UserEntity): List<Journal>
     fun findByIdAndUser(id: Long, user: UserEntity): Journal?
     fun deleteByIdAndUser(id: Long, user: UserEntity)
     fun findByUserAndTradeStatusOrderByTradedAtDesc(user: UserEntity, tradeStatus: TradeStatus, pageable: Pageable): Page<Journal>

@@ -21,7 +21,8 @@ class FileStorageService(
             ?: "png"
 
         val fileName = "${UUID.randomUUID()}.$extension"
-        val dirPath: Path = Paths.get(uploadDir, "charts", userId.toString())
+        val dirPath: Path = Paths.get(uploadDir).toAbsolutePath().normalize()
+            .resolve("charts").resolve(userId.toString())
         Files.createDirectories(dirPath)
 
         val filePath = dirPath.resolve(fileName)

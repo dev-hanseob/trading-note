@@ -11,8 +11,9 @@ class StaticResourceConfig(
 ) : WebMvcConfigurer {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        val absolutePath = java.nio.file.Paths.get(uploadDir).toAbsolutePath().normalize()
         registry
             .addResourceHandler("/uploads/**")
-            .addResourceLocations("file:$uploadDir/")
+            .addResourceLocations("file:$absolutePath/")
     }
 }

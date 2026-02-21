@@ -37,12 +37,12 @@ class TradingRuleController(
         )
     }
 
-    // TODO: dev workaround - user filtering disabled
     @GetMapping
     fun getRules(
         @CurrentUser(required = false) user: User?
     ): ResponseEntity<List<TradingRule>> {
-        val rules = tradingRuleService.findAllByUser(user)
+        val resolved = resolveUser(user)
+        val rules = tradingRuleService.findAllByUser(resolved)
         return ResponseEntity.ok(rules)
     }
 
@@ -86,22 +86,22 @@ class TradingRuleController(
         return ResponseEntity.ok(rules)
     }
 
-    // TODO: dev workaround - user filtering disabled for analytics
     @GetMapping("/stats")
     fun getStats(
         @CurrentUser(required = false) user: User?
     ): ResponseEntity<TradingRuleStatsResponse> {
-        val stats = tradingRuleService.getStats()
+        val resolved = resolveUser(user)
+        val stats = tradingRuleService.getStats(resolved)
         return ResponseEntity.ok(stats)
     }
 
-    // TODO: dev workaround - user filtering disabled for analytics
     @GetMapping("/{id}/performance")
     fun getRulePerformance(
         @PathVariable id: Long,
         @CurrentUser(required = false) user: User?
     ): ResponseEntity<RulePerformanceResponse> {
-        val performance = tradingRuleService.getRulePerformance(id)
+        val resolved = resolveUser(user)
+        val performance = tradingRuleService.getRulePerformance(id, resolved)
         return ResponseEntity.ok(performance)
     }
 }

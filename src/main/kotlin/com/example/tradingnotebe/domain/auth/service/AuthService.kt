@@ -31,10 +31,10 @@ class AuthService(
     
     fun login(request: LoginRequest): LoginResponse {
         val user = userService.findByEmail(request.email)
-            .orElseThrow { RuntimeException("User not found") }
-        
+            .orElseThrow { RuntimeException("Invalid email or password") }
+
         if (user.password?.let { passwordEncoder.matches(request.password, it) } != true) {
-            throw RuntimeException("Invalid password")
+            throw RuntimeException("Invalid email or password")
         }
         
         val userEmail = user.email ?: throw RuntimeException("User email is required")

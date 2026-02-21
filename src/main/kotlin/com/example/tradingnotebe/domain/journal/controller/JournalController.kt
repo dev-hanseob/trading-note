@@ -49,7 +49,6 @@ class JournalController(
         return ResponseEntity.ok(saved)
     }
 
-    // TODO: dev workaround - user filtering disabled
     @GetMapping
     fun getJournals(
         @RequestParam(defaultValue = "1") page: Int,
@@ -58,8 +57,9 @@ class JournalController(
         @RequestParam(required = false) search: String?,
         @CurrentUser(required = false) user: User?
     ): ResponseEntity<Map<String, Any>> {
+        val resolved = resolveUser(user)
         val pageable = PageRequest.of(page - 1, pageSize)
-        val journalsPage = journalService.findByUser(user, pageable, status, search)
+        val journalsPage = journalService.findByUser(resolved, pageable, status, search)
 
         val response = mapOf(
             "total" to journalsPage.totalElements,
@@ -103,15 +103,15 @@ class JournalController(
         return ResponseEntity.ok(closed)
     }
 
-    // TODO: dev workaround - user filtering disabled
     @GetMapping("/open-positions")
     fun getOpenPositions(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "50") pageSize: Int,
         @CurrentUser(required = false) user: User?
     ): ResponseEntity<Map<String, Any>> {
+        val resolved = resolveUser(user)
         val pageable = PageRequest.of(page - 1, pageSize)
-        val positionsPage = journalService.getOpenPositions(user, pageable)
+        val positionsPage = journalService.getOpenPositions(resolved, pageable)
 
         val response = mapOf(
             "total" to positionsPage.totalElements,
@@ -133,12 +133,12 @@ class JournalController(
         return ResponseEntity.ok(mapOf("url" to url))
     }
 
-    // TODO: dev workaround - user filtering disabled for analytics
     @GetMapping("/analytics/by-rules")
     fun getAnalyticsByRules(
         @CurrentUser(required = false) user: User?
     ): ResponseEntity<RuleAnalyticsResponse> {
-        val analytics = tradingRuleService.getRuleAnalytics()
+        val resolved = resolveUser(user)
+        val analytics = tradingRuleService.getRuleAnalytics(resolved)
         return ResponseEntity.ok(analytics)
     }
 
@@ -147,12 +147,8 @@ class JournalController(
         @PathVariable id: Long,
         @CurrentUser(required = false) user: User?
     ): ResponseEntity<Void> {
-        // TODO: dev workaround - delete by id only when no user
-        if (user != null) {
-            journalService.deleteByIdAndUser(id, user)
-        } else {
-            journalService.deleteById(id)
-        }
+        val resolved = resolveUser(user)
+        journalService.deleteByIdAndUser(id, resolved)
         return ResponseEntity.noContent().build()
     }
 }
