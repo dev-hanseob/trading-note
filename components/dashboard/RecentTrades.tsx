@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { Journal } from '@/type/domain/journal';
 import { History, ScrollText, ArrowRight, TrendingUp, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatCurrencyWithSign } from '@/lib/currency';
 
 interface RecentTradesProps {
   journals: Journal[];
   onSelect: (journal: Journal) => void;
+  seedCurrency?: string;
 }
 
-export default function RecentTrades({ journals, onSelect }: RecentTradesProps) {
+export default function RecentTrades({ journals, onSelect, seedCurrency = 'KRW' }: RecentTradesProps) {
   const recentTrades = [...journals]
     .sort((a, b) => new Date(b.tradedAt).getTime() - new Date(a.tradedAt).getTime())
     .slice(0, 5);
@@ -96,8 +98,7 @@ export default function RecentTrades({ journals, onSelect }: RecentTradesProps) 
                             : 'text-slate-500'
                       }`}
                     >
-                      {isProfit ? '+' : ''}
-                      {trade.profit.toLocaleString()}원
+                      {formatCurrencyWithSign(trade.profit, seedCurrency)}
                     </span>
                     <span
                       className={`text-xs ${

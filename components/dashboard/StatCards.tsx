@@ -14,6 +14,7 @@ import {
   ListChecks,
 } from 'lucide-react';
 import { Journal } from '@/type/domain/journal';
+import { formatCurrency, formatCurrencyWithSign } from '@/lib/currency';
 
 interface StatCardsProps {
   totalSeed: number;
@@ -23,6 +24,7 @@ interface StatCardsProps {
   tradeCount: number;
   journals: Journal[];
   ruleComplianceRate: number;
+  seedCurrency?: string;
 }
 
 function calculateStreak(journals: Journal[]): {
@@ -101,6 +103,7 @@ export default function StatCards({
   tradeCount,
   journals,
   ruleComplianceRate,
+  seedCurrency = 'KRW',
 }: StatCardsProps) {
   const totalBalance = totalSeed + totalProfit;
   const isProfitPositive = totalProfit >= 0;
@@ -129,7 +132,7 @@ export default function StatCards({
   const heroCards = [
     {
       label: '누적 손익',
-      value: (isProfitPositive ? '+' : '') + totalProfit.toLocaleString() + '원',
+      value: formatCurrencyWithSign(totalProfit, seedCurrency),
       icon: isProfitPositive ? ArrowUpRight : ArrowDownRight,
       iconBg: isProfitPositive
         ? 'bg-emerald-100 dark:bg-emerald-900/30'
@@ -226,10 +229,10 @@ export default function StatCards({
             총 잔고
           </span>
           <div className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5 tabular-nums">
-            {totalBalance.toLocaleString()}원
+            {formatCurrency(totalBalance, seedCurrency)}
           </div>
           <span className="text-xs text-slate-400 dark:text-slate-500">
-            시드 {totalSeed.toLocaleString()}원
+            시드 {formatCurrency(totalSeed, seedCurrency)}
           </span>
         </motion.div>
 
@@ -322,8 +325,7 @@ export default function StatCards({
                 : 'text-red-600 dark:text-red-400'
             }`}
           >
-            {isAvgPositive ? '+' : ''}
-            {Math.round(avgPnl).toLocaleString()}원
+            {formatCurrencyWithSign(Math.round(avgPnl), seedCurrency)}
           </div>
           <span className="text-xs text-slate-400 dark:text-slate-500">
             Per Trade

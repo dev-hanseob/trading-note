@@ -4,21 +4,25 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Settings, Loader2 } from 'lucide-react';
+import { CURRENCY_OPTIONS } from '@/lib/currency';
 
 interface SeedSettingModalProps {
   isOpen: boolean;
   handleClose: () => void;
-  handleSave: (seed: number) => Promise<{ success: boolean; error?: string }>;
+  handleSave: (seed: number, currency: string) => Promise<{ success: boolean; error?: string }>;
   currentSeed: number;
+  currentCurrency?: string;
 }
 
-export default function SeedSettingModal({ 
-  isOpen, 
-  handleClose, 
+export default function SeedSettingModal({
+  isOpen,
+  handleClose,
   handleSave,
-  currentSeed 
+  currentSeed,
+  currentCurrency = 'KRW',
 }: SeedSettingModalProps) {
   const [seedValue, setSeedValue] = useState(currentSeed.toString());
+  const [currency, setCurrency] = useState(currentCurrency);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,7 +51,7 @@ export default function SeedSettingModal({
     setError('');
     
     try {
-      const result = await handleSave(numValue);
+      const result = await handleSave(numValue, currency);
       if (result.success) {
         handleClose();
       } else {
@@ -58,7 +62,7 @@ export default function SeedSettingModal({
     } finally {
       setIsLoading(false);
     }
-  }, [seedValue, handleSave, handleClose]);
+  }, [seedValue, currency, handleSave, handleClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -95,9 +99,12 @@ export default function SeedSettingModal({
   }, [isOpen, isLoading, handleClose, handleSaveInternal]);
 
   useEffect(() => {
-    // 현재 시드에 천 단위 쉼표 적용
     setSeedValue(formatNumber(currentSeed.toString()));
   }, [currentSeed]);
+
+  useEffect(() => {
+    setCurrency(currentCurrency);
+  }, [currentCurrency]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -132,7 +139,30 @@ export default function SeedSettingModal({
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              시작 시드 금액(원)
+              통화 단위
+            </label>
+            <div className="grid grid-cols-4 gap-1.5">
+              {CURRENCY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setCurrency(opt.value)}
+                  disabled={isLoading}
+                  className={`px-2 py-2 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    currency === opt.value
+                      ? 'bg-emerald-600 text-white border-emerald-600'
+                      : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              시작 시드 금액
             </label>
             <input
               ref={inputRef}
@@ -150,7 +180,7 @@ export default function SeedSettingModal({
 
           <div className="bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              💡 시드 금액은 수익률 계산의 기준이 됩니다. 변경 시 모든 수익률이 새로운 시드를 기준으로 재계산됩니다.
+                시드 금액은 수익률 계산의 기준이 됩니다. 변경 시 모든 수익률이 새로운 시드를 기준으로 재계산됩니다.
             </p>
           </div>
 

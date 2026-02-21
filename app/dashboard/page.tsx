@@ -72,7 +72,7 @@ function filterByDatePreset(journals: Journal[], preset: DatePreset): Journal[] 
 }
 
 export default function DashboardPage() {
-    const { seed: totalSeed, updateSeed, isLoading: isSeedLoading } = useSeed();
+    const { seed: totalSeed, seedCurrency, updateSeed, isLoading: isSeedLoading } = useSeed();
     const [allJournals, setAllJournals] = useState<Journal[]>([]);
     const [isLoadingJournals, setIsLoadingJournals] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -258,7 +258,7 @@ export default function DashboardPage() {
 
                     {/* Today Summary */}
                     <div className="mb-4">
-                        <TodaySummary journals={allJournals} />
+                        <TodaySummary journals={allJournals} seedCurrency={seedCurrency} />
                     </div>
 
                     {/* Stat Cards - always visible */}
@@ -270,6 +270,7 @@ export default function DashboardPage() {
                         tradeCount={tradeCount}
                         journals={tableData}
                         ruleComplianceRate={ruleComplianceRate}
+                        seedCurrency={seedCurrency}
                     />
 
                     {/* Mobile Tab Navigation */}
@@ -284,6 +285,7 @@ export default function DashboardPage() {
                                     setDetailTarget(journal);
                                     setShowDetailModal(true);
                                 }}
+                                seedCurrency={seedCurrency}
                             />
                         </div>
                     </div>
@@ -291,11 +293,11 @@ export default function DashboardPage() {
                     {/* Charts tab: EquityCurve, Calendar, MonthlyPnl */}
                     <div className={`lg:block ${mobileTab === 'charts' ? 'block' : 'hidden'}`}>
                         <div className="mt-4">
-                            <EquityCurve journals={tableData} seed={totalSeed} />
+                            <EquityCurve journals={tableData} seed={totalSeed} seedCurrency={seedCurrency} />
                         </div>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                            <CalendarHeatmap journals={allJournals} />
-                            <MonthlyPnlChart journals={tableData} />
+                            <CalendarHeatmap journals={allJournals} seedCurrency={seedCurrency} />
+                            <MonthlyPnlChart journals={tableData} seedCurrency={seedCurrency} />
                         </div>
                     </div>
 
@@ -346,6 +348,7 @@ export default function DashboardPage() {
                     handleClose={() => setShowSeedModal(false)}
                     handleSave={updateSeed}
                     currentSeed={totalSeed}
+                    currentCurrency={seedCurrency}
                 />
             )}
 

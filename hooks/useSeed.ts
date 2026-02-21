@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { getSeedApi, updateSeedApi, UpdateSeedRequest } from '@/lib/api/seed';
 
 const DEFAULT_SEED = 10000000; // 기본 시드: 1천만원
+const DEFAULT_CURRENCY = 'KRW';
 
 export function useSeed() {
   const [seed, setSeed] = useState<number>(DEFAULT_SEED);
+  const [seedCurrency, setSeedCurrency] = useState<string>(DEFAULT_CURRENCY);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,12 +18,13 @@ export function useSeed() {
         setIsLoading(true);
         setError(null);
         const response = await getSeedApi();
-        // seed가 0이면 아직 설정 안 된 것 → 기본값 사용
         setSeed(response.seed > 0 ? response.seed : DEFAULT_SEED);
+        setSeedCurrency(response.currency || DEFAULT_CURRENCY);
       } catch (err) {
         console.error('시드 조회 실패:', err);
         setError('시드 정보를 불러오지 못했습니다.');
         setSeed(DEFAULT_SEED);
+        setSeedCurrency(DEFAULT_CURRENCY);
       } finally {
         setIsLoading(false);
       }
@@ -30,12 +33,13 @@ export function useSeed() {
     fetchSeed();
   }, []);
 
-  const updateSeed = async (newSeed: number) => {
+  const updateSeed = async (newSeed: number, currency?: string) => {
     try {
       setError(null);
-      const request: UpdateSeedRequest = { seed: newSeed };
+      const request: UpdateSeedRequest = { seed: newSeed, currency: currency || seedCurrency };
       const response = await updateSeedApi(request);
       setSeed(response.seed);
+      setSeedCurrency(response.currency || DEFAULT_CURRENCY);
       return { success: true };
     } catch (err) {
       console.error('시드 업데이트 실패:', err);
@@ -46,6 +50,7 @@ export function useSeed() {
 
   return {
     seed,
+    seedCurrency,
     updateSeed,
     isLoading,
     error,
@@ -55,6 +60,7 @@ export function useSeed() {
         setError(null);
         const response = await getSeedApi();
         setSeed(response.seed > 0 ? response.seed : DEFAULT_SEED);
+        setSeedCurrency(response.currency || DEFAULT_CURRENCY);
       } catch (err) {
         console.error('시드 재조회 실패:', err);
         setError('시드 정보를 불러오지 못했습니다.');

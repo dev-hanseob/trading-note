@@ -4,12 +4,14 @@ import { useMemo } from 'react';
 import { Calendar, TrendingUp, TrendingDown, Minus, Zap } from 'lucide-react';
 import { Journal } from '@/type/domain/journal';
 import { format, isToday, parseISO } from 'date-fns';
+import { formatCurrencyWithSign } from '@/lib/currency';
 
 interface Props {
   journals: Journal[];
+  seedCurrency?: string;
 }
 
-export default function TodaySummary({ journals }: Props) {
+export default function TodaySummary({ journals, seedCurrency = 'KRW' }: Props) {
   const todayTrades = useMemo(() => {
     return journals.filter(j => {
       try {
@@ -76,7 +78,7 @@ export default function TodaySummary({ journals }: Props) {
             <div className={`text-lg font-bold tabular-nums ${
               isPositive ? 'text-emerald-400' : isNegative ? 'text-red-400' : 'text-slate-400'
             }`}>
-              {isPositive ? '+' : ''}{stats.totalPnl.toLocaleString()}원
+              {formatCurrencyWithSign(stats.totalPnl, seedCurrency)}
             </div>
           </div>
         </div>

@@ -7,10 +7,12 @@ import {
 } from 'recharts';
 import { parseISO, subWeeks, subMonths, format, isAfter } from 'date-fns';
 import { Activity } from 'lucide-react';
+import { formatCurrency, formatCurrencyWithSign } from '@/lib/currency';
 
 interface EquityCurveProps {
   journals: Journal[];
   seed: number;
+  seedCurrency?: string;
 }
 
 type Period = '1W' | '1M' | '3M' | '6M' | 'ALL';
@@ -29,7 +31,7 @@ const periodButtons: { label: string; value: Period }[] = [
   { label: 'ALL', value: 'ALL' },
 ];
 
-export default function EquityCurve({ journals, seed }: EquityCurveProps) {
+export default function EquityCurve({ journals, seed, seedCurrency = 'KRW' }: EquityCurveProps) {
   const [period, setPeriod] = useState<Period>('ALL');
 
   const equityData = useMemo(() => {
@@ -111,12 +113,12 @@ export default function EquityCurve({ journals, seed }: EquityCurveProps) {
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg p-3 text-sm">
         <p className="font-semibold text-slate-900 dark:text-slate-100 mb-1">{dateStr}</p>
         <p className="text-slate-600 dark:text-slate-400">
-          자산: <span className="font-semibold text-slate-900 dark:text-slate-100">{data.equity.toLocaleString()}원</span>
+          자산: <span className="font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(data.equity, seedCurrency)}</span>
         </p>
         <p className="text-slate-600 dark:text-slate-400">
           변동:{' '}
           <span className={`font-semibold ${data.change >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-            {data.change >= 0 ? '+' : ''}{data.change.toLocaleString()}원
+            {formatCurrencyWithSign(data.change, seedCurrency)}
           </span>
         </p>
       </div>

@@ -7,9 +7,11 @@ import {
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { CalendarRange } from 'lucide-react';
+import { formatCurrencyWithSign } from '@/lib/currency';
 
 interface MonthlyPnlChartProps {
   journals: Journal[];
+  seedCurrency?: string;
 }
 
 interface MonthlyData {
@@ -17,7 +19,7 @@ interface MonthlyData {
   pnl: number;
 }
 
-export default function MonthlyPnlChart({ journals }: MonthlyPnlChartProps) {
+export default function MonthlyPnlChart({ journals, seedCurrency = 'KRW' }: MonthlyPnlChartProps) {
   const monthlyData = useMemo(() => {
     if (journals.length === 0) return [];
 
@@ -60,7 +62,7 @@ export default function MonthlyPnlChart({ journals }: MonthlyPnlChartProps) {
         <p className="text-slate-600 dark:text-slate-400">
           손익:{' '}
           <span className={`font-semibold ${data.pnl >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-            {data.pnl >= 0 ? '+' : ''}{data.pnl.toLocaleString()}원
+            {formatCurrencyWithSign(data.pnl, seedCurrency)}
           </span>
         </p>
       </div>
@@ -69,12 +71,12 @@ export default function MonthlyPnlChart({ journals }: MonthlyPnlChartProps) {
 
   if (journals.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full">
         <div className="flex items-center gap-2 mb-4">
           <CalendarRange className="w-5 h-5 text-indigo-500" />
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">월별 손익</h3>
         </div>
-        <div className="flex items-center justify-center h-[250px] text-slate-400 dark:text-slate-500">
+        <div className="flex items-center justify-center flex-1 min-h-[250px] text-slate-400 dark:text-slate-500">
           매매 기록이 없습니다.
         </div>
       </div>
@@ -82,39 +84,41 @@ export default function MonthlyPnlChart({ journals }: MonthlyPnlChartProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full">
       <div className="flex items-center gap-2 mb-4">
         <CalendarRange className="w-5 h-5 text-indigo-500" />
         <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">월별 손익</h3>
       </div>
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
-          <XAxis
-            dataKey="month"
-            tickFormatter={formatXAxis}
-            axisLine={false}
-            tickLine={false}
-            tick={{ fontSize: 12, fill: '#94a3b8' }}
-          />
-          <YAxis
-            tickFormatter={formatYAxis}
-            axisLine={false}
-            tickLine={false}
-            tick={{ fontSize: 12, fill: '#94a3b8' }}
-            width={55}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(148, 163, 184, 0.1)' }} />
-          <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
-            {monthlyData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.pnl >= 0 ? '#10b981' : '#ef4444'}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="flex-1 min-h-[250px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickFormatter={formatXAxis}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#94a3b8' }}
+            />
+            <YAxis
+              tickFormatter={formatYAxis}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#94a3b8' }}
+              width={55}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(148, 163, 184, 0.1)' }} />
+            <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
+              {monthlyData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.pnl >= 0 ? '#10b981' : '#ef4444'}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

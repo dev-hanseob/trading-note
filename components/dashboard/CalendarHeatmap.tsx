@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { formatCurrencyWithSign } from '@/lib/currency';
 import {
   startOfMonth,
   endOfMonth,
@@ -23,9 +24,10 @@ import {
 
 interface CalendarHeatmapProps {
   journals: Journal[];
+  seedCurrency?: string;
 }
 
-export default function CalendarHeatmap({ journals }: CalendarHeatmapProps) {
+export default function CalendarHeatmap({ journals, seedCurrency = 'KRW' }: CalendarHeatmapProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const dailyPnl = useMemo(() => {
@@ -180,8 +182,7 @@ export default function CalendarHeatmap({ journals }: CalendarHeatmapProps) {
                 : 'text-red-600 dark:text-red-400'
             }`}
           >
-            {monthSummary.totalPnl >= 0 ? '+' : ''}
-            {monthSummary.totalPnl.toLocaleString()}원
+            {formatCurrencyWithSign(monthSummary.totalPnl, seedCurrency)}
           </span>
         </span>
         <span>{monthSummary.trades}건</span>
@@ -232,8 +233,7 @@ export default function CalendarHeatmap({ journals }: CalendarHeatmapProps) {
                         : 'text-red-600 dark:text-red-400'
                     }`}
                   >
-                    {data.pnl >= 0 ? '+' : ''}
-                    {data.pnl.toLocaleString()}원
+                    {formatCurrencyWithSign(data.pnl, seedCurrency)}
                   </p>
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-white dark:bg-slate-800 border-r border-b border-slate-200 dark:border-slate-700 rotate-45 -mt-1" />
                 </div>
