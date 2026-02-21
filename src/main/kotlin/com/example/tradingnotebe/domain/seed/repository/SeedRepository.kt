@@ -19,7 +19,7 @@ class SeedRepository(
                 IllegalArgumentException("User not found with id: $userId")
             }
         } ?: throw IllegalArgumentException("User ID is required to create a seed")
-        val seedEntity = seedJpaRepository.save(SeedEntity(seed.price, userEntity, seed.id))
+        val seedEntity = seedJpaRepository.save(SeedEntity(seed.price, seed.currency, userEntity, seed.id))
         return SeedEntity.toDomain(seedEntity)
     }
     
@@ -55,7 +55,7 @@ class SeedRepository(
         val existingEntity = seedJpaRepository.findById(seedId).orElseThrow {
             IllegalArgumentException("Seed not found with id: $seedId")
         }
-        val updatedEntity = seedJpaRepository.save(existingEntity.changeSeed(seed.price))
+        val updatedEntity = seedJpaRepository.save(existingEntity.changeSeed(seed.price, seed.currency))
         return SeedEntity.toDomain(updatedEntity)
     }
 }

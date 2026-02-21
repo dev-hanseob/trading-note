@@ -189,9 +189,8 @@ class TradingRuleService(
             val ignoreRate = if (totalJournalCount == 0) 0.0
             else Math.round(uncheckedJournals.size.toDouble() / totalJournalCount * 100 * 100.0) / 100.0
 
-            val checkedAvgProfit = if (checkedJournals.isEmpty()) 0.0 else checkedJournals.map { it.profit }.average()
             val uncheckedAvgProfit = if (uncheckedJournals.isEmpty()) 0.0 else uncheckedJournals.map { it.profit }.average()
-            val missedProfit = Math.round((checkedAvgProfit - uncheckedAvgProfit) * 100.0) / 100.0
+            val missedProfit = Math.round(uncheckedAvgProfit * 100.0) / 100.0
 
             IgnoredRule(
                 ruleId = ruleId,

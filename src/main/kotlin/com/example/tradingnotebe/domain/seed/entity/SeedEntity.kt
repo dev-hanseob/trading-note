@@ -10,31 +10,35 @@ import java.math.BigDecimal
 class SeedEntity(
     @Column(name = "price")
     val price: BigDecimal,
-    
+
+    @Column(name = "currency", nullable = false)
+    val currency: String = "KRW",
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: UserEntity,
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null
 ) : DateEntity() {
-    
-    constructor() : this(BigDecimal.ZERO, UserEntity(email = "default@example.com"), null)
-    
-    fun changeSeed(price: BigDecimal): SeedEntity = SeedEntity(price, this.user, this.id)
-    
+
+    constructor() : this(BigDecimal.ZERO, "KRW", UserEntity(email = "default@example.com"), null)
+
+    fun changeSeed(price: BigDecimal, currency: String): SeedEntity = SeedEntity(price, currency, this.user, this.id)
+
     companion object {
         fun toEntity(seed: Seed): SeedEntity {
             val userEntity = seed.userId?.let { userId ->
                 UserEntity(email = "user@example.com").apply {}
             } ?: UserEntity(email = "default@example.com")
-            return SeedEntity(seed.price, userEntity, seed.id)
+            return SeedEntity(seed.price, seed.currency, userEntity, seed.id)
         }
-        
+
         fun toDomain(seedEntity: SeedEntity): Seed = Seed(
-            id = seedEntity.id, 
+            id = seedEntity.id,
             price = seedEntity.price,
+            currency = seedEntity.currency,
             userId = seedEntity.user.id
         )
     }

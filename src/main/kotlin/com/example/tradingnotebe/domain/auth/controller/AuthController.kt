@@ -71,6 +71,52 @@ class AuthController(
             "provider" to user.provider.name
         ))
     }
+
+    @PutMapping("/profile")
+    fun updateProfile(
+        @CurrentUser user: User,
+        @RequestBody request: Map<String, String>
+    ): ResponseEntity<*> {
+        val name = request["name"]?.trim()
+        if (name.isNullOrBlank()) {
+            return ResponseEntity.badRequest()
+                .body(mapOf("message" to "Name is required"))
+        }
+        return try {
+            val updated = authService.updateProfile(user, name)
+            ResponseEntity.ok(mapOf(
+                "name" to updated.name,
+                "message" to "Profile updated"
+            ))
+        } catch (e: RuntimeException) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("message" to (e.message ?: "Profile update failed")))
+        }
+    }
+
+    @PutMapping("/password")
+    fun changePassword(
+        @CurrentUser user: User,
+        @RequestBody request: Map<String, String>
+    ): ResponseEntity<*> {
+        val currentPassword = request["currentPassword"]
+        val newPassword = request["newPassword"]
+        if (currentPassword.isNullOrBlank() || newPassword.isNullOrBlank()) {
+            return ResponseEntity.badRequest()
+                .body(mapOf("message" to "Current and new password are required"))
+        }
+        if (newPassword.length < 8) {
+            return ResponseEntity.badRequest()
+                .body(mapOf("message" to "New password must be at least 8 characters"))
+        }
+        return try {
+            authService.changePassword(user, currentPassword, newPassword)
+            ResponseEntity.ok(mapOf("message" to "Password changed"))
+        } catch (e: RuntimeException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("message" to (e.message ?: "Password change failed")))
+        }
+    }
     
     @PostMapping("/logout")
     fun logout(request: HttpServletRequest): ResponseEntity<Map<String, Any>> {

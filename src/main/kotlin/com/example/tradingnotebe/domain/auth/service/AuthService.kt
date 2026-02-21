@@ -36,9 +36,45 @@ class AuthService(
         if (user.password?.let { passwordEncoder.matches(request.password, it) } != true) {
             throw RuntimeException("Invalid email or password")
         }
-        
+
         val userEmail = user.email ?: throw RuntimeException("User email is required")
         val token = jwtUtil.generateToken(userEmail)
         return LoginResponse(token, userEmail, "Login successful")
+    }
+
+    fun updateProfile(user: User, name: String): User {
+        val updatedUser = User(
+            id = user.id,
+            email = user.email,
+            password = user.password,
+            name = name,
+            profileImage = user.profileImage,
+            provider = user.provider,
+            providerId = user.providerId,
+            kakaoAccessToken = user.kakaoAccessToken,
+            createdAt = user.createdAt,
+            updatedAt = user.updatedAt
+        )
+        return userService.update(updatedUser)
+    }
+
+    fun changePassword(user: User, currentPassword: String, newPassword: String) {
+        if (user.password?.let { passwordEncoder.matches(currentPassword, it) } != true) {
+            throw RuntimeException("Current password is incorrect")
+        }
+        val encodedNewPassword = passwordEncoder.encode(newPassword)
+        val updatedUser = User(
+            id = user.id,
+            email = user.email,
+            password = encodedNewPassword,
+            name = user.name,
+            profileImage = user.profileImage,
+            provider = user.provider,
+            providerId = user.providerId,
+            kakaoAccessToken = user.kakaoAccessToken,
+            createdAt = user.createdAt,
+            updatedAt = user.updatedAt
+        )
+        userService.update(updatedUser)
     }
 }

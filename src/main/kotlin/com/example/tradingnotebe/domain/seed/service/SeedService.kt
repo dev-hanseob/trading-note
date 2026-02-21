@@ -14,6 +14,7 @@ class SeedService(
     fun createSeed(request: CreateSeedRequest, user: User): Seed {
         val seed = Seed(
             price = request.price,
+            currency = request.currency,
             userId = user.id
         )
         return seedRepository.save(seed)
@@ -31,7 +32,7 @@ class SeedService(
     
     fun updateSeed(id: Long, request: CreateSeedRequest, user: User): Seed? {
         val existingSeed = findByIdAndUser(id, user) ?: return null
-        val updatedSeed = existingSeed.copy(price = request.price)
+        val updatedSeed = existingSeed.copy(price = request.price, currency = request.currency)
         return seedRepository.update(updatedSeed)
     }
     
