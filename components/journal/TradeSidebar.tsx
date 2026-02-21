@@ -12,7 +12,6 @@ interface TradeSidebarProps {
 export default function TradeSidebar({ collapsed, onToggle, pinnedCharts = [] }: TradeSidebarProps) {
     const [showFullChart, setShowFullChart] = useState(false);
     const [fullChartIndex, setFullChartIndex] = useState(0);
-    const [activeIndex, setActiveIndex] = useState(0);
 
     const hasCharts = pinnedCharts.length > 0;
 
@@ -115,47 +114,30 @@ export default function TradeSidebar({ collapsed, onToggle, pinnedCharts = [] }:
 
                 {/* Chart Preview */}
                 {hasCharts ? (
-                    <div className="p-3 flex-1 overflow-y-auto">
-                        {/* Main image */}
-                        <div
-                            className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-emerald-500 transition-all group"
-                            onClick={() => openFullscreen(activeIndex)}
-                        >
-                            <img
-                                src={pinnedCharts[activeIndex]}
-                                alt="Chart screenshot"
-                                className="w-full object-contain bg-slate-100 dark:bg-slate-900"
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                                <span className="text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-3 py-1.5 rounded-full">
-                                    전체화면
-                                </span>
+                    <div className="p-3 flex-1 overflow-y-auto space-y-3">
+                        {pinnedCharts.map((chart, i) => (
+                            <div
+                                key={i}
+                                className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-emerald-500 transition-all group"
+                                onClick={() => openFullscreen(i)}
+                            >
+                                <img
+                                    src={chart}
+                                    alt={`Chart ${i + 1}`}
+                                    className="w-full object-contain bg-slate-100 dark:bg-slate-900"
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                                    <span className="text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-3 py-1.5 rounded-full">
+                                        전체화면
+                                    </span>
+                                </div>
+                                {pinnedCharts.length > 1 && (
+                                    <span className="absolute top-2 left-2 bg-black/50 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                        {i + 1}
+                                    </span>
+                                )}
                             </div>
-                        </div>
-
-                        {/* Thumbnail strip */}
-                        {pinnedCharts.length > 1 && (
-                            <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-                                {pinnedCharts.map((chart, i) => (
-                                    <button
-                                        key={i}
-                                        type="button"
-                                        onClick={() => setActiveIndex(i)}
-                                        className={`shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${
-                                            i === activeIndex
-                                                ? 'border-emerald-500 shadow-md shadow-emerald-900/20'
-                                                : 'border-slate-200 dark:border-slate-700 opacity-60 hover:opacity-100'
-                                        }`}
-                                    >
-                                        <img src={chart} alt={`Chart ${i + 1}`} className="w-full h-full object-cover" />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-
-                        <p className="text-[11px] text-slate-400 mt-2 text-center">
-                            클릭하여 전체화면으로 보기
-                        </p>
+                        ))}
                     </div>
                 ) : (
                     <div className="flex-1 flex items-center justify-center p-6">

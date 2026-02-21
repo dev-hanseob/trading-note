@@ -100,6 +100,8 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     const [uploadingCount, setUploadingCount] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const chartSectionRef = useRef<HTMLDivElement>(null);
+    const resultSectionRef = useRef<HTMLDivElement>(null);
+    const [highlightResult, setHighlightResult] = useState(false);
     const [isChartVisible, setIsChartVisible] = useState(true);
     const [showFullChart, setShowFullChart] = useState(false);
     const [fullChartIndex, setFullChartIndex] = useState(0);
@@ -245,6 +247,17 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     /* ---------------------------------------------------------------- */
     /*  Handlers                                                         */
     /* ---------------------------------------------------------------- */
+
+    const handleToggleClosed = (closed: boolean) => {
+        setIsClosed(closed);
+        if (closed) {
+            setTimeout(() => {
+                resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                setHighlightResult(true);
+                setTimeout(() => setHighlightResult(false), 1500);
+            }, 250);
+        }
+    };
 
     const toggleTimeframe = (tf: string) => {
         setSelectedTimeframes(prev =>
@@ -600,32 +613,19 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                         </div>
                     </div>
 
-                    {/* 화폐 & 상태 */}
-                    <div className="flex gap-4">
-                        <div className="flex-1">
-                            <label className={labelCls}>화폐</label>
-                            <select
-                                value={currency}
-                                onChange={(e) => setCurrency(e.target.value)}
-                                className={`${inputCls} appearance-none`}
-                            >
-                                <option value="KRW">KRW</option>
-                                <option value="USD">USD</option>
-                                <option value="USDT">USDT</option>
-                                <option value="USDC">USDC</option>
-                            </select>
-                        </div>
-                        <div className="flex-1 flex items-end">
-                            <label className="flex items-center gap-3 cursor-pointer h-11 w-full">
-                                <div
-                                    onClick={() => setIsClosed(!isClosed)}
-                                    className={`relative w-11 h-6 rounded-full transition-all shrink-0 ${isClosed ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                                >
-                                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${isClosed ? 'left-[22px]' : 'left-0.5'}`} />
-                                </div>
-                                <span className="text-sm text-slate-500 font-medium">종료된 거래</span>
-                            </label>
-                        </div>
+                    {/* 화폐 */}
+                    <div>
+                        <label className={labelCls}>화폐</label>
+                        <select
+                            value={currency}
+                            onChange={(e) => setCurrency(e.target.value)}
+                            className={`${inputCls} appearance-none`}
+                        >
+                            <option value="KRW">KRW</option>
+                            <option value="USD">USD</option>
+                            <option value="USDT">USDT</option>
+                            <option value="USDC">USDC</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -726,53 +726,90 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* 거래 종료 */}
+                <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <ArrowRight className="w-4 h-4 text-slate-400" />
+                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                거래 상태
+                            </span>
+                        </div>
+                        <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
+                            <button
+                                type="button"
+                                onClick={() => handleToggleClosed(false)}
+                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                                    !isClosed
+                                        ? 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm'
+                                        : 'text-slate-400 hover:text-slate-500'
+                                }`}
+                            >
+                                진행중
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleToggleClosed(true)}
+                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                                    isClosed
+                                        ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-900/30'
+                                        : 'text-slate-400 hover:text-slate-500'
+                                }`}
+                            >
+                                종료
+                            </button>
+                        </div>
+                    </div>
+
+                    <AnimatePresence>
+                        {isClosed && (
+                            <motion.div
+                                ref={resultSectionRef}
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
+                                className="overflow-hidden"
+                            >
+                                <div className={`p-4 rounded-xl border transition-all duration-500 ${
+                                    highlightResult
+                                        ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-300 dark:border-emerald-700 ring-1 ring-emerald-200 dark:ring-emerald-800/40'
+                                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'
+                                }`}>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className={labelCls}>청산가</label>
+                                            <input type="number" placeholder="0.00" value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} className={inputCls} />
+                                        </div>
+                                        <div>
+                                            <label className={labelCls}>실현 손익</label>
+                                            <input type="number" placeholder="자동 계산 또는 직접 입력" value={profitAmount} onChange={(e) => setProfitAmount(e.target.value)} className={inputCls} />
+                                            {calcs.pnl !== 0 && !profitAmount && (
+                                                <p className="mt-1 text-xs text-slate-400">
+                                                    자동 계산: <span className={calcs.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}>{calcs.pnl >= 0 ? '+' : ''}{calcs.pnl.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className={labelCls}>ROI (%)</label>
+                                            <input type="number" placeholder="자동 계산 또는 직접 입력" value={roiAmount} onChange={(e) => setRoiAmount(e.target.value)} className={inputCls} />
+                                            {calcs.roi !== 0 && !roiAmount && (
+                                                <p className="mt-1 text-xs text-slate-400">
+                                                    자동 계산: <span className={calcs.roi >= 0 ? 'text-emerald-400' : 'text-red-400'}>{calcs.roi >= 0 ? '+' : ''}{calcs.roi.toFixed(2)}%</span>
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
 
             {/* ============================================== */}
-            {/* Section 3: 거래 결과 (종료된 경우)                */}
-            {/* ============================================== */}
-            <AnimatePresence>
-                {isClosed && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className={sectionCard}
-                    >
-                        <div className="flex items-center gap-2 mb-6">
-                            <ArrowRight className="w-5 h-5 text-emerald-500" />
-                            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">거래 결과</h2>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className={labelCls}>청산가</label>
-                                <input type="number" placeholder="0.00" value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} className={inputCls} />
-                            </div>
-                            <div>
-                                <label className={labelCls}>실현 손익</label>
-                                <input type="number" placeholder="자동 계산 또는 직접 입력" value={profitAmount} onChange={(e) => setProfitAmount(e.target.value)} className={inputCls} />
-                                {calcs.pnl !== 0 && !profitAmount && (
-                                    <p className="mt-1 text-xs text-slate-400">
-                                        자동 계산: <span className={calcs.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}>{calcs.pnl >= 0 ? '+' : ''}{calcs.pnl.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className={labelCls}>ROI (%)</label>
-                                <input type="number" placeholder="자동 계산 또는 직접 입력" value={roiAmount} onChange={(e) => setRoiAmount(e.target.value)} className={inputCls} />
-                                {calcs.roi !== 0 && !roiAmount && (
-                                    <p className="mt-1 text-xs text-slate-400">
-                                        자동 계산: <span className={calcs.roi >= 0 ? 'text-emerald-400' : 'text-red-400'}>{calcs.roi >= 0 ? '+' : ''}{calcs.roi.toFixed(2)}%</span>
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* ============================================== */}
-            {/* Section 4: 차트 & 분석                           */}
+            {/* Section 3: 차트 & 분석                           */}
             {/* ============================================== */}
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
