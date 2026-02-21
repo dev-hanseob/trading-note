@@ -263,7 +263,7 @@ export default function RulesAnalyticsPage() {
                     </p>
                 </div>
 
-                {/* Section 1: Overview */}
+                {/* Section 1: Overview - Free */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                     {/* Compliance Rate */}
                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center">
@@ -604,6 +604,7 @@ export default function RulesAnalyticsPage() {
                         </div>
                     </div>
                 )}
+
             </div>
         </div>
     );

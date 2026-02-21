@@ -119,7 +119,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
 
     useEffect(() => {
         getTradingRules()
-            .then(rules => setTradingRules(rules.filter(r => r.isActive).sort((a, b) => a.displayOrder - b.displayOrder)))
+            .then(rules => setTradingRules(Array.isArray(rules) ? rules.filter(r => r.isActive).sort((a, b) => a.displayOrder - b.displayOrder) : []))
             .catch(() => {});
     }, []);
 

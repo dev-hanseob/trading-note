@@ -124,7 +124,7 @@ export default function JournalDetailModal({
 
     useEffect(() => {
         getTradingRules()
-            .then(rules => setAllRules(rules.filter(r => r.isActive)))
+            .then(rules => setAllRules(Array.isArray(rules) ? rules.filter(r => r.isActive) : []))
             .catch(err => console.error('Failed to load trading rules:', err));
     }, []);
 

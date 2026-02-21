@@ -142,7 +142,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
 
     useEffect(() => {
         getTradingRules()
-            .then(rules => setTradingRules(rules.filter(r => r.isActive)))
+            .then(rules => setTradingRules(Array.isArray(rules) ? rules.filter(r => r.isActive) : []))
             .catch(err => console.error('Failed to load trading rules:', err));
     }, []);
 

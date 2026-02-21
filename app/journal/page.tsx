@@ -18,6 +18,8 @@ import {deleteJournals, getJournals} from '@/lib/api/journal';
 import {Journal} from "@/type/domain/journal";
 import {AssetType, TradeType, AssetTypeLabel, TradeTypeLabel} from "@/type/domain/journal.enum";
 import {useSeed} from '@/hooks/useSeed';
+import { useSubscription } from '@/hooks/useSubscription';
+import UpgradeBanner from '@/components/UpgradeBanner';
 
 function formatTradeDate(dateStr: string): string {
     try {
@@ -54,6 +56,9 @@ export default function JournalPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
+
+    // TODO: Replace with actual monthly count from backend when subscription system is ready
+    const subscription = useSubscription(totalItems);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [assetFilter, setAssetFilter] = useState<'all' | AssetType>('all');
@@ -281,6 +286,17 @@ export default function JournalPage() {
                     </Link>
                 </div>
             </div>
+
+            {/* Upgrade Banner */}
+            {subscription.tier === 'free' && (
+                <div className="mb-4">
+                    <UpgradeBanner
+                        tradesUsed={subscription.tradesUsed}
+                        tradeLimit={subscription.tradeLimit}
+                        usagePercent={subscription.usagePercent}
+                    />
+                </div>
+            )}
 
             {/* Summary Stat Bar */}
             <div className="bg-white dark:bg-slate-900 rounded-lg p-4 flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 overflow-x-auto border border-slate-200 dark:border-slate-800">
