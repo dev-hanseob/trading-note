@@ -1,7 +1,9 @@
 package com.example.tradingnotebe.domain.auth.service
 
+import com.example.tradingnotebe.domain.subscription.service.SubscriptionService
 import com.example.tradingnotebe.domain.user.domain.User
 import com.example.tradingnotebe.domain.user.entity.SocialProvider
+import com.example.tradingnotebe.domain.user.repository.UserJpaRepository
 import com.example.tradingnotebe.domain.user.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
@@ -11,7 +13,9 @@ import org.springframework.stereotype.Service
 @Service
 class SocialLoginService(
     private val userService: UserService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val subscriptionService: SubscriptionService,
+    private val userJpaRepository: UserJpaRepository
 ) {
     private val log = LoggerFactory.getLogger(SocialLoginService::class.java)
     
@@ -42,6 +46,10 @@ class SocialLoginService(
         } else {
             val newUser = User(email, name, profileImage, provider, providerId, kakaoAccessToken)
             val savedUser = userService.save(newUser)
+            val userEntity = userJpaRepository.findById(savedUser.id!!).orElse(null)
+            if (userEntity != null) {
+                subscriptionService.createTrialSubscription(userEntity)
+            }
             savedUser.email!!
         }
     }

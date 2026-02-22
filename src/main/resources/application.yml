@@ -113,6 +113,13 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p --- [%15.15t] %-40.40logger{39} : %m%n"
 
+# Toss Payments Configuration
+toss:
+  payments:
+    secret-key: ${TOSS_SECRET_KEY:test_sk_placeholder}
+    client-key: ${TOSS_CLIENT_KEY:test_ck_placeholder}
+    api-url: https://api.tosspayments.com/v1
+
 # OpenAI Configuration
 openai:
   api-key: ${OPENAI_API_KEY:}
