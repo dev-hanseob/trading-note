@@ -156,4 +156,93 @@ class Journal(
         tradedAt = LocalDate.now(),
         user = UserEntity(email = "default@example.com")
     )
+
+    fun updateFrom(request: com.example.tradingnotebe.domain.journal.model.AddJournalRequest): Journal {
+        return Journal(
+            id = this.id,
+            assetType = request.assetType,
+            tradeType = request.tradeType,
+            position = request.position,
+            currency = request.currency,
+            symbol = request.symbol,
+            buyPrice = request.buyPrice,
+            investment = request.investment,
+            profit = request.profit,
+            roi = request.roi,
+            quantity = request.quantity,
+            leverage = request.leverage,
+            memo = request.memo,
+            tradedAt = request.tradedAt,
+            user = this.user,
+            tradeStatus = request.tradeStatus,
+            entryPrice = request.entryPrice,
+            stopLoss = request.stopLoss,
+            takeProfitPrice = request.takeProfitPrice,
+            positionSize = request.positionSize,
+            accountRiskPercent = request.accountRiskPercent,
+            chartScreenshotUrl = request.chartScreenshotUrl,
+            timeframes = request.timeframes,
+            setupType = request.setupType,
+            keyLevels = request.keyLevels,
+            emotion = request.emotion,
+            physicalCondition = request.physicalCondition,
+            influencedByLastTrade = request.influencedByLastTrade,
+            checkedRuleIds = request.checkedRuleIds,
+            narrative = request.narrative,
+            exitPrice = request.exitPrice,
+            exitDate = request.exitDate,
+            realizedPnl = request.realizedPnl,
+            postTradeAnalysis = request.postTradeAnalysis,
+            executionResult = request.executionResult,
+            wouldTakeAgain = request.wouldTakeAgain,
+            parentJournalId = request.parentJournalId,
+            updatedAt = LocalDateTime.now()
+        )
+    }
+
+    fun close(request: com.example.tradingnotebe.domain.journal.model.ClosePositionRequest): Journal {
+        if (this.tradeStatus != TradeStatus.OPEN) {
+            throw com.example.tradingnotebe.domain.exception.PositionAlreadyClosedException(this.id!!)
+        }
+        return Journal(
+            id = this.id,
+            assetType = this.assetType,
+            tradeType = this.tradeType,
+            position = this.position,
+            currency = this.currency,
+            symbol = this.symbol,
+            buyPrice = this.buyPrice,
+            investment = this.investment,
+            profit = this.profit,
+            roi = this.roi,
+            quantity = this.quantity,
+            leverage = this.leverage,
+            memo = this.memo,
+            tradedAt = this.tradedAt,
+            user = this.user,
+            tradeStatus = TradeStatus.CLOSED,
+            entryPrice = this.entryPrice,
+            stopLoss = this.stopLoss,
+            takeProfitPrice = this.takeProfitPrice,
+            positionSize = this.positionSize,
+            accountRiskPercent = this.accountRiskPercent,
+            chartScreenshotUrl = this.chartScreenshotUrl,
+            timeframes = this.timeframes,
+            setupType = this.setupType,
+            keyLevels = this.keyLevels,
+            emotion = this.emotion,
+            physicalCondition = this.physicalCondition,
+            influencedByLastTrade = this.influencedByLastTrade,
+            checkedRuleIds = this.checkedRuleIds,
+            narrative = this.narrative,
+            exitPrice = request.exitPrice,
+            exitDate = request.exitDate ?: LocalDate.now(),
+            realizedPnl = request.realizedPnl,
+            postTradeAnalysis = request.postTradeAnalysis,
+            executionResult = request.executionResult,
+            wouldTakeAgain = request.wouldTakeAgain,
+            parentJournalId = this.parentJournalId,
+            updatedAt = LocalDateTime.now()
+        )
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.tradingnotebe.domain.journal.service
 
 import com.example.tradingnotebe.domain.exception.JournalNotFoundException
-import com.example.tradingnotebe.domain.exception.PositionAlreadyClosedException
 import com.example.tradingnotebe.domain.journal.entity.Journal
 import com.example.tradingnotebe.domain.journal.entity.TradeStatus
 import com.example.tradingnotebe.domain.journal.model.AddJournalRequest
@@ -15,8 +14,6 @@ import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Transactional
 @Service
@@ -74,46 +71,7 @@ class JournalService(
         val existing = journalRepository.findByIdAndUser(id, userEntity)
             ?: throw JournalNotFoundException(id)
 
-        val updated = Journal(
-            id = existing.id,
-            assetType = request.assetType,
-            tradeType = request.tradeType,
-            position = request.position,
-            currency = request.currency,
-            symbol = request.symbol,
-            buyPrice = request.buyPrice,
-            investment = request.investment,
-            profit = request.profit,
-            roi = request.roi,
-            quantity = request.quantity,
-            leverage = request.leverage,
-            memo = request.memo,
-            tradedAt = request.tradedAt,
-            user = existing.user,
-            tradeStatus = request.tradeStatus,
-            entryPrice = request.entryPrice,
-            stopLoss = request.stopLoss,
-            takeProfitPrice = request.takeProfitPrice,
-            positionSize = request.positionSize,
-            accountRiskPercent = request.accountRiskPercent,
-            chartScreenshotUrl = request.chartScreenshotUrl,
-            timeframes = request.timeframes,
-            setupType = request.setupType,
-            keyLevels = request.keyLevels,
-            emotion = request.emotion,
-            physicalCondition = request.physicalCondition,
-            influencedByLastTrade = request.influencedByLastTrade,
-            checkedRuleIds = request.checkedRuleIds,
-            narrative = request.narrative,
-            exitPrice = request.exitPrice,
-            exitDate = request.exitDate,
-            realizedPnl = request.realizedPnl,
-            postTradeAnalysis = request.postTradeAnalysis,
-            executionResult = request.executionResult,
-            wouldTakeAgain = request.wouldTakeAgain,
-            parentJournalId = request.parentJournalId,
-            updatedAt = LocalDateTime.now()
-        )
+        val updated = existing.updateFrom(request)
         val saved = journalRepository.save(updated)
         return JournalResponse.from(saved)
     }
@@ -123,50 +81,7 @@ class JournalService(
         val existing = journalRepository.findByIdAndUser(id, userEntity)
             ?: throw JournalNotFoundException(id)
 
-        if (existing.tradeStatus != TradeStatus.OPEN) {
-            throw PositionAlreadyClosedException(id)
-        }
-
-        val closed = Journal(
-            id = existing.id,
-            assetType = existing.assetType,
-            tradeType = existing.tradeType,
-            position = existing.position,
-            currency = existing.currency,
-            symbol = existing.symbol,
-            buyPrice = existing.buyPrice,
-            investment = existing.investment,
-            profit = existing.profit,
-            roi = existing.roi,
-            quantity = existing.quantity,
-            leverage = existing.leverage,
-            memo = existing.memo,
-            tradedAt = existing.tradedAt,
-            user = existing.user,
-            tradeStatus = TradeStatus.CLOSED,
-            entryPrice = existing.entryPrice,
-            stopLoss = existing.stopLoss,
-            takeProfitPrice = existing.takeProfitPrice,
-            positionSize = existing.positionSize,
-            accountRiskPercent = existing.accountRiskPercent,
-            chartScreenshotUrl = existing.chartScreenshotUrl,
-            timeframes = existing.timeframes,
-            setupType = existing.setupType,
-            keyLevels = existing.keyLevels,
-            emotion = existing.emotion,
-            physicalCondition = existing.physicalCondition,
-            influencedByLastTrade = existing.influencedByLastTrade,
-            checkedRuleIds = existing.checkedRuleIds,
-            narrative = existing.narrative,
-            exitPrice = request.exitPrice,
-            exitDate = request.exitDate ?: LocalDate.now(),
-            realizedPnl = request.realizedPnl,
-            postTradeAnalysis = request.postTradeAnalysis,
-            executionResult = request.executionResult,
-            wouldTakeAgain = request.wouldTakeAgain,
-            parentJournalId = existing.parentJournalId,
-            updatedAt = LocalDateTime.now()
-        )
+        val closed = existing.close(request)
         val saved = journalRepository.save(closed)
         return JournalResponse.from(saved)
     }
