@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useState, useCallback} from 'react';
+import {Suspense, useEffect, useMemo, useState, useCallback} from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -20,6 +20,7 @@ import {Journal} from "@/type/domain/journal";
 import {AssetType, TradeType, AssetTypeLabel, TradeTypeLabel} from "@/type/domain/journal.enum";
 import {useSeed} from '@/hooks/useSeed';
 import { useJournals } from '@/hooks/useJournals';
+import { useUrlState } from '@/hooks/useUrlState';
 import { useSubscription } from '@/hooks/useSubscription';
 import UpgradeBanner from '@/components/UpgradeBanner';
 import { formatTradeDate } from '@/lib/utils/format';
@@ -27,11 +28,34 @@ import { formatTradeDate } from '@/lib/utils/format';
 type SortField = 'symbol' | 'date' | 'pnl' | 'roi' | 'investment' | null;
 type SortDir = 'asc' | 'desc';
 
-export default function JournalPage() {
+const URL_DEFAULTS = {
+    page: '1',
+    pageSize: '10',
+    search: '',
+    asset: 'all',
+    tradeType: 'all',
+    outcome: 'all',
+    sort: 'date',
+    dir: 'desc',
+};
+
+function JournalContent() {
     const router = useRouter();
     const queryClient = useQueryClient();
     const {seed: totalSeed, isLoading: isSeedLoading} = useSeed();
     const { showToast } = useToast();
+
+    const { getParam, setParams } = useUrlState(URL_DEFAULTS);
+
+    const currentPage = Number(getParam('page')) || 1;
+    const itemsPerPage = Number(getParam('pageSize')) || 10;
+    const searchQuery = getParam('search');
+    const assetFilter = getParam('asset') as 'all' | AssetType;
+    const tradeTypeFilter = getParam('tradeType') as 'all' | TradeType;
+    const outcomeFilter = getParam('outcome') as 'all' | 'win' | 'loss' | 'open';
+    const sortField = (getParam('sort') || 'date') as SortField;
+    const sortDir = (getParam('dir') || 'desc') as SortDir;
+
     const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
     const [showModal, setShowModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -44,9 +68,6 @@ export default function JournalPage() {
     const [singleDeleteTarget, setSingleDeleteTarget] = useState<number | null>(null);
     const [isCsvImportOpen, setIsCsvImportOpen] = useState(false);
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
-
     const subscription = useSubscription();
 
     const { data: journalData } = useJournals({ page: currentPage, pageSize: itemsPerPage });
@@ -57,20 +78,32 @@ export default function JournalPage() {
         queryClient.invalidateQueries({ queryKey: ['journals'] });
     }, [queryClient]);
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [assetFilter, setAssetFilter] = useState<'all' | AssetType>('all');
-    const [tradeTypeFilter, setTradeTypeFilter] = useState<'all' | TradeType>('all');
-    const [outcomeFilter, setOutcomeFilter] = useState<'all' | 'win' | 'loss' | 'open'>('all');
-
-    const [sortField, setSortField] = useState<SortField>('date');
-    const [sortDir, setSortDir] = useState<SortDir>('desc');
-
     useEffect(() => {
         const checkMobile = () => setIsMobileView(window.innerWidth < 1024);
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
+
+    const setCurrentPage = useCallback((page: number) => {
+        setParams({ page: String(page) });
+    }, [setParams]);
+
+    const setSearchQuery = useCallback((val: string) => {
+        setParams({ search: val, page: '1' });
+    }, [setParams]);
+
+    const setAssetFilter = useCallback((val: string) => {
+        setParams({ asset: val, page: '1' });
+    }, [setParams]);
+
+    const setTradeTypeFilter = useCallback((val: string) => {
+        setParams({ tradeType: val, page: '1' });
+    }, [setParams]);
+
+    const setOutcomeFilter = useCallback((val: string) => {
+        setParams({ outcome: val, page: '1' });
+    }, [setParams]);
 
     const calculatedTableData = useMemo(() => {
         return tableData.map(entry => ({
@@ -142,8 +175,11 @@ export default function JournalPage() {
     };
 
     const handleSort = (field: SortField) => {
-        if (sortField === field) setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
-        else { setSortField(field); setSortDir('desc'); }
+        if (sortField === field) {
+            setParams({ dir: sortDir === 'asc' ? 'desc' : 'asc' });
+        } else {
+            setParams({ sort: field || 'date', dir: 'desc' });
+        }
     };
 
     const getSortIcon = (field: SortField) => {
@@ -189,7 +225,7 @@ export default function JournalPage() {
     const hasActiveFilters = !!(searchQuery || assetFilter !== 'all' || tradeTypeFilter !== 'all' || outcomeFilter !== 'all');
 
     const resetFilters = () => {
-        setSearchQuery(''); setAssetFilter('all'); setTradeTypeFilter('all'); setOutcomeFilter('all');
+        setParams({ search: '', asset: 'all', tradeType: 'all', outcome: 'all', page: '1' });
     };
 
     const handleNavigate = useCallback((journal: Journal) => setDetailTarget(journal), []);
@@ -291,19 +327,19 @@ export default function JournalPage() {
                         {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"><X size={14} /></button>}
                     </div>
                     <div className="relative">
-                        <select value={assetFilter} onChange={e => setAssetFilter(e.target.value as 'all' | AssetType)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
+                        <select value={assetFilter} onChange={e => setAssetFilter(e.target.value)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
                             <option value="all">전체 자산</option><option value={AssetType.STOCK}>주식</option><option value={AssetType.CRYPTO}>암호화폐</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                     </div>
                     <div className="relative">
-                        <select value={tradeTypeFilter} onChange={e => setTradeTypeFilter(e.target.value as 'all' | TradeType)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
+                        <select value={tradeTypeFilter} onChange={e => setTradeTypeFilter(e.target.value)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
                             <option value="all">전체 유형</option><option value={TradeType.SPOT}>현물</option><option value={TradeType.FUTURES}>선물</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                     </div>
                     <div className="relative">
-                        <select value={outcomeFilter} onChange={e => setOutcomeFilter(e.target.value as 'all' | 'win' | 'loss' | 'open')} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
+                        <select value={outcomeFilter} onChange={e => setOutcomeFilter(e.target.value)} className="h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none cursor-pointer">
                             <option value="all">전체 결과</option><option value="win">이익</option><option value="loss">손실</option><option value="open">진행중</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
@@ -313,8 +349,8 @@ export default function JournalPage() {
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs text-slate-500">적용된 필터:</span>
                         {searchQuery && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-900/30 text-emerald-400 rounded text-xs font-medium">&quot;{searchQuery}&quot;<button onClick={() => setSearchQuery('')} className="hover:text-emerald-300 ml-1"><X size={12} /></button></span>}
-                        {assetFilter !== 'all' && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-900/30 text-emerald-400 rounded text-xs font-medium">{AssetTypeLabel[assetFilter]}<button onClick={() => setAssetFilter('all')} className="hover:text-emerald-300 ml-1"><X size={12} /></button></span>}
-                        {tradeTypeFilter !== 'all' && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-900/30 text-emerald-400 rounded text-xs font-medium">{TradeTypeLabel[tradeTypeFilter]}<button onClick={() => setTradeTypeFilter('all')} className="hover:text-emerald-300 ml-1"><X size={12} /></button></span>}
+                        {assetFilter !== 'all' && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-900/30 text-emerald-400 rounded text-xs font-medium">{AssetTypeLabel[assetFilter as AssetType]}<button onClick={() => setAssetFilter('all')} className="hover:text-emerald-300 ml-1"><X size={12} /></button></span>}
+                        {tradeTypeFilter !== 'all' && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-900/30 text-emerald-400 rounded text-xs font-medium">{TradeTypeLabel[tradeTypeFilter as TradeType]}<button onClick={() => setTradeTypeFilter('all')} className="hover:text-emerald-300 ml-1"><X size={12} /></button></span>}
                         {outcomeFilter !== 'all' && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-900/30 text-emerald-400 rounded text-xs font-medium">{outcomeFilter === 'win' ? '이익' : outcomeFilter === 'loss' ? '손실' : '진행중'}<button onClick={() => setOutcomeFilter('all')} className="hover:text-emerald-300 ml-1"><X size={12} /></button></span>}
                         <button onClick={resetFilters} className="text-xs text-slate-500 hover:text-slate-300 font-medium ml-1">전체 초기화</button>
                     </div>
@@ -474,7 +510,7 @@ export default function JournalPage() {
             {filteredAndSortedData.length > 0 && (
                 <div className="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
+                        <button onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))} disabled={currentPage === 1} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
                         <div className="flex items-center gap-1">
                             {Array.from({length: Math.min(totalPages, 5)}, (_, i) => {
                                 let page;
@@ -485,9 +521,9 @@ export default function JournalPage() {
                                 return (<button key={page} onClick={() => setCurrentPage(page)} className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${currentPage === page ? 'bg-emerald-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{page}</button>);
                             })}
                         </div>
-                        <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
+                        <button onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))} disabled={currentPage === totalPages} className="w-9 h-9 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
                     </div>
-                    <select value={itemsPerPage} onChange={e => { setItemsPerPage(parseInt(e.target.value)); setCurrentPage(1); }} className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <select value={itemsPerPage} onChange={e => { setParams({ pageSize: e.target.value, page: '1' }); }} className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         {[10, 20, 30, 50, 100].map(n => <option key={n} value={n}>{n}개씩 보기</option>)}
                     </select>
                 </div>
@@ -558,5 +594,20 @@ export default function JournalPage() {
                 }}
             />
         </div>
+    );
+}
+
+export default function JournalPage() {
+    return (
+        <Suspense fallback={
+            <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-8 min-h-screen">
+                <div className="animate-pulse space-y-4">
+                    <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded-lg w-64" />
+                    <div className="h-80 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                </div>
+            </div>
+        }>
+            <JournalContent />
+        </Suspense>
     );
 }
