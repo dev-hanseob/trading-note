@@ -7,6 +7,11 @@ import jakarta.persistence.*
 import java.math.BigDecimal
 
 @Entity(name = "seed")
+@Table(
+    indexes = [
+        Index(name = "idx_seed_user_id", columnList = "user_id")
+    ]
+)
 class SeedEntity(
     @Column(name = "price")
     val price: BigDecimal,

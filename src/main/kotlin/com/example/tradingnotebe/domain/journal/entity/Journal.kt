@@ -6,6 +6,15 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity(name = "journal")
+@Table(
+    indexes = [
+        Index(name = "idx_journal_user_id", columnList = "user_id"),
+        Index(name = "idx_journal_traded_at", columnList = "traded_at"),
+        Index(name = "idx_journal_trade_status", columnList = "trade_status"),
+        Index(name = "idx_journal_symbol", columnList = "symbol"),
+        Index(name = "idx_journal_user_traded_at", columnList = "user_id, traded_at")
+    ]
+)
 class Journal(
 
     @Id

@@ -5,6 +5,12 @@ import com.example.tradingnotebe.domain.user.entity.UserEntity
 import jakarta.persistence.*
 
 @Entity(name = "trading_rule")
+@Table(
+    indexes = [
+        Index(name = "idx_trading_rule_user_id", columnList = "user_id"),
+        Index(name = "idx_trading_rule_user_order", columnList = "user_id, display_order")
+    ]
+)
 class TradingRule(
 
     @Id

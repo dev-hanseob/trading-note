@@ -7,7 +7,13 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Entity
-@Table(name = "subscription")
+@Table(
+    name = "subscription",
+    indexes = [
+        Index(name = "idx_subscription_user_id", columnList = "user_id"),
+        Index(name = "idx_subscription_status", columnList = "status")
+    ]
+)
 class SubscriptionEntity(
 
     @OneToOne(fetch = FetchType.LAZY)
