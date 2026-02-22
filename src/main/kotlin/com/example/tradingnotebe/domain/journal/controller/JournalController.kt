@@ -10,8 +10,6 @@ import com.example.tradingnotebe.domain.journal.service.FileStorageService
 import com.example.tradingnotebe.domain.journal.service.JournalService
 import com.example.tradingnotebe.domain.journal.service.TradingRuleService
 import com.example.tradingnotebe.domain.user.domain.User
-import com.example.tradingnotebe.domain.user.entity.SocialProvider
-import com.example.tradingnotebe.domain.user.repository.UserJpaRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -22,30 +20,15 @@ import org.springframework.web.multipart.MultipartFile
 class JournalController(
     private val journalService: JournalService,
     private val fileStorageService: FileStorageService,
-    private val tradingRuleService: TradingRuleService,
-    private val userJpaRepository: UserJpaRepository
+    private val tradingRuleService: TradingRuleService
 ) {
-
-    // TODO: dev workaround - resolve user or fallback to first user in DB
-    private fun resolveUser(user: User?): User {
-        if (user != null) return user
-        val firstUser = userJpaRepository.findAll().firstOrNull()
-            ?: throw IllegalStateException("No users in database. Please create a user first via /api/auth/signup")
-        return User(
-            id = firstUser.id,
-            email = firstUser.email ?: "",
-            name = firstUser.name ?: "",
-            provider = firstUser.provider
-        )
-    }
 
     @PostMapping
     fun addJournal(
         @RequestBody request: AddJournalRequest,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<JournalResponse> {
-        val resolved = resolveUser(user)
-        val saved = journalService.createJournal(request, resolved)
+        val saved = journalService.createJournal(request, user)
         return ResponseEntity.ok(saved)
     }
 
@@ -55,11 +38,10 @@ class JournalController(
         @RequestParam(defaultValue = "10") pageSize: Int,
         @RequestParam(required = false) status: TradeStatus?,
         @RequestParam(required = false) search: String?,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<Map<String, Any>> {
-        val resolved = resolveUser(user)
         val pageable = PageRequest.of(page - 1, pageSize)
-        val journalsPage = journalService.findByUser(resolved, pageable, status, search)
+        val journalsPage = journalService.findByUser(user, pageable, status, search)
 
         val response = mapOf(
             "total" to journalsPage.totalElements,
@@ -73,10 +55,9 @@ class JournalController(
     @GetMapping("/{id}")
     fun getJournal(
         @PathVariable id: Long,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<JournalResponse> {
-        val resolved = resolveUser(user)
-        val journal = journalService.findByIdAndUser(id, resolved)
+        val journal = journalService.findByIdAndUser(id, user)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(journal)
     }
@@ -85,10 +66,9 @@ class JournalController(
     fun updateJournal(
         @PathVariable id: Long,
         @RequestBody request: AddJournalRequest,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<JournalResponse> {
-        val resolved = resolveUser(user)
-        val updated = journalService.updateJournal(id, request, resolved)
+        val updated = journalService.updateJournal(id, request, user)
         return ResponseEntity.ok(updated)
     }
 
@@ -96,10 +76,9 @@ class JournalController(
     fun closePosition(
         @PathVariable id: Long,
         @RequestBody request: ClosePositionRequest,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<JournalResponse> {
-        val resolved = resolveUser(user)
-        val closed = journalService.closePosition(id, request, resolved)
+        val closed = journalService.closePosition(id, request, user)
         return ResponseEntity.ok(closed)
     }
 
@@ -107,11 +86,10 @@ class JournalController(
     fun getOpenPositions(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "50") pageSize: Int,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<Map<String, Any>> {
-        val resolved = resolveUser(user)
         val pageable = PageRequest.of(page - 1, pageSize)
-        val positionsPage = journalService.getOpenPositions(resolved, pageable)
+        val positionsPage = journalService.getOpenPositions(user, pageable)
 
         val response = mapOf(
             "total" to positionsPage.totalElements,
@@ -125,30 +103,26 @@ class JournalController(
     @PostMapping("/upload/chart")
     fun uploadChart(
         @RequestParam("file") file: MultipartFile,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<Map<String, String>> {
-        // TODO: dev workaround - use hardcoded userId when user is not available
-        val userId = 1L
-        val url = fileStorageService.store(file, userId)
+        val url = fileStorageService.store(file, user.id!!)
         return ResponseEntity.ok(mapOf("url" to url))
     }
 
     @GetMapping("/analytics/by-rules")
     fun getAnalyticsByRules(
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<RuleAnalyticsResponse> {
-        val resolved = resolveUser(user)
-        val analytics = tradingRuleService.getRuleAnalytics(resolved)
+        val analytics = tradingRuleService.getRuleAnalytics(user)
         return ResponseEntity.ok(analytics)
     }
 
     @DeleteMapping("/{id}")
     fun deleteJournal(
         @PathVariable id: Long,
-        @CurrentUser(required = false) user: User?
+        @CurrentUser user: User
     ): ResponseEntity<Void> {
-        val resolved = resolveUser(user)
-        journalService.deleteByIdAndUser(id, resolved)
+        journalService.deleteByIdAndUser(id, user)
         return ResponseEntity.noContent().build()
     }
 }

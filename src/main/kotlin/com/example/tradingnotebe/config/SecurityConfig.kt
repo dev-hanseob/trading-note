@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import jakarta.servlet.http.HttpServletResponse
 
 @Configuration
 @EnableWebSecurity
@@ -39,6 +40,13 @@ class SecurityConfig(
                     .requestMatchers("/oauth2/**").permitAll()
                     .requestMatchers("/api/subscription/webhook/**").permitAll()
                     .anyRequest().authenticated()
+            }
+            .exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint { _, response, _ ->
+                    response.contentType = "application/json"
+                    response.status = HttpServletResponse.SC_UNAUTHORIZED
+                    response.writer.write("""{"status":401,"error":"Unauthorized","message":"Authentication required"}""")
+                }
             }
             .oauth2Login { oauth2 ->
                 oauth2

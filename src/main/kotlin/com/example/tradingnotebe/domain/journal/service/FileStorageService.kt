@@ -14,7 +14,7 @@ class FileStorageService(
     @Value("\${file.base-url}") private val baseUrl: String
 ) {
 
-    fun store(file: MultipartFile, userId: Long): String {
+    fun store(file: MultipartFile, userId: UUID): String {
         val extension = file.originalFilename
             ?.substringAfterLast('.', "")
             ?.ifEmpty { "png" }
