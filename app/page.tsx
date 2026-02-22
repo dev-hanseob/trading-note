@@ -35,7 +35,7 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-3">
-            신용카드 불필요 · 14일 모든 기능 무료 체험 · 설치 없음
+            가입 즉시 사용 가능 · 설치 없음
           </p>
         </div>
       </section>
@@ -266,7 +266,7 @@ export default function HomePage() {
             심플한 요금제
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-10 sm:mb-12">
-            14일간 모든 기능을 무료로 체험하세요. 체험 후 자동으로 Free 플랜으로 전환됩니다.
+            Free 플랜으로 부담 없이 시작하고, 필요할 때 업그레이드하세요.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Free */}
@@ -325,7 +325,7 @@ export default function HomePage() {
           </p>
           <div className="space-y-2">
             {[
-              { q: '정말 무료로 시작할 수 있나요?', a: '네, 가입 즉시 14일간 Basic 전체 기능을 무료로 체험합니다. 체험 종료 후 자동으로 Free 플랜으로 전환되며, 별도의 결제 없이 계속 사용 가능합니다.' },
+              { q: '정말 무료로 사용할 수 있나요?', a: '네, Free 플랜은 월 30건까지 무료로 이용 가능합니다. 더 많은 기록과 고급 분석이 필요하면 Basic 플랜으로 업그레이드할 수 있습니다.' },
               { q: '내 거래 데이터는 안전한가요?', a: '모든 데이터는 암호화되어 저장되며, 본인만 열람할 수 있습니다. 제3자에게 데이터를 공유하거나 판매하지 않습니다.' },
               { q: '모바일에서도 사용할 수 있나요?', a: '네, 반응형 웹으로 모바일 브라우저에서도 최적화된 화면으로 이용 가능합니다. 별도 앱 설치가 필요 없습니다.' },
               { q: '어떤 결제 수단을 지원하나요?', a: '신용카드, 체크카드, 카카오페이, 네이버페이를 지원합니다. 언제든 원클릭으로 해지할 수 있습니다.' },
@@ -367,7 +367,7 @@ export default function HomePage() {
             <ArrowRight className="w-4 h-4" />
           </Link>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-4">
-            Basic 플랜 월 10,400원 (연간) · 14일 무료 체험 후 결제
+            Basic 플랜 월 10,400원 (연간) · 언제든 해지 가능
           </p>
         </div>
       </section>

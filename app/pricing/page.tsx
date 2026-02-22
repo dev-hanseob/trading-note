@@ -213,7 +213,7 @@ export default function PricingPage() {
                         {[
                             { q: '언제든 취소할 수 있나요?', a: '네, 원클릭으로 즉시 취소 가능합니다. 취소 후에도 결제 기간이 끝날 때까지 이용할 수 있습니다.' },
                             { q: '어떤 결제 수단을 지원하나요?', a: '신용카드, 체크카드, 카카오페이, 네이버페이를 지원합니다.' },
-                            { q: '무료 체험이 있나요?', a: '가입 시 14일간 Basic 전체 기능을 무료로 체험할 수 있습니다. 체험 종료 후 자동으로 Free로 전환됩니다.' },
+                            { q: 'Free 플랜은 계속 무료인가요?', a: '네, Free 플랜은 월 30건까지 기간 제한 없이 무료로 이용 가능합니다.' },
                         ].map(({ q, a }, i) => (
                             <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
                                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1.5">{q}</h3>
