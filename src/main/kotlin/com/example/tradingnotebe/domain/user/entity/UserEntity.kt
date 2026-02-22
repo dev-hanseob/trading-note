@@ -36,23 +36,16 @@ class UserEntity(
     
     companion object {
         fun toEntity(user: User): UserEntity {
-            return if (user.provider == SocialProvider.LOCAL) {
-                UserEntity(
-                    email = user.email,
-                    password = user.password,
-                    id = user.id
-                )
-            } else {
-                UserEntity(
-                    email = user.email,
-                    name = user.name,
-                    profileImage = user.profileImage,
-                    provider = user.provider,
-                    providerId = user.providerId,
-                    kakaoAccessToken = user.kakaoAccessToken,
-                    id = user.id
-                )
-            }
+            return UserEntity(
+                email = user.email,
+                password = user.password,
+                name = user.name,
+                profileImage = user.profileImage,
+                provider = user.provider,
+                providerId = user.providerId,
+                kakaoAccessToken = user.kakaoAccessToken,
+                id = user.id
+            )
         }
         
         fun toDomain(userEntity: UserEntity): User {
