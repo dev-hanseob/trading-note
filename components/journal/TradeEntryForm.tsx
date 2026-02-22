@@ -1,52 +1,30 @@
 'use client';
 
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Crosshair, Shield, LineChart, FileText, ChevronDown,
-    Upload, CheckSquare, Square, ArrowRight, Brain,
-    TrendingUp, TrendingDown, X, ImageIcon, AlertCircle,
-    Calculator, Tag, Settings
+    Crosshair, Shield, FileText,
+    ArrowRight,
+    TrendingUp, TrendingDown, AlertCircle,
+    Calculator,
 } from 'lucide-react';
-import { createJournal, updateJournal, uploadChart } from '@/lib/api/journal';
+import { createJournal, updateJournal } from '@/lib/api/journal';
 import { AssetType, TradeType, PositionType } from '@/type/domain/journal.enum';
 import { getTradingRules } from '@/lib/api/tradingRule';
 import { TradingRule } from '@/type/domain/tradingRule';
 import { Journal } from '@/type/domain/journal';
+import ChartAnalysisSection from './ChartAnalysisSection';
+import PsychologyStrategySection from './PsychologyStrategySection';
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const timeframeOptions = ['5m', '15m', '1H', '4H', '1D'];
 const leverageOptions = ['1', '2', '3', '5', '10', '20', '50', '100'];
 
-const strategyPresets = [
-    '브레이크아웃', '추세추종', '눌림목', '지지/저항',
-    '스캘핑', '역추세', '뉴스', '패턴', '갭',
-];
-
-interface EmotionOption {
-    value: string;
-    label: string;
-    icon: string;
-    activeClasses: string;
-    textClass: string;
-}
-
-const emotions: EmotionOption[] = [
-    { value: 'ANXIOUS',    label: '불안',   icon: '😟', activeClasses: 'border-orange-400 bg-orange-900/20',  textClass: 'text-orange-400' },
-    { value: 'FOMO',       label: '공포',   icon: '😰', activeClasses: 'border-red-400 bg-red-900/20',       textClass: 'text-red-400' },
-    { value: 'CALM',       label: '평온',   icon: '😐', activeClasses: 'border-slate-400 bg-slate-800',   textClass: 'text-slate-400' },
-    { value: 'CONFIDENT',  label: '자신감', icon: '😊', activeClasses: 'border-emerald-400 bg-emerald-900/20', textClass: 'text-emerald-400' },
-    { value: 'REVENGE',    label: '탐욕',   icon: '🤑', activeClasses: 'border-amber-400 bg-amber-900/20',   textClass: 'text-amber-400' },
-];
-
-
 /* ------------------------------------------------------------------ */
-/*  Validation                                                         */
+/*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
 interface FormErrors {
@@ -55,21 +33,30 @@ interface FormErrors {
     submit?: string;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
-
 interface TradeEntryFormProps {
     onChartPreviewsChange?: (previews: string[]) => void;
     editTarget?: Journal | null;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Shared style constants                                             */
+/* ------------------------------------------------------------------ */
+
+const sectionCard = 'bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800';
+const labelCls = 'text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 block';
+const inputCls = 'w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all';
+const inputErrorCls = 'w-full bg-slate-100 dark:bg-slate-800 border border-red-300 dark:border-red-700 text-slate-900 dark:text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all';
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 
 export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: TradeEntryFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<FormErrors>({});
 
-    // -- 기본 정보 --
+    // -- Basic info --
     const [assetType, setAssetType] = useState<AssetType>(AssetType.CRYPTO);
     const [assetPair, setAssetPair] = useState('');
     const [tradeType, setTradeType] = useState<TradeType>(TradeType.FUTURES);
@@ -78,7 +65,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     const [currency, setCurrency] = useState<string>('USDT');
     const [isClosed, setIsClosed] = useState(false);
 
-    // -- 가격 & 수량 --
+    // -- Price & quantity --
     const [entryPrice, setEntryPrice] = useState('');
     const [exitPrice, setExitPrice] = useState('');
     const [stopLoss, setStopLoss] = useState('');
@@ -86,15 +73,15 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     const [positionSize, setPositionSize] = useState('');
     const [leverage, setLeverage] = useState('1');
 
-    // -- 결과 (종료 시) --
+    // -- Result (closed) --
     const [profitAmount, setProfitAmount] = useState('');
     const [roiAmount, setRoiAmount] = useState('');
 
-    // -- 분석 --
+    // -- Analysis --
     const [selectedTimeframes, setSelectedTimeframes] = useState<string[]>([]);
     const [keyLevels, setKeyLevels] = useState('');
 
-    // -- 차트 업로드 (다중) --
+    // -- Chart upload --
     const [chartPreviews, setChartPreviews] = useState<string[]>([]);
     const [chartUrls, setChartUrls] = useState<string[]>([]);
     const [uploadingCount, setUploadingCount] = useState(0);
@@ -106,11 +93,11 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     const [showFullChart, setShowFullChart] = useState(false);
     const [fullChartIndex, setFullChartIndex] = useState(0);
 
-    // -- 심리 & 전략 --
+    // -- Psychology & strategy --
     const [emotion, setEmotion] = useState<string | null>(null);
     const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
 
-    // -- 매매원칙 체크리스트 --
+    // -- Trading rules checklist --
     const [tradingRules, setTradingRules] = useState<TradingRule[]>([]);
     const [checkedRuleIds, setCheckedRuleIds] = useState<Set<number>>(new Set());
     const [narrative, setNarrative] = useState('');
@@ -165,7 +152,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
 
         if (editTarget.emotion) setEmotion(editTarget.emotion);
 
-        // Parse strategies from memo
         if (editTarget.memo) {
             try {
                 const parts = editTarget.memo.split('\n\n---\n');
@@ -174,7 +160,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                     if (Array.isArray(extra.strategies)) setSelectedStrategies(extra.strategies);
                     setNarrative(parts.slice(0, -1).join('\n\n---\n'));
                 } else {
-                    // Try direct JSON parse
                     try {
                         const parsed = JSON.parse(editTarget.memo);
                         if (Array.isArray(parsed.strategies)) setSelectedStrategies(parsed.strategies);
@@ -196,7 +181,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     }, [editTarget, onChartPreviewsChange]);
 
     /* ---------------------------------------------------------------- */
-    /*  Chart visibility observer (mobile mini preview)                   */
+    /*  Chart visibility observer                                        */
     /* ---------------------------------------------------------------- */
 
     useEffect(() => {
@@ -226,7 +211,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
         const maxLoss = entry && sl && size ? Math.abs(entry - sl) * size * lev : 0;
         const riskReward = entry && sl && tp && (entry !== sl) ? Math.abs(tp - entry) / Math.abs(entry - sl) : 0;
 
-        // P&L when closed
         let pnl = 0;
         let roi = 0;
         if (isClosed && entry && exit && size) {
@@ -238,7 +222,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
             roi = investment > 0 ? (pnl / investment) * 100 : 0;
         }
 
-        // Max possible profit (to TP)
         const maxProfit = entry && tp && size ? Math.abs(tp - entry) * size * lev : 0;
 
         return { entry, sl, tp, size, lev, exit, investment, maxLoss, riskReward, pnl, roi, maxProfit };
@@ -280,69 +263,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
         });
     };
 
-    // -- Chart Upload (multiple) --
-    const handleFilesSelect = useCallback(async (files: File[]) => {
-        const validFiles = files.filter(f => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024);
-        if (validFiles.length === 0) return;
-
-        // Add previews immediately via FileReader
-        const newPreviews: string[] = [];
-        for (const file of validFiles) {
-            const preview = await new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target?.result as string);
-                reader.readAsDataURL(file);
-            });
-            newPreviews.push(preview);
-        }
-
-        setChartPreviews(prev => {
-            const updated = [...prev, ...newPreviews];
-            onChartPreviewsChange?.(updated);
-            return updated;
-        });
-
-        // Upload each file
-        setUploadingCount(prev => prev + validFiles.length);
-        for (const file of validFiles) {
-            try {
-                const url = await uploadChart(file);
-                setChartUrls(prev => [...prev, url]);
-            } catch (err) {
-                // upload failure handled silently - preview remains without URL
-            } finally {
-                setUploadingCount(prev => prev - 1);
-            }
-        }
-    }, [onChartPreviewsChange]);
-
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        const files = Array.from(e.dataTransfer.files);
-        if (files.length > 0) handleFilesSelect(files);
-    }, [handleFilesSelect]);
-
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-    }, []);
-
-    const removeChart = (index: number) => {
-        setChartPreviews(prev => {
-            const updated = prev.filter((_, i) => i !== index);
-            onChartPreviewsChange?.(updated);
-            return updated;
-        });
-        setChartUrls(prev => prev.filter((_, i) => i !== index));
-    };
-
-    const removeAllCharts = () => {
-        setChartPreviews([]);
-        setChartUrls([]);
-        onChartPreviewsChange?.([]);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-    };
-
-    // -- Validate --
     const validate = (): boolean => {
         const newErrors: FormErrors = {};
         if (!assetPair.trim()) newErrors.symbol = '종목명을 입력해주세요';
@@ -351,7 +271,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
         return Object.keys(newErrors).length === 0;
     };
 
-    // -- Submit --
     const handlePublish = async () => {
         if (!validate()) return;
         setIsSubmitting(true);
@@ -382,7 +301,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 roi: isClosed ? (parseFloat(roiAmount) || calcs.roi || 0) : 0,
                 memo: memoContent,
                 tradedAt: tradeDate,
-                // Extended backend fields
                 tradeStatus: isClosed ? 'CLOSED' : 'OPEN',
                 entryPrice: calcs.entry || undefined,
                 stopLoss: calcs.sl || undefined,
@@ -404,8 +322,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
             }
 
             router.push('/journal');
-        } catch (error) {
-            // error handled via setErrors below
+        } catch {
             setErrors({ submit: editTarget ? '수정 중 오류가 발생했습니다. 다시 시도해주세요.' : '저장 중 오류가 발생했습니다. 다시 시도해주세요.' });
         } finally {
             setIsSubmitting(false);
@@ -413,81 +330,12 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     };
 
     /* ---------------------------------------------------------------- */
-    /*  Section styles                                                   */
-    /* ---------------------------------------------------------------- */
-
-    const sectionCard = 'bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800';
-    const labelCls = 'text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 block';
-    const inputCls = 'w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all';
-    const inputErrorCls = 'w-full bg-slate-100 dark:bg-slate-800 border border-red-300 dark:border-red-700 text-slate-900 dark:text-white rounded-lg text-sm h-11 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all';
-
-    /* ---------------------------------------------------------------- */
     /*  Render                                                           */
     /* ---------------------------------------------------------------- */
 
     return (
         <div className="space-y-6">
-            {/* Mobile mini preview bar - shown when chart scrolls out of viewport */}
-            {chartPreviews.length > 0 && !isChartVisible && (
-                <div
-                    className="fixed top-14 left-0 right-0 z-30 lg:hidden cursor-pointer"
-                    onClick={() => { setFullChartIndex(0); setShowFullChart(true); }}
-                >
-                    <div className="mx-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-xl p-2 flex items-center gap-3 shadow-lg">
-                        <img
-                            src={chartPreviews[0]}
-                            alt="차트 미리보기"
-                            className="w-16 h-10 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
-                        />
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                                차트 스크린샷 {chartPreviews.length > 1 && `(${chartPreviews.length})`}
-                            </p>
-                            <p className="text-[10px] text-slate-400">탭하여 전체화면으로 보기</p>
-                        </div>
-                        <ImageIcon className="w-4 h-4 text-slate-400 shrink-0" />
-                    </div>
-                </div>
-            )}
-
-            {/* Fullscreen chart overlay */}
-            {showFullChart && chartPreviews.length > 0 && (
-                <div
-                    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-                    onClick={() => setShowFullChart(false)}
-                >
-                    <img src={chartPreviews[fullChartIndex]} alt="차트" className="max-w-full max-h-full object-contain" />
-                    {chartPreviews.length > 1 && (
-                        <>
-                            <button
-                                type="button"
-                                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all"
-                                onClick={(e) => { e.stopPropagation(); setFullChartIndex(i => (i - 1 + chartPreviews.length) % chartPreviews.length); }}
-                            >
-                                <ChevronDown className="w-5 h-5 rotate-90" />
-                            </button>
-                            <button
-                                type="button"
-                                className="absolute right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all"
-                                onClick={(e) => { e.stopPropagation(); setFullChartIndex(i => (i + 1) % chartPreviews.length); }}
-                            >
-                                <ChevronDown className="w-5 h-5 -rotate-90" />
-                            </button>
-                        </>
-                    )}
-                    <button
-                        type="button"
-                        className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
-                        onClick={() => setShowFullChart(false)}
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
-            )}
-
-            {/* ============================================== */}
-            {/* Section 1: 거래 기본 정보                        */}
-            {/* ============================================== */}
+            {/* Section 1: Basic Trade Info */}
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <Crosshair className="w-5 h-5 text-emerald-500" />
@@ -495,7 +343,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* 자산 유형 */}
                     <div>
                         <label className={labelCls}>자산 유형</label>
                         <div className="flex gap-2">
@@ -524,7 +371,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                         </div>
                     </div>
 
-                    {/* 종목 */}
                     <div>
                         <label className={labelCls}>종목명 <span className="text-red-400">*</span></label>
                         <input
@@ -542,7 +388,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                         )}
                     </div>
 
-                    {/* 거래일 */}
                     <div>
                         <label className={labelCls}>거래일</label>
                         <input
@@ -553,7 +398,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                         />
                     </div>
 
-                    {/* 거래 유형 */}
                     <div>
                         <label className={labelCls}>거래 유형</label>
                         <div className="flex gap-2">
@@ -582,7 +426,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                         </div>
                     </div>
 
-                    {/* 포지션 LONG / SHORT */}
                     <div>
                         <label className={labelCls}>포지션</label>
                         <div className="flex gap-2">
@@ -613,7 +456,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                         </div>
                     </div>
 
-                    {/* 화폐 */}
                     <div>
                         <label className={labelCls}>화폐</label>
                         <select
@@ -630,9 +472,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 </div>
             </div>
 
-            {/* ============================================== */}
-            {/* Section 2: 가격 & 수량                           */}
-            {/* ============================================== */}
+            {/* Section 2: Price & Quantity */}
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <Shield className="w-5 h-5 text-emerald-500" />
@@ -670,7 +510,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                     )}
                 </div>
 
-                {/* 리스크 관리 */}
                 <div className="mt-4">
                     <div className="flex items-center gap-2 mb-3">
                         <Calculator className="w-4 h-4 text-slate-400" />
@@ -688,7 +527,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                     </div>
                 </div>
 
-                {/* 실시간 계산 결과 */}
                 <AnimatePresence>
                     {(calcs.investment > 0 || calcs.maxLoss > 0 || calcs.riskReward > 0) && (
                         <motion.div
@@ -727,7 +565,6 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                     )}
                 </AnimatePresence>
 
-                {/* 거래 종료 */}
                 <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
@@ -808,235 +645,45 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 </div>
             </div>
 
-            {/* ============================================== */}
-            {/* Section 3: 차트 & 분석                           */}
-            {/* ============================================== */}
-            <div className={sectionCard}>
-                <div className="flex items-center gap-2 mb-6">
-                    <LineChart className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">차트 & 분석</h2>
-                </div>
+            {/* Section 3: Chart & Analysis */}
+            <ChartAnalysisSection
+                chartPreviews={chartPreviews}
+                setChartPreviews={setChartPreviews}
+                chartUrls={chartUrls}
+                setChartUrls={setChartUrls}
+                uploadingCount={uploadingCount}
+                setUploadingCount={setUploadingCount}
+                showFullChart={showFullChart}
+                setShowFullChart={setShowFullChart}
+                fullChartIndex={fullChartIndex}
+                setFullChartIndex={setFullChartIndex}
+                isChartVisible={isChartVisible}
+                chartSectionRef={chartSectionRef}
+                fileInputRef={fileInputRef}
+                onChartPreviewsChange={onChartPreviewsChange}
+                selectedTimeframes={selectedTimeframes}
+                toggleTimeframe={toggleTimeframe}
+                keyLevels={keyLevels}
+                setKeyLevels={setKeyLevels}
+                sectionCard={sectionCard}
+                labelCls={labelCls}
+                inputCls={inputCls}
+            />
 
-                {/* Chart Upload (multiple) */}
-                <div ref={chartSectionRef}>
-                {chartPreviews.length > 0 && (
-                    <div className="mb-4 space-y-3">
-                        {/* Image grid */}
-                        <div className={`grid gap-3 ${chartPreviews.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                            {chartPreviews.map((preview, i) => (
-                                <div key={i} className="relative rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 group">
-                                    <img
-                                        src={preview}
-                                        alt={`차트 ${i + 1}`}
-                                        className="w-full max-h-48 object-contain bg-slate-100 dark:bg-slate-900 cursor-pointer"
-                                        onClick={() => { setFullChartIndex(i); setShowFullChart(true); }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeChart(i)}
-                                        className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
-                                    {i < chartUrls.length && (
-                                        <div className="absolute bottom-1.5 left-1.5 bg-emerald-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                            {i + 1}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+            {/* Section 4: Psychology & Strategy */}
+            <PsychologyStrategySection
+                emotion={emotion}
+                setEmotion={setEmotion}
+                selectedStrategies={selectedStrategies}
+                toggleStrategy={toggleStrategy}
+                tradingRules={tradingRules}
+                checkedRuleIds={checkedRuleIds}
+                toggleRule={toggleRule}
+                sectionCard={sectionCard}
+                labelCls={labelCls}
+            />
 
-                        {/* Upload status + actions */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                {uploadingCount > 0 && (
-                                    <span className="flex items-center gap-1.5 text-xs text-slate-400">
-                                        <span className="w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
-                                        {uploadingCount}개 업로드 중...
-                                    </span>
-                                )}
-                                {uploadingCount === 0 && chartUrls.length > 0 && (
-                                    <span className="text-xs text-emerald-500 font-medium">{chartUrls.length}개 업로드 완료</span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="text-xs text-slate-400 hover:text-emerald-400 font-medium transition-colors"
-                                >
-                                    + 추가
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={removeAllCharts}
-                                    className="text-xs text-slate-400 hover:text-red-400 font-medium transition-colors"
-                                >
-                                    전체 삭제
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {chartPreviews.length === 0 && (
-                    <div
-                        onClick={() => fileInputRef.current?.click()}
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                        className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center mb-6 hover:border-emerald-600 transition-all cursor-pointer group"
-                    >
-                        <ImageIcon className="w-8 h-8 text-slate-500 mx-auto mb-2 group-hover:text-emerald-400 transition-colors" />
-                        <p className="text-sm text-slate-500 font-medium">차트 스크린샷을 드래그하거나 클릭하여 업로드</p>
-                        <p className="text-xs text-slate-400 mt-1">PNG, JPG, WEBP (최대 5MB) - 여러 장 선택 가능</p>
-                    </div>
-                )}
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => {
-                        const files = Array.from(e.target.files || []);
-                        if (files.length > 0) handleFilesSelect(files);
-                        if (fileInputRef.current) fileInputRef.current.value = '';
-                    }}
-                />
-                </div>
-
-                <div className="space-y-4">
-                    {/* Timeframes */}
-                    <div>
-                        <label className={labelCls}>타임프레임</label>
-                        <div className="flex flex-wrap gap-2">
-                            {timeframeOptions.map(tf => (
-                                <button
-                                    key={tf}
-                                    type="button"
-                                    onClick={() => toggleTimeframe(tf)}
-                                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                                        selectedTimeframes.includes(tf)
-                                            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-900/30'
-                                            : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                    }`}
-                                >
-                                    {tf}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Key Levels */}
-                    <div>
-                        <label className={labelCls}>주요 가격대</label>
-                        <input
-                            type="text"
-                            placeholder="예: 지지: 96,000 / 저항: 100,000"
-                            value={keyLevels}
-                            onChange={(e) => setKeyLevels(e.target.value)}
-                            className={inputCls}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* ============================================== */}
-            {/* Section 5: 심리 & 전략                           */}
-            {/* ============================================== */}
-            <div className={sectionCard}>
-                <div className="flex items-center gap-2 mb-6">
-                    <Brain className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">심리 & 전략</h2>
-                </div>
-
-                {/* Emotion Selector */}
-                <div className="mb-6">
-                    <label className={labelCls}>진입 시 감정</label>
-                    <div className="flex flex-wrap gap-2">
-                        {emotions.map(em => (
-                            <button
-                                key={em.value}
-                                type="button"
-                                onClick={() => setEmotion(prev => prev === em.value ? null : em.value)}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
-                                    emotion === em.value
-                                        ? em.activeClasses + ' shadow-sm'
-                                        : 'border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-600'
-                                }`}
-                            >
-                                <span className="text-lg">{em.icon}</span>
-                                <span className={`text-sm font-medium ${
-                                    emotion === em.value ? em.textClass : 'text-slate-400'
-                                }`}>
-                                    {em.label}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Strategy Tags */}
-                <div className="mb-6">
-                    <label className={labelCls}>전략 태그</label>
-                    <div className="flex flex-wrap gap-2">
-                        {strategyPresets.map(strategy => (
-                            <button
-                                key={strategy}
-                                type="button"
-                                onClick={() => toggleStrategy(strategy)}
-                                className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all ${
-                                    selectedStrategies.includes(strategy)
-                                        ? 'bg-emerald-500 text-white shadow-md shadow-emerald-900/30'
-                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                }`}
-                            >
-                                {strategy}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Trading Rules Checklist */}
-                <div>
-                    <label className={labelCls}>매매원칙 체크리스트</label>
-                    {tradingRules.length === 0 ? (
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
-                            <p className="text-sm text-slate-400 mb-2">등록된 매매원칙이 없습니다</p>
-                            <Link
-                                href="/settings"
-                                className="inline-flex items-center gap-1.5 text-sm text-emerald-500 hover:text-emerald-400 font-medium transition-colors"
-                            >
-                                <Settings className="w-4 h-4" />
-                                설정에서 매매원칙 추가
-                            </Link>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {tradingRules.map(rule => (
-                                <button
-                                    key={rule.id}
-                                    type="button"
-                                    onClick={() => toggleRule(rule.id)}
-                                    className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
-                                >
-                                    {checkedRuleIds.has(rule.id) ? (
-                                        <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0" />
-                                    ) : (
-                                        <Square className="w-5 h-5 text-slate-500 shrink-0" />
-                                    )}
-                                    <span className={`text-sm ${checkedRuleIds.has(rule.id) ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}`}>{rule.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* ============================================== */}
-            {/* Section 6: 트레이딩 노트                         */}
-            {/* ============================================== */}
+            {/* Section 5: Trading Note */}
             <div className={sectionCard}>
                 <div className="flex items-center gap-2 mb-6">
                     <FileText className="w-5 h-5 text-emerald-500" />
@@ -1051,9 +698,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 />
             </div>
 
-            {/* ============================================== */}
-            {/* Submit Error                                     */}
-            {/* ============================================== */}
+            {/* Submit Error */}
             {errors.submit && (
                 <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
                     <p className="text-sm text-red-400 flex items-center gap-2">
@@ -1063,9 +708,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 </div>
             )}
 
-            {/* ============================================== */}
-            {/* Action Buttons                                   */}
-            {/* ============================================== */}
+            {/* Action Buttons */}
             <div className="flex items-center justify-end gap-3 pb-8">
                 <button
                     type="button"
@@ -1091,9 +734,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 </button>
             </div>
 
-            {/* ============================================== */}
-            {/* Mobile Bottom Bar                                */}
-            {/* ============================================== */}
+            {/* Mobile Bottom Bar */}
             <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-4 py-3 lg:hidden z-40">
                 <div className="flex items-center justify-between max-w-4xl mx-auto">
                     <div className="flex items-center gap-2 min-w-0">
