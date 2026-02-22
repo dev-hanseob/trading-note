@@ -1,11 +1,15 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, useMemo, FormEvent } from 'react';
 import Link from 'next/link';
 import { User, Lock, Mail, Crown, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
+import { useSubscription } from '@/hooks/useSubscription';
+import { getJournals } from '@/lib/api/journal';
+import { getTradingRules } from '@/lib/api/tradingRule';
 import apiClient from '@/lib/api/client';
+import { startOfMonth, parseISO, isAfter } from 'date-fns';
 
 export default function AccountSettingsPage() {
     const { user } = useAuth();
@@ -19,7 +23,24 @@ export default function AccountSettingsPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isSavingPassword, setIsSavingPassword] = useState(false);
 
-    const currentPlan = 'Free';
+    const [monthlyTradeCount, setMonthlyTradeCount] = useState(0);
+    const [ruleCount, setRuleCount] = useState(0);
+
+    useEffect(() => {
+        getJournals({ page: 1, pageSize: 100 })
+            .then(res => {
+                const monthStart = startOfMonth(new Date());
+                const count = res.journals.filter(j => isAfter(parseISO(j.tradedAt), monthStart)).length;
+                setMonthlyTradeCount(count);
+            })
+            .catch(() => {});
+        getTradingRules()
+            .then(rules => setRuleCount(Array.isArray(rules) ? rules.length : 0))
+            .catch(() => {});
+    }, []);
+
+    const subscription = useSubscription(monthlyTradeCount);
+    const currentPlan = subscription.tier === 'free' ? 'Free' : 'Basic';
 
     const handleProfileSave = async (e: FormEvent) => {
         e.preventDefault();
@@ -76,7 +97,9 @@ export default function AccountSettingsPage() {
                                 <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full font-medium">무료</span>
                             </div>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                월 30건 거래 기록 · 기본 대시보드 · 매매원칙 3개
+                                {subscription.tier === 'free'
+                                    ? `월 ${subscription.tradeLimit}건 거래 기록 · 기본 대시보드`
+                                    : '무제한 거래 기록 · 전체 대시보드 · 전체 분석'}
                             </p>
                         </div>
                     </div>
@@ -94,19 +117,19 @@ export default function AccountSettingsPage() {
                     <div>
                         <div className="flex items-center justify-between mb-1.5">
                             <span className="text-xs text-slate-500 dark:text-slate-400">이달 거래 기록</span>
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">- / 30건</span>
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">{subscription.tradesUsed} / {subscription.tradeLimit}건</span>
                         </div>
                         <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: '0%' }} />
+                            <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${Math.min(subscription.usagePercent, 100)}%` }} />
                         </div>
                     </div>
                     <div>
                         <div className="flex items-center justify-between mb-1.5">
                             <span className="text-xs text-slate-500 dark:text-slate-400">매매 원칙</span>
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">- / 3개</span>
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">{ruleCount}개</span>
                         </div>
                         <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: '0%' }} />
+                            <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: ruleCount > 0 ? '100%' : '0%' }} />
                         </div>
                     </div>
                 </div>

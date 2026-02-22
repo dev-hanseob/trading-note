@@ -21,7 +21,7 @@ export function useSeed() {
         setSeed(response.seed > 0 ? response.seed : DEFAULT_SEED);
         setSeedCurrency(response.currency || DEFAULT_CURRENCY);
       } catch (err) {
-        console.error('시드 조회 실패:', err);
+        // silently handle - error state is managed via setError
         setError('시드 정보를 불러오지 못했습니다.');
         setSeed(DEFAULT_SEED);
         setSeedCurrency(DEFAULT_CURRENCY);
@@ -42,7 +42,7 @@ export function useSeed() {
       setSeedCurrency(response.currency || DEFAULT_CURRENCY);
       return { success: true };
     } catch (err) {
-      console.error('시드 업데이트 실패:', err);
+      // silently handle - error state is managed via setError
       setError('시드 업데이트에 실패했습니다.');
       return { success: false, error: '시드 업데이트에 실패했습니다.' };
     }
@@ -62,7 +62,7 @@ export function useSeed() {
         setSeed(response.seed > 0 ? response.seed : DEFAULT_SEED);
         setSeedCurrency(response.currency || DEFAULT_CURRENCY);
       } catch (err) {
-        console.error('시드 재조회 실패:', err);
+        // silently handle - error state is managed via setError
         setError('시드 정보를 불러오지 못했습니다.');
       } finally {
         setIsLoading(false);

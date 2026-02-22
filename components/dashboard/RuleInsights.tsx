@@ -58,7 +58,27 @@ export default function RuleInsights() {
     }
 
     if (error || !stats) {
-        return null;
+        return (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-4">
+                    <ListChecks className="w-5 h-5 text-emerald-500" />
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                        매매원칙 인사이트
+                    </h3>
+                </div>
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <p className="text-sm text-red-500 dark:text-red-400 mb-3">
+                        데이터를 불러오지 못했습니다
+                    </p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors"
+                    >
+                        다시 시도
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     const hasData = stats.ruleStats.length > 0 && stats.journalsWithRules > 0;

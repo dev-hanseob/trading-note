@@ -5,13 +5,15 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Target, Calendar, TrendingUp, Save } from 'lucide-react';
 import { useGoals, Goal } from '@/hooks/useGoals';
+import { getCurrencySuffix } from '@/lib/currency';
 
 interface GoalSettingModalProps {
   isOpen: boolean;
   handleClose: () => void;
+  seedCurrency?: string;
 }
 
-export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingModalProps) {
+export default function GoalSettingModal({ isOpen, handleClose, seedCurrency = 'KRW' }: GoalSettingModalProps) {
   const { goals, updateGoal, addGoal } = useGoals();
   const [monthlyTarget, setMonthlyTarget] = useState({ amount: '', percent: '' });
   const [yearlyTarget, setYearlyTarget] = useState({ amount: '', percent: '' });
@@ -118,7 +120,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  목표 금액 (원)
+                  목표 금액 ({getCurrencySuffix(seedCurrency)})
                 </label>
                 <input
                   type="number"
@@ -154,7 +156,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  목표 금액 (원)
+                  목표 금액 ({getCurrencySuffix(seedCurrency)})
                 </label>
                 <input
                   type="number"
@@ -183,7 +185,7 @@ export default function GoalSettingModal({ isOpen, handleClose }: GoalSettingMod
           {/* 안내 메시지 */}
           <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              💡 현실적인 목표를 설정하세요. 너무 높은 목표는 스트레스가 될 수 있어요.
+              현실적인 목표를 설정하세요. 너무 높은 목표는 스트레스가 될 수 있어요.
             </p>
           </div>
 

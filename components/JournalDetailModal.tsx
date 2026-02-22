@@ -125,7 +125,7 @@ export default function JournalDetailModal({
     useEffect(() => {
         getTradingRules()
             .then(rules => setAllRules(Array.isArray(rules) ? rules.filter(r => r.isActive) : []))
-            .catch(err => console.error('Failed to load trading rules:', err));
+            .catch(() => {});
     }, []);
 
     const checkedIds = useMemo(() => {
@@ -177,7 +177,7 @@ export default function JournalDetailModal({
             setShowCopyToast(true);
             setTimeout(() => setShowCopyToast(false), 3000);
         } catch (err) {
-            console.error('복사 실패:', err);
+            // clipboard API may fail silently
         }
     };
 

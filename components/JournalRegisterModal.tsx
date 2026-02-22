@@ -143,7 +143,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
     useEffect(() => {
         getTradingRules()
             .then(rules => setTradingRules(Array.isArray(rules) ? rules.filter(r => r.isActive) : []))
-            .catch(err => console.error('Failed to load trading rules:', err));
+            .catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -315,7 +315,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
             }
             onClose();
         } catch (error) {
-            console.error('❌ 등록 실패:', error);
+            // error handled via setErrors below
             setErrors({ submit: '저장 중 오류가 발생했습니다. 다시 시도해주세요.' });
         } finally {
             setIsSubmitting(false);

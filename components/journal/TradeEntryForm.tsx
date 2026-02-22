@@ -309,7 +309,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
                 const url = await uploadChart(file);
                 setChartUrls(prev => [...prev, url]);
             } catch (err) {
-                console.error('Chart upload failed:', err);
+                // upload failure handled silently - preview remains without URL
             } finally {
                 setUploadingCount(prev => prev - 1);
             }
@@ -405,7 +405,7 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
 
             router.push('/journal');
         } catch (error) {
-            console.error(editTarget ? 'Failed to update journal:' : 'Failed to create journal:', error);
+            // error handled via setErrors below
             setErrors({ submit: editTarget ? '수정 중 오류가 발생했습니다. 다시 시도해주세요.' : '저장 중 오류가 발생했습니다. 다시 시도해주세요.' });
         } finally {
             setIsSubmitting(false);

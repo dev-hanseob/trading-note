@@ -34,7 +34,7 @@ export default function RulesSettingsPage() {
             const data = await getTradingRules();
             setRules(data.sort((a, b) => a.displayOrder - b.displayOrder));
         } catch (error) {
-            console.error('Failed to fetch trading rules:', error);
+
             showToast('원칙 목록을 불러오지 못했습니다', 'error');
         } finally {
             setIsLoading(false);
@@ -56,7 +56,7 @@ export default function RulesSettingsPage() {
             showToast('매매 원칙이 추가되었습니다', 'success');
             await fetchRules();
         } catch (error) {
-            console.error('Failed to create trading rule:', error);
+
             showToast('원칙 추가에 실패했습니다', 'error');
         } finally {
             setIsSaving(false);
@@ -76,7 +76,7 @@ export default function RulesSettingsPage() {
             showToast('매매 원칙이 수정되었습니다', 'success');
             await fetchRules();
         } catch (error) {
-            console.error('Failed to update trading rule:', error);
+
             showToast('원칙 수정에 실패했습니다', 'error');
         } finally {
             setIsSaving(false);
@@ -92,7 +92,7 @@ export default function RulesSettingsPage() {
             showToast('매매 원칙이 삭제되었습니다', 'success');
             await fetchRules();
         } catch (error) {
-            console.error('Failed to delete trading rule:', error);
+
             showToast('원칙 삭제에 실패했습니다', 'error');
         } finally {
             setIsSaving(false);
@@ -104,7 +104,7 @@ export default function RulesSettingsPage() {
             await updateTradingRule(rule.id, { label: rule.label, displayOrder: rule.displayOrder, isActive: !rule.isActive });
             await fetchRules();
         } catch (error) {
-            console.error('Failed to toggle trading rule:', error);
+
             showToast('상태 변경에 실패했습니다', 'error');
         }
     };
@@ -121,7 +121,7 @@ export default function RulesSettingsPage() {
             ]);
             await fetchRules();
         } catch (error) {
-            console.error('Failed to reorder trading rules:', error);
+
             showToast('순서 변경에 실패했습니다', 'error');
         }
     };
@@ -133,7 +133,7 @@ export default function RulesSettingsPage() {
             showToast('기본 매매 원칙이 추가되었습니다', 'success');
             await fetchRules();
         } catch (error) {
-            console.error('Failed to seed default rules:', error);
+
             showToast('기본 원칙 추가에 실패했습니다', 'error');
         } finally {
             setIsSeeding(false);

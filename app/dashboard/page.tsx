@@ -128,7 +128,7 @@ export default function DashboardPage() {
                 setAllJournals(allData);
                 setError(null);
             } catch (err) {
-                console.error('매매일지 조회 실패:', err);
+                // silently handle - error state is managed via setError
                 if (!cancelled) {
                     setAllJournals([]);
                     setError('데이터를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
@@ -356,6 +356,7 @@ export default function DashboardPage() {
                 <GoalSettingModal
                     isOpen={showGoalModal}
                     handleClose={() => setShowGoalModal(false)}
+                    seedCurrency={seedCurrency}
                 />
             )}
         </div>

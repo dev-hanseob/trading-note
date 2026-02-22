@@ -44,7 +44,7 @@ export function useGoals() {
       try {
         setGoals(JSON.parse(savedGoals));
       } catch (error) {
-        console.error('목표 데이터 로딩 오류:', error);
+
         setGoals(DEFAULT_GOALS);
       }
     }

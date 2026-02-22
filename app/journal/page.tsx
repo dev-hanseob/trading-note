@@ -75,7 +75,7 @@ export default function JournalPage() {
                 setTotalItems(res.total);
             })
             .catch((error) => {
-                console.error('Failed to fetch journals:', error);
+                // silently handle fetch errors
             });
     }, [currentPage, itemsPerPage]);
 
@@ -184,8 +184,7 @@ export default function JournalPage() {
             if (currentPage > newTP && newTP > 0) setCurrentPage(newTP);
             else if (newTP === 0) setCurrentPage(1);
             showToast(`${deletedCount}건의 거래가 삭제되었습니다`, 'success');
-        } catch (e) {
-            console.error('Delete failed:', e);
+        } catch {
             showToast('삭제에 실패했습니다', 'error');
         } finally {
             setIsDeleting(false);
@@ -208,8 +207,7 @@ export default function JournalPage() {
             setShowDetailModal(false);
             setDetailTarget(null);
             showToast('거래가 삭제되었습니다', 'success');
-        } catch (e) {
-            console.error('Delete failed:', e);
+        } catch {
             showToast('삭제에 실패했습니다', 'error');
         } finally {
             setIsDeleting(false);
@@ -536,7 +534,7 @@ export default function JournalPage() {
                     onClose={() => { setShowModal(false); setEditTarget(null); if (detailTarget) setShowDetailModal(true); }}
                     onSuccessAction={(newData) => {
                         if (editTarget) { setTableData(prev => prev.map(item => item.id === newData.id ? newData : item)); if (detailTarget && detailTarget.id === newData.id) setDetailTarget(newData); }
-                        else { getJournals({page: currentPage, pageSize: itemsPerPage}).then(res => { setTableData(res.journals); setTotalItems(res.total); }).catch(console.error); }
+                        else { getJournals({page: currentPage, pageSize: itemsPerPage}).then(res => { setTableData(res.journals); setTotalItems(res.total); }).catch(() => {}); }
                         setShowModal(false); setEditTarget(null); if (detailTarget) setShowDetailModal(true);
                     }}
                 />
