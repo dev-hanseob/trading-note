@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, BarChart3 } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+    TooltipProps,
 } from 'recharts';
 import { formatCurrencyWithSign } from '@/lib/currency';
 import { useSeed } from '@/hooks/useSeed';
@@ -105,7 +106,7 @@ export default function SymbolAnalyticsPage() {
         return value.toString();
     };
 
-    const SymbolTooltip = ({ active, payload }: any) => {
+    const SymbolTooltip = ({ active, payload }: TooltipProps<number, string>) => {
         if (!active || !payload || !payload.length) return null;
         const data = payload[0].payload as SymbolData;
         return (

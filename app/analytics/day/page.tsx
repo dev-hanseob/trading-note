@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+    TooltipProps,
 } from 'recharts';
 import { getDay, parseISO } from 'date-fns';
 import { formatCurrencyWithSign } from '@/lib/currency';
@@ -111,7 +112,7 @@ export default function DayAnalyticsPage() {
         return value.toString();
     };
 
-    const DayTooltip = ({ active, payload }: any) => {
+    const DayTooltip = ({ active, payload }: TooltipProps<number, string>) => {
         if (!active || !payload || !payload.length) return null;
         const data = payload[0].payload as DayData;
         return (

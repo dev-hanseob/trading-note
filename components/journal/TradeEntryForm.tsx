@@ -2,26 +2,16 @@
 
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    Crosshair, Shield, FileText,
-    ArrowRight,
-    TrendingUp, TrendingDown, AlertCircle,
-    Calculator,
-} from 'lucide-react';
+import { FileText, AlertCircle } from 'lucide-react';
 import { createJournal, updateJournal } from '@/lib/api/journal';
 import { AssetType, TradeType, PositionType } from '@/type/domain/journal.enum';
 import { getTradingRules } from '@/lib/api/tradingRule';
 import { TradingRule } from '@/type/domain/tradingRule';
 import { Journal } from '@/type/domain/journal';
+import BasicTradeInfoSection from './BasicTradeInfoSection';
+import PriceQuantitySection from './PriceQuantitySection';
 import ChartAnalysisSection from './ChartAnalysisSection';
 import PsychologyStrategySection from './PsychologyStrategySection';
-
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
-
-const leverageOptions = ['1', '2', '3', '5', '10', '20', '50', '100'];
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -336,314 +326,36 @@ export default function TradeEntryForm({ onChartPreviewsChange, editTarget }: Tr
     return (
         <div className="space-y-6">
             {/* Section 1: Basic Trade Info */}
-            <div className={sectionCard}>
-                <div className="flex items-center gap-2 mb-6">
-                    <Crosshair className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">거래 기본 정보</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={labelCls}>자산 유형</label>
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setAssetType(AssetType.CRYPTO)}
-                                className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
-                                    assetType === AssetType.CRYPTO
-                                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/30'
-                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-emerald-600'
-                                }`}
-                            >
-                                암호화폐
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setAssetType(AssetType.STOCK)}
-                                className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
-                                    assetType === AssetType.STOCK
-                                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/30'
-                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-emerald-600'
-                                }`}
-                            >
-                                주식
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className={labelCls}>종목명 <span className="text-red-400">*</span></label>
-                        <input
-                            type="text"
-                            placeholder={assetType === AssetType.CRYPTO ? '예: BTC/USDT' : '예: 삼성전자'}
-                            value={assetPair}
-                            onChange={(e) => { setAssetPair(e.target.value); if (errors.symbol) setErrors(prev => ({ ...prev, symbol: undefined })); }}
-                            className={errors.symbol ? inputErrorCls : inputCls}
-                        />
-                        {errors.symbol && (
-                            <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {errors.symbol}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className={labelCls}>거래일</label>
-                        <input
-                            type="date"
-                            value={tradeDate}
-                            onChange={(e) => setTradeDate(e.target.value)}
-                            className={inputCls}
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelCls}>거래 유형</label>
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setTradeType(TradeType.SPOT)}
-                                className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
-                                    tradeType === TradeType.SPOT
-                                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white shadow-lg'
-                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-slate-400 dark:hover:border-slate-600'
-                                }`}
-                            >
-                                현물
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setTradeType(TradeType.FUTURES)}
-                                className={`flex-1 h-11 rounded-lg text-sm font-bold transition-all ${
-                                    tradeType === TradeType.FUTURES
-                                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white shadow-lg'
-                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-500 hover:border-slate-400 dark:hover:border-slate-600'
-                                }`}
-                            >
-                                선물
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className={labelCls}>포지션</label>
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setTradePosition('LONG')}
-                                className={`flex-1 h-11 rounded-lg text-sm font-extrabold transition-all flex items-center justify-center gap-1.5 ${
-                                    tradePosition === 'LONG'
-                                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/30'
-                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-400 hover:border-emerald-600'
-                                }`}
-                            >
-                                <TrendingUp className="w-4 h-4" />
-                                LONG
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setTradePosition('SHORT')}
-                                className={`flex-1 h-11 rounded-lg text-sm font-extrabold transition-all flex items-center justify-center gap-1.5 ${
-                                    tradePosition === 'SHORT'
-                                        ? 'bg-rose-500 text-white shadow-lg shadow-red-900/30'
-                                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-400 hover:border-red-600'
-                                }`}
-                            >
-                                <TrendingDown className="w-4 h-4" />
-                                SHORT
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className={labelCls}>화폐</label>
-                        <select
-                            value={currency}
-                            onChange={(e) => setCurrency(e.target.value)}
-                            className={`${inputCls} appearance-none`}
-                        >
-                            <option value="KRW">KRW</option>
-                            <option value="USD">USD</option>
-                            <option value="USDT">USDT</option>
-                            <option value="USDC">USDC</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+            <BasicTradeInfoSection
+                assetType={assetType} setAssetType={setAssetType}
+                assetPair={assetPair} setAssetPair={setAssetPair}
+                tradeDate={tradeDate} setTradeDate={setTradeDate}
+                tradeType={tradeType} setTradeType={setTradeType}
+                tradePosition={tradePosition} setTradePosition={setTradePosition}
+                currency={currency} setCurrency={setCurrency}
+                errors={errors} setErrors={setErrors}
+                sectionCard={sectionCard} labelCls={labelCls}
+                inputCls={inputCls} inputErrorCls={inputErrorCls}
+            />
 
             {/* Section 2: Price & Quantity */}
-            <div className={sectionCard}>
-                <div className="flex items-center gap-2 mb-6">
-                    <Shield className="w-5 h-5 text-emerald-500" />
-                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">가격 & 수량</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className={labelCls}>진입가 <span className="text-red-400">*</span></label>
-                        <input
-                            type="number"
-                            placeholder="0.00"
-                            value={entryPrice}
-                            onChange={(e) => { setEntryPrice(e.target.value); if (errors.entryPrice) setErrors(prev => ({ ...prev, entryPrice: undefined })); }}
-                            className={errors.entryPrice ? inputErrorCls : inputCls}
-                        />
-                        {errors.entryPrice && (
-                            <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {errors.entryPrice}
-                            </p>
-                        )}
-                    </div>
-                    <div>
-                        <label className={labelCls}>수량</label>
-                        <input type="number" placeholder="0.00" value={positionSize} onChange={(e) => setPositionSize(e.target.value)} className={inputCls} />
-                    </div>
-                    {tradeType === TradeType.FUTURES && (
-                        <div>
-                            <label className={labelCls}>레버리지</label>
-                            <select value={leverage} onChange={(e) => setLeverage(e.target.value)} className={`${inputCls} appearance-none`}>
-                                {leverageOptions.map(l => <option key={l} value={l}>{l}x</option>)}
-                            </select>
-                        </div>
-                    )}
-                </div>
-
-                <div className="mt-4">
-                    <div className="flex items-center gap-2 mb-3">
-                        <Calculator className="w-4 h-4 text-slate-400" />
-                        <span className="text-xs font-bold text-slate-500">리스크 관리</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className={labelCls}>손절가 (SL)</label>
-                            <input type="number" placeholder="0.00" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} className={inputCls} />
-                        </div>
-                        <div>
-                            <label className={labelCls}>익절가 (TP)</label>
-                            <input type="number" placeholder="0.00" value={takeProfit} onChange={(e) => setTakeProfit(e.target.value)} className={inputCls} />
-                        </div>
-                    </div>
-                </div>
-
-                <AnimatePresence>
-                    {(calcs.investment > 0 || calcs.maxLoss > 0 || calcs.riskReward > 0) && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="mt-4"
-                        >
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
-                                <div>
-                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">투자금</div>
-                                    <div className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                        {calcs.investment > 0 ? calcs.investment.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '---'}
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">최대 손실</div>
-                                    <div className="text-sm font-bold text-red-400">
-                                        {calcs.maxLoss > 0 ? `-${calcs.maxLoss.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '---'}
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">최대 수익</div>
-                                    <div className="text-sm font-bold text-emerald-400">
-                                        {calcs.maxProfit > 0 ? `+${calcs.maxProfit.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '---'}
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">R:R 비율</div>
-                                    <div className={`text-sm font-bold ${calcs.riskReward >= 2 ? 'text-emerald-400' : calcs.riskReward >= 1 ? 'text-amber-400' : 'text-red-400'}`}>
-                                        {calcs.riskReward > 0 ? `1:${calcs.riskReward.toFixed(2)}` : '---'}
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                            <ArrowRight className="w-4 h-4 text-slate-400" />
-                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                                거래 상태
-                            </span>
-                        </div>
-                        <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
-                            <button
-                                type="button"
-                                onClick={() => handleToggleClosed(false)}
-                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                                    !isClosed
-                                        ? 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm'
-                                        : 'text-slate-400 hover:text-slate-500'
-                                }`}
-                            >
-                                진행중
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => handleToggleClosed(true)}
-                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                                    isClosed
-                                        ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-900/30'
-                                        : 'text-slate-400 hover:text-slate-500'
-                                }`}
-                            >
-                                종료
-                            </button>
-                        </div>
-                    </div>
-
-                    <AnimatePresence>
-                        {isClosed && (
-                            <motion.div
-                                ref={resultSectionRef}
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.25, ease: 'easeOut' }}
-                                className="overflow-hidden"
-                            >
-                                <div className={`p-4 rounded-xl border transition-all duration-500 ${
-                                    highlightResult
-                                        ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-300 dark:border-emerald-700 ring-1 ring-emerald-200 dark:ring-emerald-800/40'
-                                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'
-                                }`}>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <label className={labelCls}>청산가</label>
-                                            <input type="number" placeholder="0.00" value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} className={inputCls} />
-                                        </div>
-                                        <div>
-                                            <label className={labelCls}>실현 손익</label>
-                                            <input type="number" placeholder="자동 계산 또는 직접 입력" value={profitAmount} onChange={(e) => setProfitAmount(e.target.value)} className={inputCls} />
-                                            {calcs.pnl !== 0 && !profitAmount && (
-                                                <p className="mt-1 text-xs text-slate-400">
-                                                    자동 계산: <span className={calcs.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}>{calcs.pnl >= 0 ? '+' : ''}{calcs.pnl.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <label className={labelCls}>ROI (%)</label>
-                                            <input type="number" placeholder="자동 계산 또는 직접 입력" value={roiAmount} onChange={(e) => setRoiAmount(e.target.value)} className={inputCls} />
-                                            {calcs.roi !== 0 && !roiAmount && (
-                                                <p className="mt-1 text-xs text-slate-400">
-                                                    자동 계산: <span className={calcs.roi >= 0 ? 'text-emerald-400' : 'text-red-400'}>{calcs.roi >= 0 ? '+' : ''}{calcs.roi.toFixed(2)}%</span>
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </div>
+            <PriceQuantitySection
+                entryPrice={entryPrice} setEntryPrice={setEntryPrice}
+                positionSize={positionSize} setPositionSize={setPositionSize}
+                leverage={leverage} setLeverage={setLeverage}
+                stopLoss={stopLoss} setStopLoss={setStopLoss}
+                takeProfit={takeProfit} setTakeProfit={setTakeProfit}
+                tradeType={tradeType}
+                errors={errors} setErrors={setErrors}
+                calcs={calcs}
+                isClosed={isClosed} handleToggleClosed={handleToggleClosed}
+                exitPrice={exitPrice} setExitPrice={setExitPrice}
+                profitAmount={profitAmount} setProfitAmount={setProfitAmount}
+                roiAmount={roiAmount} setRoiAmount={setRoiAmount}
+                resultSectionRef={resultSectionRef} highlightResult={highlightResult}
+                sectionCard={sectionCard} labelCls={labelCls}
+                inputCls={inputCls} inputErrorCls={inputErrorCls}
+            />
 
             {/* Section 3: Chart & Analysis */}
             <ChartAnalysisSection

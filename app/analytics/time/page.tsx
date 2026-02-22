@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Clock } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+    TooltipProps,
 } from 'recharts';
 import { formatCurrencyWithSign } from '@/lib/currency';
 import { useSeed } from '@/hooks/useSeed';
@@ -135,7 +136,7 @@ export default function TimeAnalyticsPage() {
         );
     }
 
-    const HourTooltip = ({ active, payload }: any) => {
+    const HourTooltip = ({ active, payload }: TooltipProps<number, string>) => {
         if (!active || !payload || !payload.length) return null;
         const data = payload[0].payload as HourData;
         return (

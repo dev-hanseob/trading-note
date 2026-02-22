@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, ShieldCheck, Trophy, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-    Tooltip, ResponsiveContainer, Cell,
+    Tooltip, ResponsiveContainer, Cell, TooltipProps,
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -175,7 +175,7 @@ export default function RulesAnalyticsPage() {
         avgProfit: Math.round(e.avgProfit),
     }));
 
-    const MonthlyTooltip = ({ active, payload }: any) => {
+    const MonthlyTooltip = ({ active, payload }: TooltipProps<number, string>) => {
         if (!active || !payload || !payload.length) return null;
         const data = payload[0].payload;
         const [year, month] = data.month.split('-');
@@ -194,7 +194,7 @@ export default function RulesAnalyticsPage() {
         );
     };
 
-    const EmotionTooltip = ({ active, payload }: any) => {
+    const EmotionTooltip = ({ active, payload }: TooltipProps<number, string>) => {
         if (!active || !payload || !payload.length) return null;
         const data = payload[0].payload;
         return (
