@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, TrendingUp, TrendingDown, BarChart3, Clock, Zap } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export default function HomePage() {
   return (
@@ -184,15 +185,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="w-full px-4 sm:px-6 lg:px-8 py-6 border-t border-slate-200 dark:border-slate-900">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-xs font-medium text-slate-600">Trabit</span>
-          <div className="flex items-center gap-6 text-xs text-slate-700">
-            <Link href="/journal" className="hover:text-slate-400 transition-colors">서비스</Link>
-            <Link href="/dashboard" className="hover:text-slate-400 transition-colors">대시보드</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

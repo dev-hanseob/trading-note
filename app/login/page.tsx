@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getKakaoLoginUrl } from '@/lib/api/auth';
+import Footer from '@/components/Footer';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -51,7 +52,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
@@ -150,6 +152,8 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }

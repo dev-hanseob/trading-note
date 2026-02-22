@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, X, ArrowLeft, Clock } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import Footer from '@/components/Footer';
 
 const features = [
     { name: '거래 기록', free: '월 30건', basic: '무제한' },
@@ -30,8 +31,8 @@ export default function PricingPage() {
     const isAlreadyBasic = subscription.effectiveTier === 'BASIC';
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-            <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-12">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
+            <div className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-12">
                 {/* Back link */}
                 <Link href="/settings/account" className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 mb-8 transition-colors">
                     <ArrowLeft className="w-4 h-4" />
@@ -222,6 +223,7 @@ export default function PricingPage() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }

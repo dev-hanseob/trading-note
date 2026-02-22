@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import Footer from '@/components/Footer';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -62,7 +63,8 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
@@ -163,6 +165,8 @@ export default function SignupPage() {
           </Link>
         </p>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }
