@@ -37,8 +37,8 @@ class SecurityConfig(
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/public/**").permitAll()
                     .requestMatchers("/oauth2/**").permitAll()
-                    // TODO: 개발 테스트용 - 나중에 .authenticated()로 복원 필요
-                    .anyRequest().permitAll()
+                    .requestMatchers("/api/subscription/webhook/**").permitAll()
+                    .anyRequest().authenticated()
             }
             .oauth2Login { oauth2 ->
                 oauth2
