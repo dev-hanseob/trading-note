@@ -18,7 +18,7 @@ import DateRangeFilter, { DatePreset } from '@/components/dashboard/DateRangeFil
 import CalendarHeatmap from '@/components/dashboard/CalendarHeatmap';
 import MobileDashboardTabs, { DashboardTab } from '@/components/dashboard/MobileDashboardTabs';
 import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState';
-import { subWeeks, subMonths, startOfYear, startOfMonth, parseISO, isAfter } from 'date-fns';
+import { subWeeks, subMonths, startOfYear, parseISO, isAfter } from 'date-fns';
 import { useSubscription } from '@/hooks/useSubscription';
 import UpgradeBanner from '@/components/UpgradeBanner';
 import FeatureGate from '@/components/FeatureGate';
@@ -161,12 +161,7 @@ export default function DashboardPage() {
         [allJournals, datePreset]
     );
 
-    const monthlyTradeCount = useMemo(() => {
-        const monthStart = startOfMonth(new Date());
-        return allJournals.filter(j => isAfter(parseISO(j.tradedAt), monthStart)).length;
-    }, [allJournals]);
-
-    const subscription = useSubscription(monthlyTradeCount);
+    const subscription = useSubscription();
 
     const totalProfit = tableData.reduce((sum, e) => sum + e.profit, 0);
     const totalRoi = totalSeed && totalSeed > 0 ? (totalProfit / totalSeed) * 100 : 0;
@@ -246,12 +241,14 @@ export default function DashboardPage() {
             ) : (
                 <>
                     {/* Upgrade Banner */}
-                    {subscription.tier === 'free' && (
+                    {(subscription.effectiveTier === 'FREE' || subscription.isTrialActive) && (
                         <div className="mb-4">
                             <UpgradeBanner
                                 tradesUsed={subscription.tradesUsed}
                                 tradeLimit={subscription.tradeLimit}
                                 usagePercent={subscription.usagePercent}
+                                isTrialActive={subscription.isTrialActive}
+                                trialDaysLeft={subscription.trialDaysLeft}
                             />
                         </div>
                     )}

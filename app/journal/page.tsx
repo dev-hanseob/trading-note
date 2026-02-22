@@ -57,8 +57,7 @@ export default function JournalPage() {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
 
-    // TODO: Replace with actual monthly count from backend when subscription system is ready
-    const subscription = useSubscription(totalItems);
+    const subscription = useSubscription();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [assetFilter, setAssetFilter] = useState<'all' | AssetType>('all');
@@ -286,12 +285,14 @@ export default function JournalPage() {
             </div>
 
             {/* Upgrade Banner */}
-            {subscription.tier === 'free' && (
+            {(subscription.effectiveTier === 'FREE' || subscription.isTrialActive) && (
                 <div className="mb-4">
                     <UpgradeBanner
                         tradesUsed={subscription.tradesUsed}
                         tradeLimit={subscription.tradeLimit}
                         usagePercent={subscription.usagePercent}
+                        isTrialActive={subscription.isTrialActive}
+                        trialDaysLeft={subscription.trialDaysLeft}
                     />
                 </div>
             )}

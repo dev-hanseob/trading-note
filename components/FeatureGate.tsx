@@ -9,15 +9,21 @@ interface FeatureGateProps {
   isLocked: boolean;
   title?: string;
   description?: string;
+  wasTrialUser?: boolean;
 }
 
 export default function FeatureGate({
   children,
   isLocked,
   title = 'Basic 전용 기능',
-  description = '업그레이드하면 전체 분석 기능을 이용할 수 있습니다.',
+  description,
+  wasTrialUser = false,
 }: FeatureGateProps) {
   if (!isLocked) return <>{children}</>;
+
+  const defaultDescription = wasTrialUser
+    ? '체험 기간에 사용하셨던 기능입니다. 구독하면 다시 사용할 수 있어요.'
+    : '업그레이드하면 전체 분석 기능을 이용할 수 있습니다.';
 
   return (
     <div className="relative">
@@ -35,7 +41,7 @@ export default function FeatureGate({
             {title}
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-            {description}
+            {description || defaultDescription}
           </p>
           <Link
             href="/pricing"

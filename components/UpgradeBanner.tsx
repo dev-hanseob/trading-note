@@ -1,16 +1,71 @@
 'use client';
 
 import Link from 'next/link';
-import { Zap, AlertTriangle } from 'lucide-react';
+import { Zap, AlertTriangle, Clock } from 'lucide-react';
 
 interface UpgradeBannerProps {
   tradesUsed: number;
-  tradeLimit: number;
+  tradeLimit: number | null;
   usagePercent: number;
+  isTrialActive?: boolean;
+  trialDaysLeft?: number;
 }
 
-export default function UpgradeBanner({ tradesUsed, tradeLimit, usagePercent }: UpgradeBannerProps) {
-  if (usagePercent < 70) return null;
+export default function UpgradeBanner({
+  tradesUsed,
+  tradeLimit,
+  usagePercent,
+  isTrialActive = false,
+  trialDaysLeft = 0,
+}: UpgradeBannerProps) {
+  // Trial active banner
+  if (isTrialActive && trialDaysLeft > 0) {
+    const isUrgent = trialDaysLeft <= 3;
+    return (
+      <div className={`rounded-xl border px-4 py-3 ${
+        isUrgent
+          ? 'border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30'
+          : 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30'
+      }`}>
+        <div className="flex items-start gap-3">
+          <Clock className={`w-5 h-5 mt-0.5 shrink-0 ${
+            isUrgent ? 'text-amber-500' : 'text-emerald-500'
+          }`} />
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm font-medium ${
+              isUrgent
+                ? 'text-amber-800 dark:text-amber-300'
+                : 'text-emerald-800 dark:text-emerald-300'
+            }`}>
+              Basic 체험 기간 {trialDaysLeft}일 남음
+            </p>
+            <p className={`text-xs mt-0.5 ${
+              isUrgent
+                ? 'text-amber-600 dark:text-amber-400'
+                : 'text-emerald-600 dark:text-emerald-400'
+            }`}>
+              {isUrgent
+                ? '체험 종료 전 구독하면 기능이 유지됩니다.'
+                : '체험 기간 동안 Basic의 모든 기능을 이용할 수 있습니다.'}
+            </p>
+          </div>
+          <Link
+            href="/pricing"
+            className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+              isUrgent
+                ? 'text-white bg-amber-500 hover:bg-amber-600'
+                : 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 hover:bg-emerald-200 dark:hover:bg-emerald-900/40'
+            }`}
+          >
+            구독하기
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Trade limit banners (Free tier)
+  if (tradeLimit == null || usagePercent < 70) return null;
 
   const isExhausted = tradesUsed >= tradeLimit;
   const remaining = tradeLimit - tradesUsed;

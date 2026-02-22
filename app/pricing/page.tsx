@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Check, X, ArrowLeft, Clock } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const features = [
     { name: '거래 기록', free: '월 30건', basic: '무제한' },
@@ -20,9 +22,12 @@ const features = [
 
 export default function PricingPage() {
     const [isYearly, setIsYearly] = useState(true);
+    const router = useRouter();
+    const subscription = useSubscription();
     const monthlyPrice = 14900;
     const yearlyPrice = 10400;
     const price = isYearly ? yearlyPrice : monthlyPrice;
+    const isAlreadyBasic = subscription.effectiveTier === 'BASIC';
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -108,8 +113,20 @@ export default function PricingPage() {
                             </p>
                         )}
                         {!isYearly && <div className="mb-4" />}
-                        <button className="w-full py-2.5 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-colors">
-                            Basic 시작하기
+                        <button
+                            onClick={() => {
+                                if (!isAlreadyBasic) {
+                                    router.push(`/pricing/checkout?cycle=${isYearly ? 'YEARLY' : 'MONTHLY'}`);
+                                }
+                            }}
+                            disabled={isAlreadyBasic}
+                            className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-colors ${
+                                isAlreadyBasic
+                                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-default'
+                                    : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                            }`}
+                        >
+                            {isAlreadyBasic ? '현재 플랜' : 'Basic 시작하기'}
                         </button>
                         <ul className="mt-5 space-y-2.5">
                             <li className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
