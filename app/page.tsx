@@ -259,56 +259,127 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Preview */}
+      {/* Analytics Showcase */}
       <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-slate-100 dark:border-slate-800/50">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-center mb-3">
-            심플한 요금제
+            데이터가 패턴을 발견한다
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-10 sm:mb-12">
-            Free 플랜으로 부담 없이 시작하고, 필요할 때 업그레이드하세요.
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-10 sm:mb-14">
+            기록이 쌓일수록, 당신의 매매 습관이 숫자로 드러납니다.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {/* Free */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Free</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">매매 기록의 첫 걸음</p>
-              <div className="flex items-baseline gap-1 mb-5">
-                <span className="text-3xl font-bold text-slate-900 dark:text-white">0</span>
-                <span className="text-sm text-slate-500 dark:text-slate-400">원</span>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            {/* Symbol Analysis */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-semibold text-slate-900 dark:text-white">종목별 손익</span>
               </div>
-              <ul className="space-y-2">
-                {['월 30건 거래 기록', '기본 대시보드', '매매원칙 설정', '최근 30일 데이터'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />{f}
-                  </li>
+              <div className="space-y-2.5">
+                {[
+                  { symbol: 'BTC', pnl: 2450000, max: 2450000 },
+                  { symbol: 'SOL', pnl: 1280000, max: 2450000 },
+                  { symbol: 'ETH', pnl: 450000, max: 2450000 },
+                  { symbol: 'XRP', pnl: -320000, max: 2450000 },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-[11px] font-medium text-slate-900 dark:text-white w-8">{item.symbol}</span>
+                    <div className="flex-1 h-5 bg-slate-100 dark:bg-slate-800/50 rounded-sm overflow-hidden">
+                      <div
+                        className={`h-full rounded-sm ${item.pnl >= 0 ? 'bg-emerald-500/70' : 'bg-red-500/70'}`}
+                        style={{ width: `${Math.abs(item.pnl / item.max) * 100}%` }}
+                      />
+                    </div>
+                    <span className={`text-[11px] font-medium tabular-nums w-20 text-right ${item.pnl >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                      {item.pnl >= 0 ? '+' : ''}{(item.pnl / 10000).toFixed(0)}만
+                    </span>
+                  </div>
                 ))}
-              </ul>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-3">어떤 종목에서 수익이 나는지 한눈에</p>
             </div>
-            {/* Basic */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-emerald-500 rounded-xl p-6 relative shadow-lg shadow-emerald-500/10">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="text-xs font-semibold text-white bg-emerald-500 px-3 py-1 rounded-full">추천</span>
+
+            {/* Time Analysis */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Clock className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-semibold text-slate-900 dark:text-white">시간대별 성과</span>
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Basic</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">본격적인 매매 분석</p>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums">10,400</span>
-                <span className="text-sm text-slate-500 dark:text-slate-400">원/월</span>
-              </div>
-              <p className="text-xs text-emerald-500 font-medium mb-4">연간 결제 시 30% 할인</p>
-              <ul className="space-y-2">
-                {['무제한 거래 기록', '전체 대시보드 + 분석', '고급 분석 (시간대/요일/종목)', 'CSV 가져오기/내보내기', '매매원칙 성과 분석'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />{f}
-                  </li>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { slot: '새벽', time: '00-06', winRate: 45, trades: 8, color: 'text-red-400' },
+                  { slot: '오전', time: '06-12', winRate: 72, trades: 45, color: 'text-emerald-400' },
+                  { slot: '오후', time: '12-18', winRate: 65, trades: 38, color: 'text-emerald-400' },
+                  { slot: '야간', time: '18-24', winRate: 52, trades: 21, color: 'text-slate-400' },
+                ].map((item, i) => (
+                  <div key={i} className="text-center p-2.5 bg-slate-100 dark:bg-slate-800/30 rounded-lg">
+                    <div className="text-[11px] text-slate-500 mb-1">{item.slot}</div>
+                    <div className={`text-lg font-bold tabular-nums ${item.color}`}>{item.winRate}%</div>
+                    <div className="text-[10px] text-slate-500">{item.trades}건</div>
+                  </div>
                 ))}
-              </ul>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-3">언제 매매해야 승률이 높은지 확인</p>
+            </div>
+
+            {/* Day Analysis */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-semibold text-slate-900 dark:text-white">요일별 평균 손익</span>
+              </div>
+              <div className="flex items-end gap-1.5 px-1" style={{ height: '96px' }}>
+                {[
+                  { day: '월', value: 35, positive: true },
+                  { day: '화', value: 65, positive: true },
+                  { day: '수', value: 20, positive: false },
+                  { day: '목', value: 80, positive: true },
+                  { day: '금', value: 50, positive: true },
+                  { day: '토', value: 15, positive: false },
+                  { day: '일', value: 10, positive: false },
+                ].map((item, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+                    <div
+                      className={`w-full rounded-sm ${item.positive ? 'bg-emerald-500/60' : 'bg-red-500/60'}`}
+                      style={{ height: `${item.value}%`, minHeight: '4px' }}
+                    />
+                    <span className="text-[10px] text-slate-500 mt-1">{item.day}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-slate-400 mt-3">요일별 패턴으로 리스크를 관리</p>
+            </div>
+
+            {/* Rules Compliance */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-semibold text-slate-900 dark:text-white">매매원칙 준수 효과</span>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-2.5 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/30 rounded-lg">
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400">원칙 준수 시</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-emerald-500 tabular-nums">승률 78%</span>
+                    <span className="text-xs font-bold text-emerald-500 tabular-nums">+82만</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-2.5 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-lg">
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400">원칙 미준수 시</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-red-500 tabular-nums">승률 41%</span>
+                    <span className="text-xs font-bold text-red-500 tabular-nums">-45만</span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-3">원칙을 지키면 얼마나 달라지는지 증명</p>
             </div>
           </div>
-          <div className="text-center mt-6">
-            <Link href="/pricing" className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-medium transition-colors">
-              요금제 상세 비교 보기 →
+
+          <div className="text-center mt-8">
+            <Link href="/login" className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-medium transition-colors">
+              분석 기능 직접 체험하기 →
             </Link>
           </div>
         </div>
