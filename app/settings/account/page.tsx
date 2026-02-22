@@ -7,7 +7,7 @@ import { useToast } from '@/components/Toast';
 import apiClient from '@/lib/api/client';
 
 export default function AccountSettingsPage() {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const { showToast } = useToast();
 
     const [name, setName] = useState(user?.name || '');
@@ -23,6 +23,7 @@ export default function AccountSettingsPage() {
         setIsSavingProfile(true);
         try {
             await apiClient.put('/auth/profile', { name: name.trim() });
+            await refreshUser();
             showToast('프로필이 저장되었습니다', 'success');
         } catch {
             showToast('프로필 저장에 실패했습니다', 'error');
