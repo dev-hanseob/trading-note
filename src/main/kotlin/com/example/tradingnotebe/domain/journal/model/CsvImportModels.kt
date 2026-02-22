@@ -35,3 +35,8 @@ data class CsvErrorRow(
 data class CsvConfirmRequest(
     val rows: List<CsvPreviewRow>
 )
+
+data class CsvConfirmResponse(
+    val savedCount: Int,
+    val message: String
+)

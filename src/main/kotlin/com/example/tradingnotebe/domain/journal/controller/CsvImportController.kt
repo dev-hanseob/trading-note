@@ -3,6 +3,7 @@ package com.example.tradingnotebe.domain.journal.controller
 import com.example.tradingnotebe.config.CurrentUser
 import com.example.tradingnotebe.domain.journal.model.CsvAnalyzeResponse
 import com.example.tradingnotebe.domain.journal.model.CsvConfirmRequest
+import com.example.tradingnotebe.domain.journal.model.CsvConfirmResponse
 import com.example.tradingnotebe.domain.journal.service.CsvImportService
 import com.example.tradingnotebe.domain.user.domain.User
 import org.springframework.http.ResponseEntity
@@ -41,11 +42,11 @@ class CsvImportController(
     fun confirm(
         @RequestBody request: CsvConfirmRequest,
         @CurrentUser user: User
-    ): ResponseEntity<Map<String, Any>> {
+    ): ResponseEntity<CsvConfirmResponse> {
         val savedCount = csvImportService.confirm(request, user)
-        return ResponseEntity.ok(mapOf(
-            "savedCount" to savedCount,
-            "message" to "Saved $savedCount record(s) successfully"
+        return ResponseEntity.ok(CsvConfirmResponse(
+            savedCount = savedCount,
+            message = "Saved $savedCount record(s) successfully"
         ))
     }
 }

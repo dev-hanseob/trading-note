@@ -1,6 +1,7 @@
 package com.example.tradingnotebe.domain.journal.controller
 
 import com.example.tradingnotebe.config.CurrentUser
+import com.example.tradingnotebe.domain.common.PagedResponse
 import com.example.tradingnotebe.domain.journal.entity.TradeStatus
 import com.example.tradingnotebe.domain.journal.model.AddJournalRequest
 import com.example.tradingnotebe.domain.journal.model.ClosePositionRequest
@@ -39,15 +40,15 @@ class JournalController(
         @RequestParam(required = false) status: TradeStatus?,
         @RequestParam(required = false) search: String?,
         @CurrentUser user: User
-    ): ResponseEntity<Map<String, Any>> {
+    ): ResponseEntity<PagedResponse<JournalResponse>> {
         val pageable = PageRequest.of(page - 1, pageSize)
         val journalsPage = journalService.findByUser(user, pageable, status, search)
 
-        val response = mapOf(
-            "total" to journalsPage.totalElements,
-            "page" to page,
-            "pageSize" to pageSize,
-            "journals" to journalsPage.content
+        val response = PagedResponse(
+            total = journalsPage.totalElements,
+            page = page,
+            pageSize = pageSize,
+            items = journalsPage.content
         )
         return ResponseEntity.ok(response)
     }
@@ -87,15 +88,15 @@ class JournalController(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "50") pageSize: Int,
         @CurrentUser user: User
-    ): ResponseEntity<Map<String, Any>> {
+    ): ResponseEntity<PagedResponse<JournalResponse>> {
         val pageable = PageRequest.of(page - 1, pageSize)
         val positionsPage = journalService.getOpenPositions(user, pageable)
 
-        val response = mapOf(
-            "total" to positionsPage.totalElements,
-            "page" to page,
-            "pageSize" to pageSize,
-            "journals" to positionsPage.content
+        val response = PagedResponse(
+            total = positionsPage.totalElements,
+            page = page,
+            pageSize = pageSize,
+            items = positionsPage.content
         )
         return ResponseEntity.ok(response)
     }
