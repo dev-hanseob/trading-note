@@ -24,9 +24,9 @@ export function useAllJournals() {
             const pageSize = 100;
             const firstRes = await getJournals({ page: 1, pageSize });
 
-            if (!firstRes?.journals?.length) return [];
+            if (!firstRes?.items?.length) return [];
 
-            let allData: Journal[] = [...firstRes.journals];
+            let allData: Journal[] = [...firstRes.items];
             const totalPages = Math.ceil(firstRes.total / pageSize);
 
             if (totalPages > 1) {
@@ -42,8 +42,8 @@ export function useAllJournals() {
                         batch.map((p) => getJournals({ page: p, pageSize })),
                     );
                     for (const res of results) {
-                        if (res?.journals) {
-                            allData = [...allData, ...res.journals];
+                        if (res?.items) {
+                            allData = [...allData, ...res.items];
                         }
                     }
                 }

@@ -71,7 +71,7 @@ function JournalContent() {
     const subscription = useSubscription();
 
     const { data: journalData } = useJournals({ page: currentPage, pageSize: itemsPerPage });
-    const tableData = journalData?.journals ?? [];
+    const tableData = journalData?.items ?? [];
     const totalItems = journalData?.total ?? 0;
 
     const invalidateJournals = useCallback(() => {

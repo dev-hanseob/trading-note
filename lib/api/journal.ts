@@ -7,8 +7,8 @@ import {
 import { Journal } from "@/type/domain/journal";
 import { CsvAnalyzeResponse, CsvConfirmResponse, CsvPreviewRow } from '@/type/dto/csvImport';
 
-export async function createJournal(request: addJournalRequest): Promise<any> {
-    const { data } = await apiClient.post('/journals', request);
+export async function createJournal(request: addJournalRequest): Promise<Journal> {
+    const { data } = await apiClient.post<Journal>('/journals', request);
     return data;
 }
 
@@ -17,8 +17,8 @@ export async function getJournal(id: number): Promise<Journal> {
     return data;
 }
 
-export async function updateJournal(id: number, request: addJournalRequest): Promise<any> {
-    const { data } = await apiClient.put(`/journals/${id}`, request);
+export async function updateJournal(id: number, request: addJournalRequest): Promise<Journal> {
+    const { data } = await apiClient.put<Journal>(`/journals/${id}`, request);
     return data;
 }
 
