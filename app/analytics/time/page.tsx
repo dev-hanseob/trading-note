@@ -1,15 +1,14 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Clock } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
-import { getJournals } from '@/lib/api/journal';
-import { Journal } from '@/type/domain/journal';
 import { formatCurrencyWithSign } from '@/lib/currency';
 import { useSeed } from '@/hooks/useSeed';
+import { useAllJournals } from '@/hooks/useJournals';
 
 interface HourData {
     hour: number;
@@ -52,39 +51,8 @@ function LoadingSkeleton() {
 }
 
 export default function TimeAnalyticsPage() {
-    const [journals, setJournals] = useState<Journal[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: journals = [], isLoading, error } = useAllJournals();
     const { seedCurrency } = useSeed();
-
-    useEffect(() => {
-        let cancelled = false;
-
-        async function fetchAllJournals() {
-            try {
-                const allJournals: Journal[] = [];
-                let page = 1;
-                const pageSize = 100;
-
-                while (true) {
-                    const response = await getJournals({ page, pageSize });
-                    if (cancelled) return;
-                    allJournals.push(...response.journals);
-                    if (allJournals.length >= response.total) break;
-                    page++;
-                }
-
-                setJournals(allJournals);
-            } catch {
-                if (!cancelled) setError('Failed to load journal data.');
-            } finally {
-                if (!cancelled) setIsLoading(false);
-            }
-        }
-
-        fetchAllJournals();
-        return () => { cancelled = true; };
-    }, []);
 
     const hourData = useMemo(() => {
         const hours: HourData[] = Array.from({ length: 24 }, (_, i) => ({
@@ -160,7 +128,7 @@ export default function TimeAnalyticsPage() {
                         분석으로 돌아가기
                     </Link>
                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-12 text-center">
-                        <p className="text-slate-500 dark:text-slate-400">{error}</p>
+                        <p className="text-slate-500 dark:text-slate-400">Failed to load journal data.</p>
                     </div>
                 </div>
             </div>

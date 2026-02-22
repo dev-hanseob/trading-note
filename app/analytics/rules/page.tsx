@@ -1,21 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck, Trophy, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
+import { useQuery } from '@tanstack/react-query';
 import {
     getTradingRuleStats,
     getTradingRulePerformance,
     getJournalAnalyticsByRules,
 } from '@/lib/api/tradingRule';
 import {
-    TradingRuleStatsResponse,
     RulePerformanceResponse,
-    RuleAnalyticsResponse,
 } from '@/type/domain/tradingRule';
 import { EmotionTypeLabel } from '@/type/domain/journal.enum';
 
@@ -95,48 +93,31 @@ function LoadingSkeleton() {
 }
 
 export default function RulesAnalyticsPage() {
-    const [stats, setStats] = useState<TradingRuleStatsResponse | null>(null);
-    const [analytics, setAnalytics] = useState<RuleAnalyticsResponse | null>(null);
-    const [performances, setPerformances] = useState<RulePerformanceResponse[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: stats, isLoading: isLoadingStats, error: statsError } = useQuery({
+        queryKey: ['tradingRuleStats'],
+        queryFn: getTradingRuleStats,
+    });
 
-    useEffect(() => {
-        let cancelled = false;
+    const { data: analytics, isLoading: isLoadingAnalytics, error: analyticsError } = useQuery({
+        queryKey: ['journalAnalyticsByRules'],
+        queryFn: getJournalAnalyticsByRules,
+    });
 
-        async function fetchData() {
-            try {
-                const [statsData, analyticsData] = await Promise.all([
-                    getTradingRuleStats(),
-                    getJournalAnalyticsByRules(),
-                ]);
+    const { data: performances = [] } = useQuery({
+        queryKey: ['tradingRulePerformances', stats?.ruleStats],
+        queryFn: async () => {
+            if (!stats || stats.ruleStats.length === 0) return [];
+            const perfPromises = stats.ruleStats.map((r) =>
+                getTradingRulePerformance(r.ruleId).catch(() => null)
+            );
+            const perfResults = await Promise.all(perfPromises);
+            return perfResults.filter((p): p is RulePerformanceResponse => p !== null);
+        },
+        enabled: !!stats && stats.ruleStats.length > 0,
+    });
 
-                if (cancelled) return;
-                setStats(statsData);
-                setAnalytics(analyticsData);
-
-                // Fetch individual rule performance for each rule
-                if (statsData.ruleStats.length > 0) {
-                    const perfPromises = statsData.ruleStats.map((r) =>
-                        getTradingRulePerformance(r.ruleId).catch(() => null)
-                    );
-                    const perfResults = await Promise.all(perfPromises);
-                    if (!cancelled) {
-                        setPerformances(
-                            perfResults.filter((p): p is RulePerformanceResponse => p !== null)
-                        );
-                    }
-                }
-            } catch {
-                if (!cancelled) setError('데이터를 불러오는데 실패했습니다.');
-            } finally {
-                if (!cancelled) setIsLoading(false);
-            }
-        }
-
-        fetchData();
-        return () => { cancelled = true; };
-    }, []);
+    const isLoading = isLoadingStats || isLoadingAnalytics;
+    const error = statsError || analyticsError;
 
     if (isLoading) return <LoadingSkeleton />;
 
@@ -153,7 +134,7 @@ export default function RulesAnalyticsPage() {
                     </Link>
                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-12 text-center">
                         <p className="text-slate-500 dark:text-slate-400">
-                            {error || '데이터를 불러올 수 없습니다.'}
+                            {error ? '데이터를 불러오는데 실패했습니다.' : '데이터를 불러올 수 없습니다.'}
                         </p>
                     </div>
                 </div>
