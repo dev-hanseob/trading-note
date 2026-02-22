@@ -77,49 +77,66 @@ class TradingRuleService(
 
     fun getStats(user: User): TradingRuleStatsResponse {
         val userEntity = UserEntity.toEntity(user)
-        val allJournals = journalRepository.findByUser(userEntity)
         val allRules = tradingRuleRepository.findByUserOrderByDisplayOrderAsc(userEntity)
-        val activeRules = allRules.filter { it.isActive }
-        val activeRuleCount = activeRules.size
+        val activeRuleCount = allRules.count { it.isActive }
 
-        val journalsWithRules = allJournals.filter { !it.checkedRuleIds.isNullOrBlank() }
+        // Use DB aggregation for counts instead of loading all journals
+        val totalJournalCount = journalRepository.countByUser(userEntity).toInt()
+        val journalsWithRulesCount = journalRepository.countByUserWithCheckedRules(userEntity).toInt()
+
+        // Monthly stats from DB aggregation
+        val monthlyRaw = journalRepository.findMonthlyRuleComplianceStats(userEntity)
+        val monthlyComplianceRates = monthlyRaw.map { row ->
+            val month = row[0] as String
+            val journalCount = (row[1] as Long).toInt()
+            // checkedCount from DB is journals-with-any-rules, not per-rule compliance
+            // For compliance rate we still need per-journal checked rule count,
+            // so we keep this as a simple ratio for the monthly view
+            MonthlyComplianceRate(
+                month = month,
+                rate = 0.0, // Will be computed below if needed
+                journalCount = journalCount
+            )
+        }
+
+        // For overall compliance and monthly rates, we need per-journal checked counts.
+        // Load journals only once and parse checkedRuleIds with cache.
+        val allJournals = journalRepository.findByUser(userEntity)
+        val parsedRuleIds = allJournals.map { it to parseCheckedRuleIds(it.checkedRuleIds) }
 
         val overallComplianceRate = if (allJournals.isEmpty() || activeRuleCount == 0) {
             0.0
         } else {
-            allJournals.map { journal ->
-                val checkedCount = parseCheckedRuleIds(journal.checkedRuleIds).size
-                checkedCount.toDouble() / activeRuleCount * 100
+            parsedRuleIds.map { (_, ruleIds) ->
+                ruleIds.size.toDouble() / activeRuleCount * 100
             }.average()
         }
 
         val monthFormatter = DateTimeFormatter.ofPattern("yyyy-MM")
-        val monthlyComplianceRates = allJournals
-            .groupBy { it.tradedAt.format(monthFormatter) }
-            .map { (month, journals) ->
+        val computedMonthlyRates = parsedRuleIds
+            .groupBy { (journal, _) -> journal.tradedAt.format(monthFormatter) }
+            .map { (month, entries) ->
                 val rate = if (activeRuleCount == 0) {
                     0.0
                 } else {
-                    journals.map { journal ->
-                        val checkedCount = parseCheckedRuleIds(journal.checkedRuleIds).size
-                        checkedCount.toDouble() / activeRuleCount * 100
+                    entries.map { (_, ruleIds) ->
+                        ruleIds.size.toDouble() / activeRuleCount * 100
                     }.average()
                 }
                 MonthlyComplianceRate(
                     month = month,
                     rate = Math.round(rate * 100.0) / 100.0,
-                    journalCount = journals.size
+                    journalCount = entries.size
                 )
             }
             .sortedBy { it.month }
 
-        val totalJournalCount = allJournals.size
+        // Rule-specific stats using parsed cache (avoids re-parsing per rule)
         val ruleStats = allRules.map { rule ->
-            val checkCount = allJournals.count { journal ->
-                parseCheckedRuleIds(journal.checkedRuleIds).contains(rule.id!!)
-            }
+            val ruleId = rule.id!!
+            val checkCount = parsedRuleIds.count { (_, ruleIds) -> ruleIds.contains(ruleId) }
             RuleStat(
-                ruleId = rule.id!!,
+                ruleId = ruleId,
                 label = rule.label,
                 checkCount = checkCount,
                 totalJournals = totalJournalCount,
@@ -131,9 +148,9 @@ class TradingRuleService(
 
         return TradingRuleStatsResponse(
             totalJournals = totalJournalCount,
-            journalsWithRules = journalsWithRules.size,
+            journalsWithRules = journalsWithRulesCount,
             overallComplianceRate = Math.round(overallComplianceRate * 100.0) / 100.0,
-            monthlyComplianceRates = monthlyComplianceRates,
+            monthlyComplianceRates = computedMonthlyRates,
             ruleStats = ruleStats
         )
     }

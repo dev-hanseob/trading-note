@@ -6,6 +6,7 @@ import com.example.tradingnotebe.domain.user.entity.UserEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 
 interface JournalRepository : JpaRepository<Journal, Long> {
     fun findAllByOrderByTradedAtDesc(pageable: Pageable): Page<Journal>
@@ -17,4 +18,20 @@ interface JournalRepository : JpaRepository<Journal, Long> {
     fun findByUserAndSymbolContainingIgnoreCaseOrderByTradedAtDesc(user: UserEntity, symbol: String, pageable: Pageable): Page<Journal>
     fun findByTradeStatusOrderByTradedAtDesc(tradeStatus: TradeStatus, pageable: Pageable): Page<Journal>
     fun findBySymbolContainingIgnoreCaseOrderByTradedAtDesc(symbol: String, pageable: Pageable): Page<Journal>
+
+    fun countByUser(user: UserEntity): Long
+
+    @Query("SELECT COUNT(j) FROM journal j WHERE j.user = :user AND j.checkedRuleIds IS NOT NULL AND j.checkedRuleIds <> ''")
+    fun countByUserWithCheckedRules(user: UserEntity): Long
+
+    @Query("""
+        SELECT FUNCTION('TO_CHAR', j.tradedAt, 'YYYY-MM') AS month,
+               COUNT(j) AS totalCount,
+               SUM(CASE WHEN j.checkedRuleIds IS NOT NULL AND j.checkedRuleIds <> '' THEN 1 ELSE 0 END) AS checkedCount
+        FROM journal j
+        WHERE j.user = :user
+        GROUP BY FUNCTION('TO_CHAR', j.tradedAt, 'YYYY-MM')
+        ORDER BY month
+    """)
+    fun findMonthlyRuleComplianceStats(user: UserEntity): List<Array<Any>>
 }
