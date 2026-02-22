@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import { ToastProvider } from '@/components/Toast';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { QueryProvider } from '@/lib/query-client';
 
 const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `}
         >
         <ThemeProvider attribute="class" defaultTheme="dark">
+        <QueryProvider>
         <AuthProvider>
         <ToastProvider>
         <Header />
@@ -34,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
         </ToastProvider>
         </AuthProvider>
+        </QueryProvider>
         </ThemeProvider>
         </body>
         </html>
