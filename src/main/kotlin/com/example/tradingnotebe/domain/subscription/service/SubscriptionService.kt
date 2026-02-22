@@ -40,7 +40,7 @@ class SubscriptionService(
             user = user,
             tier = PlanTier.BASIC,
             status = SubscriptionStatus.TRIALING,
-            customerKey = UUID.randomUUID().toString(),
+            customerKey = user.id.toString(),
             trialStartDate = now,
             trialEndDate = now.plusDays(PricingConstants.TRIAL_DAYS)
         )
@@ -53,10 +53,17 @@ class SubscriptionService(
         authKey: String,
         billingCycle: BillingCycle
     ): SubscriptionEntity {
+        val user = userJpaRepo.findById(userId)
+            .orElseThrow { IllegalStateException("User not found: $userId") }
         val subscription = subscriptionRepo.findByUserId(userId)
-            ?: throw IllegalStateException("Subscription not found for user: $userId")
+            ?: SubscriptionEntity(
+                user = user,
+                tier = PlanTier.FREE,
+                status = SubscriptionStatus.EXPIRED,
+                customerKey = userId.toString()
+            ).let { subscriptionRepo.save(it) }
 
-        val billingKeyResponse = tossClient.issueBillingKey(authKey, subscription.customerKey)
+        val billingKeyResponse = tossClient.issueBillingKey(authKey, userId.toString())
 
         subscription.billingKey = billingKeyResponse.billingKey
         subscription.billingCycle = billingCycle
@@ -67,7 +74,7 @@ class SubscriptionService(
 
         val paymentResponse = tossClient.executeBilling(
             billingKey = billingKeyResponse.billingKey,
-            customerKey = subscription.customerKey,
+            customerKey = userId.toString(),
             amount = subscription.amount!!,
             orderId = orderId,
             orderName = orderName
