@@ -1,5 +1,8 @@
 package com.example.tradingnotebe.domain.journal.entity
 
+import com.example.tradingnotebe.domain.exception.PositionAlreadyClosedException
+import com.example.tradingnotebe.domain.journal.model.AddJournalRequest
+import com.example.tradingnotebe.domain.journal.model.ClosePositionRequest
 import com.example.tradingnotebe.domain.user.entity.UserEntity
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -157,7 +160,7 @@ class Journal(
         user = UserEntity(email = "default@example.com")
     )
 
-    fun updateFrom(request: com.example.tradingnotebe.domain.journal.model.AddJournalRequest): Journal {
+    fun updateFrom(request: AddJournalRequest): Journal {
         return Journal(
             id = this.id,
             assetType = request.assetType,
@@ -200,9 +203,9 @@ class Journal(
         )
     }
 
-    fun close(request: com.example.tradingnotebe.domain.journal.model.ClosePositionRequest): Journal {
+    fun close(request: ClosePositionRequest): Journal {
         if (this.tradeStatus != TradeStatus.OPEN) {
-            throw com.example.tradingnotebe.domain.exception.PositionAlreadyClosedException(this.id!!)
+            throw PositionAlreadyClosedException(this.id!!)
         }
         return Journal(
             id = this.id,

@@ -84,21 +84,6 @@ class TradingRuleService(
         val totalJournalCount = journalRepository.countByUser(userEntity).toInt()
         val journalsWithRulesCount = journalRepository.countByUserWithCheckedRules(userEntity).toInt()
 
-        // Monthly stats from DB aggregation
-        val monthlyRaw = journalRepository.findMonthlyRuleComplianceStats(userEntity)
-        val monthlyComplianceRates = monthlyRaw.map { row ->
-            val month = row[0] as String
-            val journalCount = (row[1] as Long).toInt()
-            // checkedCount from DB is journals-with-any-rules, not per-rule compliance
-            // For compliance rate we still need per-journal checked rule count,
-            // so we keep this as a simple ratio for the monthly view
-            MonthlyComplianceRate(
-                month = month,
-                rate = 0.0, // Will be computed below if needed
-                journalCount = journalCount
-            )
-        }
-
         // For overall compliance and monthly rates, we need per-journal checked counts.
         // Load journals only once and parse checkedRuleIds with cache.
         val allJournals = journalRepository.findByUser(userEntity)
