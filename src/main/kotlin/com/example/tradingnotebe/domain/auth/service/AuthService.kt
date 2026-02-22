@@ -7,6 +7,7 @@ import com.example.tradingnotebe.domain.auth.model.SignupResponse
 import com.example.tradingnotebe.domain.exception.AuthenticationFailedException
 import com.example.tradingnotebe.domain.exception.DuplicateEmailException
 import com.example.tradingnotebe.domain.exception.InvalidPasswordException
+import com.example.tradingnotebe.domain.exception.UnauthorizedAccessException
 import com.example.tradingnotebe.domain.subscription.service.SubscriptionService
 import com.example.tradingnotebe.domain.user.domain.User
 import com.example.tradingnotebe.domain.user.repository.UserJpaRepository
@@ -49,7 +50,7 @@ class AuthService(
             throw AuthenticationFailedException()
         }
 
-        val userEmail = user.email ?: throw RuntimeException("User email is required")
+        val userEmail = user.email ?: throw UnauthorizedAccessException("User email is required")
         val token = jwtUtil.generateToken(userEmail)
         return LoginResponse(token, userEmail, "Login successful")
     }
