@@ -1,42 +1,68 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, TrendingUp, TrendingDown, BarChart3, Clock, Zap } from 'lucide-react';
+import { ArrowRight, TrendingUp, Zap, BarChart3, Clock, Check, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 import Footer from '@/components/Footer';
 
 export default function HomePage() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
   return (
     <div className="w-full bg-white dark:bg-slate-950 min-h-screen">
-      {/* Hero - Minimal, direct */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 pb-12">
+      {/* Hero */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 pt-14 sm:pt-28 pb-10 sm:pb-12">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30 rounded-full mb-6">
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">트레이딩 저널</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-[1.1] mb-6 tracking-tight">
-            기록하고, 복기하라.<br />
-            <span className="text-slate-500">수익은 거기서 시작된다.</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-[1.1] mb-4 tracking-tight">
+            복기하는 트레이더가<br />
+            <span className="text-emerald-500">결국 이긴다.</span>
           </h1>
-          <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed mb-10 max-w-lg">
-            모든 거래를 30초 안에 기록하고, 승률과 수익률을 데이터로 확인하세요.
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8 max-w-lg">
+            좋은 트레이더와 그렇지 않은 트레이더의 차이는<br className="hidden sm:block" />
+            기억력이 아니라 기록 습관입니다.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              href="/journal"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors text-sm"
+              href="/login"
+              className="flex w-full sm:w-auto justify-center items-center gap-2 px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-colors text-sm"
             >
-              시작하기
+              무료로 기록 시작하기
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-3">
+            신용카드 불필요 · 14일 모든 기능 무료 체험 · 설치 없음
+          </p>
         </div>
       </section>
 
-      {/* Live-style Dashboard Preview */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 pb-24">
+      {/* Social Proof Numbers */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 border-y border-slate-100 dark:border-slate-800/50">
+        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-8 sm:gap-16 text-center">
+          {[
+            { value: '30초', label: '거래 기록 시간', accent: false },
+            { value: '무료', label: '시작 비용', accent: true },
+            { value: '5가지', label: '성과 지표 자동 계산', accent: false },
+            { value: '설치 없음', label: '브라우저에서 바로', accent: false },
+          ].map((item, i) => (
+            <div key={i} className="min-w-[80px]">
+              <div className={`text-2xl font-bold mb-1 ${item.accent ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
+                {item.value}
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{item.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Dashboard Preview */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/50 rounded-xl overflow-hidden">
+          <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/50 rounded-xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50">
             {/* Browser chrome */}
             <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800/50 bg-slate-100 dark:bg-slate-900/80">
               <div className="flex gap-1.5">
@@ -45,7 +71,7 @@ export default function HomePage() {
                 <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               </div>
               <div className="flex-1 flex justify-center">
-                <div className="px-3 py-0.5 bg-slate-200 dark:bg-slate-800/50 rounded text-[10px] text-slate-400 dark:text-slate-600 font-mono">
+                <div className="px-3 py-0.5 bg-slate-200 dark:bg-slate-800/50 rounded text-[11px] text-slate-400 dark:text-slate-600 font-mono">
                   trabit.app/dashboard
                 </div>
               </div>
@@ -60,7 +86,7 @@ export default function HomePage() {
                     <TrendingUp className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">오늘의 성과</div>
+                    <div className="text-[11px] text-slate-500">오늘의 성과</div>
                     <div className="text-sm font-bold text-emerald-400 tabular-nums">+485,000원</div>
                   </div>
                 </div>
@@ -80,9 +106,9 @@ export default function HomePage() {
                   { label: 'Profit Factor', value: '2.14', sub: 'Good', color: 'text-slate-900 dark:text-white', subColor: 'text-emerald-500' },
                 ].map((stat, i) => (
                   <div key={i} className="bg-slate-100 dark:bg-slate-800/30 rounded-lg p-3">
-                    <div className="text-[10px] text-slate-500 mb-1">{stat.label}</div>
+                    <div className="text-[11px] text-slate-500 mb-1">{stat.label}</div>
                     <div className={`text-base font-bold tabular-nums ${stat.color}`}>{stat.value}</div>
-                    <div className={`text-[10px] ${stat.subColor}`}>{stat.sub}</div>
+                    <div className={`text-[11px] ${stat.subColor}`}>{stat.sub}</div>
                   </div>
                 ))}
               </div>
@@ -90,10 +116,10 @@ export default function HomePage() {
               {/* Chart */}
               <div className="bg-slate-50 dark:bg-slate-800/20 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] text-slate-500 font-medium">자산 추이</span>
+                  <span className="text-[11px] text-slate-500 font-medium">자산 추이</span>
                   <div className="flex gap-1.5">
                     {['1W', '1M', '3M', 'ALL'].map(p => (
-                      <span key={p} className={`text-[9px] px-1.5 py-0.5 rounded ${p === '1M' ? 'bg-emerald-600/20 text-emerald-400' : 'text-slate-600'}`}>
+                      <span key={p} className={`text-[10px] px-1.5 py-0.5 rounded ${p === '1M' ? 'bg-emerald-600/20 text-emerald-400' : 'text-slate-600'}`}>
                         {p}
                       </span>
                     ))}
@@ -106,8 +132,8 @@ export default function HomePage() {
                       <stop offset="100%" stopColor="rgb(16, 185, 129)" stopOpacity="0" />
                     </linearGradient>
                   </defs>
-                  <path d="M0,70 L25,65 L50,60 L75,62 L100,50 L125,45 L150,48 L175,38 L200,35 L225,37 L250,28 L275,24 L300,26 L325,18 L350,14 L375,16 L400,10 L425,8 L450,9 L475,5 L500,3 L500,90 L0,90Z" fill="url(#chartFill)" />
-                  <polyline fill="none" stroke="rgb(16, 185, 129)" strokeWidth="1.5" points="0,70 25,65 50,60 75,62 100,50 125,45 150,48 175,38 200,35 225,37 250,28 275,24 300,26 325,18 350,14 375,16 400,10 425,8 450,9 475,5 500,3" />
+                  <path d="M0,70 Q50,62 100,50 T200,35 T300,26 T400,10 T500,3 L500,90 L0,90Z" fill="url(#chartFill)" />
+                  <path d="M0,70 Q50,62 100,50 T200,35 T300,26 T400,10 T500,3" fill="none" stroke="rgb(16, 185, 129)" strokeWidth="2" />
                 </svg>
               </div>
 
@@ -121,14 +147,14 @@ export default function HomePage() {
                   <div key={i} className="flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-slate-800/20 rounded-lg">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-medium text-slate-900 dark:text-white w-8">{trade.symbol}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                      <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${
                         trade.type === 'LONG' ? 'bg-emerald-900/50 text-emerald-400' : 'bg-red-900/50 text-red-400'
                       }`}>{trade.type}</span>
-                      <span className="text-[10px] text-slate-600">{trade.time}</span>
+                      <span className="text-[11px] text-slate-600">{trade.time}</span>
                     </div>
                     <div className="flex items-center gap-3 tabular-nums">
                       <span className={`text-xs font-medium ${trade.win ? 'text-emerald-400' : 'text-red-400'}`}>{trade.pnl}</span>
-                      <span className={`text-[10px] w-12 text-right ${trade.win ? 'text-emerald-500' : 'text-red-500'}`}>{trade.roi}</span>
+                      <span className={`text-[11px] w-12 text-right ${trade.win ? 'text-emerald-500' : 'text-red-500'}`}>{trade.roi}</span>
                     </div>
                   </div>
                 ))}
@@ -138,49 +164,211 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features - 3 cols, icon + text only */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-900">
+      {/* How It Works */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-slate-100 dark:border-slate-800/50">
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-center mb-3">
+            시작은 간단합니다
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-10 sm:mb-14">
+            복잡한 설정 없이, 3단계로 매매 분석을 시작하세요.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6">
+            {[
+              {
+                step: '01',
+                title: '거래 직후, 30초 기록',
+                desc: '종목과 손익만 입력하세요. ROI, 누적 수익은 자동으로 계산됩니다.',
+                icon: Zap,
+              },
+              {
+                step: '02',
+                title: '통계가 자동으로 쌓인다',
+                desc: '승률, Profit Factor, 연승/연패 패턴. 기록이 쌓일수록 데이터가 말해줍니다.',
+                icon: BarChart3,
+              },
+              {
+                step: '03',
+                title: '약점을 발견하고 개선한다',
+                desc: '어느 종목에서 손실이 나는지, 어느 시간대에 판단이 흐려지는지 확인하세요.',
+                icon: TrendingUp,
+              },
+            ].map((item, i) => (
+              <div key={i} className="relative text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-3 mb-3">
+                  <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30 rounded-lg flex items-center justify-center">
+                    <item.icon className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <span className="text-xs font-bold text-emerald-500 tracking-widest">STEP {item.step}</span>
+                </div>
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features - Benefit oriented */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-slate-100 dark:border-slate-800/50">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-center mb-3">
+            왜 Trabit인가
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-10 sm:mb-14">
+            기록이 귀찮았던 이유는 복잡해서였습니다.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
             <div>
               <Zap className="w-5 h-5 text-emerald-500 mb-3" />
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1.5">30초 퀵 엔트리</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                종목, 가격, 손익. 핵심만 빠르게 입력. 나머지는 자동 계산.
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                거래 후 30초, 습관이 된다
+              </h3>
+              <p className="text-xs text-red-400/80 dark:text-red-400/60 mb-1.5">
+                엑셀 매매일지는 작성에만 30분이 걸린다.
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                종목과 손익만 입력하면 ROI, 누적 수익이 자동으로 계산됩니다. 귀찮아서 안 쓰는 매매일지, 이제 없습니다.
               </p>
             </div>
             <div>
               <BarChart3 className="w-5 h-5 text-emerald-500 mb-3" />
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1.5">데이터로 복기</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                승률, 수익률, Profit Factor, 연속 스트릭. 감이 아닌 숫자로 실력을 확인.
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                "감"이 "실력"이 되는 순간
+              </h3>
+              <p className="text-xs text-red-400/80 dark:text-red-400/60 mb-1.5">
+                감으로 매매하다 같은 실수를 반복한다.
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                승률, Profit Factor, 연속 손실 패턴. Trabit이 당신의 약점을 데이터로 보여줍니다.
               </p>
             </div>
             <div>
               <Clock className="w-5 h-5 text-emerald-500 mb-3" />
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1.5">오늘의 성과</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                대시보드에서 오늘 거래 현황을 실시간 확인. 일별, 월별 추이 분석.
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                오늘 잘 했는지, 1초 안에 안다
+              </h3>
+              <p className="text-xs text-red-400/80 dark:text-red-400/60 mb-1.5">
+                장 마감 후 내가 잘 했는지조차 모른다.
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                대시보드를 열면 바로 보입니다. 오늘의 손익, 이번 달 추이, 최장 연승까지 한눈에.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA - minimal */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-900">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
-            첫 번째 거래를 기록하세요
+      {/* Pricing Preview */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-slate-100 dark:border-slate-800/50">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-center mb-3">
+            심플한 요금제
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-10 sm:mb-12">
+            14일간 모든 기능을 무료로 체험하세요. 체험 후 자동으로 Free 플랜으로 전환됩니다.
           </p>
-          <p className="text-sm text-slate-500 mb-8">무료. 설치 없음. 바로 시작.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {/* Free */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Free</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">매매 기록의 첫 걸음</p>
+              <div className="flex items-baseline gap-1 mb-5">
+                <span className="text-3xl font-bold text-slate-900 dark:text-white">0</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">원</span>
+              </div>
+              <ul className="space-y-2">
+                {['월 30건 거래 기록', '기본 대시보드', '매매원칙 설정', '최근 30일 데이터'].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Basic */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-emerald-500 rounded-xl p-6 relative shadow-lg shadow-emerald-500/10">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="text-xs font-semibold text-white bg-emerald-500 px-3 py-1 rounded-full">추천</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Basic</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">본격적인 매매 분석</p>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums">10,400</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">원/월</span>
+              </div>
+              <p className="text-xs text-emerald-500 font-medium mb-4">연간 결제 시 30% 할인</p>
+              <ul className="space-y-2">
+                {['무제한 거래 기록', '전체 대시보드 + 분석', '고급 분석 (시간대/요일/종목)', 'CSV 가져오기/내보내기', '매매원칙 성과 분석'].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="text-center mt-6">
+            <Link href="/pricing" className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-medium transition-colors">
+              요금제 상세 비교 보기 →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-slate-100 dark:border-slate-800/50">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-center mb-3">
+            자주 묻는 질문
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-10">
+            궁금한 점이 있으시면 언제든 문의해 주세요.
+          </p>
+          <div className="space-y-2">
+            {[
+              { q: '정말 무료로 시작할 수 있나요?', a: '네, 가입 즉시 14일간 Basic 전체 기능을 무료로 체험합니다. 체험 종료 후 자동으로 Free 플랜으로 전환되며, 별도의 결제 없이 계속 사용 가능합니다.' },
+              { q: '내 거래 데이터는 안전한가요?', a: '모든 데이터는 암호화되어 저장되며, 본인만 열람할 수 있습니다. 제3자에게 데이터를 공유하거나 판매하지 않습니다.' },
+              { q: '모바일에서도 사용할 수 있나요?', a: '네, 반응형 웹으로 모바일 브라우저에서도 최적화된 화면으로 이용 가능합니다. 별도 앱 설치가 필요 없습니다.' },
+              { q: '어떤 결제 수단을 지원하나요?', a: '신용카드, 체크카드, 카카오페이, 네이버페이를 지원합니다. 언제든 원클릭으로 해지할 수 있습니다.' },
+              { q: '암호화폐와 주식 모두 기록할 수 있나요?', a: '네, 암호화폐(현물/선물)와 주식(현물/선물) 모두 지원합니다. 자산 유형별로 분리된 통계도 제공됩니다.' },
+            ].map(({ q, a }, i) => (
+              <div key={i} className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                >
+                  <span className="text-sm font-medium text-slate-900 dark:text-white pr-4">{q}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-4">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-slate-100 dark:border-slate-800/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3">
+            수익률이 달라지는 습관
+          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">
+            무료로 시작 · 언제든 취소 가능 · 설치 없음
+          </p>
           <Link
-            href="/journal"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors text-sm"
+            href="/login"
+            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-10 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-colors text-sm"
           >
-            시작하기
+            지금 기록하기
             <ArrowRight className="w-4 h-4" />
           </Link>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-4">
+            Basic 플랜 월 10,400원 (연간) · 14일 무료 체험 후 결제
+          </p>
         </div>
       </section>
 
