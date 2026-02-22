@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState, useRef } from 'react';
+import { Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, CreditCard, Loader2 } from 'lucide-react';
@@ -23,10 +23,11 @@ export default function CheckoutPage() {
 function CheckoutContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, isLoading: authLoading } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const widgetRef = useRef<HTMLDivElement>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const paymentRef = useRef<any>(null);
 
     const cycle = (searchParams.get('cycle') as BillingCycle) || 'MONTHLY';
     const isYearly = cycle === 'YEARLY';
@@ -34,6 +35,7 @@ function CheckoutContent() {
     const monthlyAmount = isYearly ? 10400 : 14900;
 
     useEffect(() => {
+        if (authLoading) return;
         if (!user) {
             router.push('/login');
             return;
@@ -49,34 +51,11 @@ function CheckoutContent() {
 
                 if (!mounted) return;
 
-                const payment = tossPayments.payment({
+                paymentRef.current = tossPayments.payment({
                     customerKey: user!.id,
                 });
 
-                if (widgetRef.current) {
-                    widgetRef.current.innerHTML = '';
-                }
-
                 setIsLoading(false);
-
-                const btn = document.getElementById('toss-pay-button');
-                if (btn) {
-                    btn.onclick = async () => {
-                        try {
-                            await payment.requestBillingAuth({
-                                method: 'CARD',
-                                successUrl: `${window.location.origin}/pricing/success?cycle=${cycle}`,
-                                failUrl: `${window.location.origin}/pricing/fail`,
-                                customerEmail: user!.email,
-                                customerName: user!.name || user!.email,
-                            });
-                        } catch (err: unknown) {
-                            if (err instanceof Error) {
-                                setError(err.message);
-                            }
-                        }
-                    };
-                }
             } catch (err: unknown) {
                 if (mounted) {
                     setIsLoading(false);
@@ -90,7 +69,24 @@ function CheckoutContent() {
         return () => {
             mounted = false;
         };
-    }, [user, router, cycle]);
+    }, [user, authLoading, router, cycle]);
+
+    const handlePayment = useCallback(async () => {
+        if (!paymentRef.current || !user) return;
+        try {
+            await paymentRef.current.requestBillingAuth({
+                method: 'CARD',
+                successUrl: `${window.location.origin}/pricing/success?cycle=${cycle}`,
+                failUrl: `${window.location.origin}/pricing/fail`,
+                customerEmail: user.email,
+                customerName: user.name || user.email,
+            });
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            }
+        }
+    }, [user, cycle]);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -139,9 +135,6 @@ function CheckoutContent() {
                     </div>
                 </div>
 
-                {/* Payment Widget Area */}
-                <div ref={widgetRef} className="mb-6" />
-
                 {error && (
                     <div className="mb-4 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-lg text-sm text-red-500 dark:text-red-400">
                         {error}
@@ -155,7 +148,7 @@ function CheckoutContent() {
                     </div>
                 ) : (
                     <button
-                        id="toss-pay-button"
+                        onClick={handlePayment}
                         className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
                     >
                         <CreditCard className="w-4 h-4" />
