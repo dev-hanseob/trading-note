@@ -21,7 +21,6 @@ import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState';
 import { subWeeks, subMonths, startOfYear, parseISO, isAfter } from 'date-fns';
 import { useSubscription } from '@/hooks/useSubscription';
 import UpgradeBanner from '@/components/UpgradeBanner';
-import FeatureGate from '@/components/FeatureGate';
 
 const EquityCurve = dynamic(
     () => import('@/components/dashboard/EquityCurve'),

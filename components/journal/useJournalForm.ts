@@ -17,6 +17,14 @@ export interface UseJournalFormOptions {
     onClose: () => void;
 }
 
+const steps: { key: WizardStep; title: string; description: string }[] = [
+    { key: 'asset', title: '자산 선택', description: '거래한 자산 유형을 선택하세요' },
+    { key: 'basic', title: '기본 정보', description: '거래 날짜와 종목을 입력하세요' },
+    { key: 'trading', title: '거래 상세', description: '거래 수량과 가격을 입력하세요' },
+    { key: 'profit', title: '손익 정보', description: '손익과 수익률을 입력하세요' },
+    { key: 'review', title: '검토', description: '입력한 정보를 확인하세요' },
+];
+
 export function useJournalForm({ editTarget, onSuccessAction, onClose }: UseJournalFormOptions) {
     const [currentStep, setCurrentStep] = useState<WizardStep>('asset');
     const [isQuickMode, setIsQuickMode] = useState(!editTarget);
@@ -43,15 +51,6 @@ export function useJournalForm({ editTarget, onSuccessAction, onClose }: UseJour
     // Validation states
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Wizard configuration
-    const steps: { key: WizardStep; title: string; description: string }[] = [
-        { key: 'asset', title: '자산 선택', description: '거래한 자산 유형을 선택하세요' },
-        { key: 'basic', title: '기본 정보', description: '거래 날짜와 종목을 입력하세요' },
-        { key: 'trading', title: '거래 상세', description: '거래 수량과 가격을 입력하세요' },
-        { key: 'profit', title: '손익 정보', description: '손익과 수익률을 입력하세요' },
-        { key: 'review', title: '검토', description: '입력한 정보를 확인하세요' },
-    ];
 
     const currentStepIndex = steps.findIndex(step => step.key === currentStep);
     const isFirstStep = currentStepIndex === 0;
@@ -177,14 +176,14 @@ export function useJournalForm({ editTarget, onSuccessAction, onClose }: UseJour
         if (nextIndex < steps.length) {
             setCurrentStep(steps[nextIndex].key);
         }
-    }, [validateCurrentStep, currentStepIndex, steps]);
+    }, [validateCurrentStep, currentStepIndex]);
 
     const goToPreviousStep = useCallback(() => {
         const prevIndex = currentStepIndex - 1;
         if (prevIndex >= 0) {
             setCurrentStep(steps[prevIndex].key);
         }
-    }, [currentStepIndex, steps]);
+    }, [currentStepIndex]);
 
     const canProceed = useCallback((): boolean => {
         switch (currentStep) {
