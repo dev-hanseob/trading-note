@@ -13,6 +13,7 @@ import {Journal} from "@/type/domain/journal";
 import {TradeType, TradeTypeLabel, PositionTypeLabel, AssetTypeLabel, EmotionType, EmotionTypeLabel, EmotionTypeColor} from "@/type/domain/journal.enum";
 import {formatDistanceToNow} from 'date-fns';
 import {ko} from 'date-fns/locale';
+import { formatTradeDateFull } from '@/lib/utils/format';
 
 interface Props {
     journal: Journal;
@@ -55,19 +56,6 @@ function parseMemo(memo: string): ParsedMemo {
     }
 
     return {isStructured: false, rawText: memo};
-}
-
-function formatTradeDateFull(dateStr: string): string {
-    try {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return dateStr;
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${y}.${m}.${d}`;
-    } catch {
-        return dateStr;
-    }
 }
 
 export default function JournalDetailModal({

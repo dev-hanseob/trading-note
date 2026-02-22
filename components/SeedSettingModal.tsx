@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Settings, Loader2 } from 'lucide-react';
 import { CURRENCY_OPTIONS } from '@/lib/currency';
-import { formatNumberInput } from '@/lib/utils/format';
+import { formatNumberInput, parseNumberInput } from '@/lib/utils/format';
 
 interface SeedSettingModalProps {
   isOpen: boolean;
@@ -28,14 +28,10 @@ export default function SeedSettingModal({
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const parseNumber = (value: string) => {
-    return parseFloat(value.replace(/,/g, ''));
-  };
-
   const handleSaveInternal = useCallback(async () => {
-    const numValue = parseNumber(seedValue);
-    
-    if (isNaN(numValue) || numValue <= 0) {
+    const numValue = parseNumberInput(seedValue);
+
+    if (numValue <= 0) {
       setError('유효한 시드 금액을 입력해주세요.');
       return;
     }
