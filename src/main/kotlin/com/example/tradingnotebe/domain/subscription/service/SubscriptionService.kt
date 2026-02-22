@@ -1,5 +1,8 @@
 package com.example.tradingnotebe.domain.subscription.service
 
+import com.example.tradingnotebe.domain.exception.InvalidTradeOperationException
+import com.example.tradingnotebe.domain.exception.ResourceNotFoundException
+import com.example.tradingnotebe.domain.exception.SubscriptionNotFoundException
 import com.example.tradingnotebe.domain.journal.repository.JournalRepository
 import com.example.tradingnotebe.domain.subscription.client.TossPaymentsClient
 import com.example.tradingnotebe.domain.subscription.entity.*
@@ -54,7 +57,7 @@ class SubscriptionService(
         billingCycle: BillingCycle
     ): SubscriptionEntity {
         val user = userJpaRepo.findById(userId)
-            .orElseThrow { IllegalStateException("User not found: $userId") }
+            .orElseThrow { ResourceNotFoundException("User", userId) }
         val subscription = subscriptionRepo.findByUserId(userId)
             ?: SubscriptionEntity(
                 user = user,
@@ -106,10 +109,10 @@ class SubscriptionService(
     @Transactional
     fun cancelSubscription(userId: UUID, reason: String?): SubscriptionEntity {
         val subscription = subscriptionRepo.findByUserId(userId)
-            ?: throw IllegalStateException("Subscription not found for user: $userId")
+            ?: throw SubscriptionNotFoundException(userId)
 
         if (subscription.status != SubscriptionStatus.ACTIVE) {
-            throw IllegalStateException("Can only cancel an active subscription")
+            throw InvalidTradeOperationException("Can only cancel an active subscription")
         }
 
         subscription.status = SubscriptionStatus.CANCELLED
@@ -122,14 +125,14 @@ class SubscriptionService(
     @Transactional
     fun reactivateSubscription(userId: UUID): SubscriptionEntity {
         val subscription = subscriptionRepo.findByUserId(userId)
-            ?: throw IllegalStateException("Subscription not found for user: $userId")
+            ?: throw SubscriptionNotFoundException(userId)
 
         if (subscription.status != SubscriptionStatus.CANCELLED) {
-            throw IllegalStateException("Can only reactivate a cancelled subscription")
+            throw InvalidTradeOperationException("Can only reactivate a cancelled subscription")
         }
 
         if (subscription.currentPeriodEnd != null && subscription.currentPeriodEnd!!.isBefore(LocalDateTime.now())) {
-            throw IllegalStateException("Subscription period has already ended, please subscribe again")
+            throw InvalidTradeOperationException("Subscription period has already ended, please subscribe again")
         }
 
         subscription.status = SubscriptionStatus.ACTIVE

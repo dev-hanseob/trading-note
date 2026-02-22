@@ -50,7 +50,7 @@ class SeedController(
     @GetMapping("/{id}")
     fun getSeed(@PathVariable id: Long, @CurrentUser(required = false) user: User?): ResponseEntity<Seed> {
         val seed = seedService.findById(id)
-        return if (seed != null) ResponseEntity.ok(seed) else ResponseEntity.notFound().build()
+        return ResponseEntity.ok(seed)
     }
 
     @PutMapping("/{id}")
@@ -61,7 +61,7 @@ class SeedController(
     ): ResponseEntity<Seed> {
         val resolved = resolveUser(user)
         val seed = seedService.updateSeed(id, request, resolved)
-        return if (seed != null) ResponseEntity.ok(seed) else ResponseEntity.notFound().build()
+        return ResponseEntity.ok(seed)
     }
 
     @DeleteMapping("/{id}")

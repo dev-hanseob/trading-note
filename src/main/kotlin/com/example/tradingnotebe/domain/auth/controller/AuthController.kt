@@ -33,25 +33,15 @@ class AuthController(
     private val restTemplate = RestTemplate()
     
     @PostMapping("/signup")
-    fun signup(@RequestBody request: SignupRequest): ResponseEntity<*> {
-        return try {
-            val response = authService.signup(request)
-            ResponseEntity.ok(response)
-        } catch (e: RuntimeException) {
-            ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(mapOf("message" to (e.message ?: "Signup failed")))
-        }
+    fun signup(@RequestBody request: SignupRequest): ResponseEntity<SignupResponse> {
+        val response = authService.signup(request)
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<*> {
-        return try {
-            val response = authService.login(request)
-            ResponseEntity.ok(response)
-        } catch (e: RuntimeException) {
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(mapOf("message" to (e.message ?: "Authentication failed")))
-        }
+    fun login(@RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
+        val response = authService.login(request)
+        return ResponseEntity.ok(response)
     }
     
     @GetMapping("/oauth2/{provider}")
@@ -82,16 +72,11 @@ class AuthController(
             return ResponseEntity.badRequest()
                 .body(mapOf("message" to "Name is required"))
         }
-        return try {
-            val updated = authService.updateProfile(user, name)
-            ResponseEntity.ok(mapOf(
-                "name" to updated.name,
-                "message" to "Profile updated"
-            ))
-        } catch (e: RuntimeException) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(mapOf("message" to (e.message ?: "Profile update failed")))
-        }
+        val updated = authService.updateProfile(user, name)
+        return ResponseEntity.ok(mapOf(
+            "name" to updated.name,
+            "message" to "Profile updated"
+        ))
     }
 
     @PutMapping("/password")
@@ -109,13 +94,8 @@ class AuthController(
             return ResponseEntity.badRequest()
                 .body(mapOf("message" to "New password must be at least 8 characters"))
         }
-        return try {
-            authService.changePassword(user, currentPassword, newPassword)
-            ResponseEntity.ok(mapOf("message" to "Password changed"))
-        } catch (e: RuntimeException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("message" to (e.message ?: "Password change failed")))
-        }
+        authService.changePassword(user, currentPassword, newPassword)
+        return ResponseEntity.ok(mapOf("message" to "Password changed"))
     }
     
     @PostMapping("/logout")

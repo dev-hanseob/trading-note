@@ -4,6 +4,9 @@ import com.example.tradingnotebe.domain.auth.model.LoginRequest
 import com.example.tradingnotebe.domain.auth.model.LoginResponse
 import com.example.tradingnotebe.domain.auth.model.SignupRequest
 import com.example.tradingnotebe.domain.auth.model.SignupResponse
+import com.example.tradingnotebe.domain.exception.AuthenticationFailedException
+import com.example.tradingnotebe.domain.exception.DuplicateEmailException
+import com.example.tradingnotebe.domain.exception.InvalidPasswordException
 import com.example.tradingnotebe.domain.subscription.service.SubscriptionService
 import com.example.tradingnotebe.domain.user.domain.User
 import com.example.tradingnotebe.domain.user.repository.UserJpaRepository
@@ -23,7 +26,7 @@ class AuthService(
 
     fun signup(request: SignupRequest): SignupResponse {
         if (userService.existsByEmail(request.email)) {
-            throw RuntimeException("Email already exists")
+            throw DuplicateEmailException(request.email)
         }
 
         val encodedPassword = passwordEncoder.encode(request.password)
@@ -40,10 +43,10 @@ class AuthService(
     
     fun login(request: LoginRequest): LoginResponse {
         val user = userService.findByEmail(request.email)
-            .orElseThrow { RuntimeException("Invalid email or password") }
+            .orElseThrow { AuthenticationFailedException() }
 
         if (user.password?.let { passwordEncoder.matches(request.password, it) } != true) {
-            throw RuntimeException("Invalid email or password")
+            throw AuthenticationFailedException()
         }
 
         val userEmail = user.email ?: throw RuntimeException("User email is required")
@@ -69,7 +72,7 @@ class AuthService(
 
     fun changePassword(user: User, currentPassword: String, newPassword: String) {
         if (user.password?.let { passwordEncoder.matches(currentPassword, it) } != true) {
-            throw RuntimeException("Current password is incorrect")
+            throw InvalidPasswordException()
         }
         val encodedNewPassword = passwordEncoder.encode(newPassword)
         val updatedUser = User(

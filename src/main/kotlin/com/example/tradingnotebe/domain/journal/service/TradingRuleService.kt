@@ -1,5 +1,6 @@
 package com.example.tradingnotebe.domain.journal.service
 
+import com.example.tradingnotebe.domain.exception.TradingRuleNotFoundException
 import com.example.tradingnotebe.domain.journal.entity.Journal
 import com.example.tradingnotebe.domain.journal.entity.TradingRule
 import com.example.tradingnotebe.domain.journal.model.*
@@ -36,7 +37,7 @@ class TradingRuleService(
     fun update(id: Long, label: String, displayOrder: Int, isActive: Boolean, user: User): TradingRule {
         val userEntity = UserEntity.toEntity(user)
         val existing = tradingRuleRepository.findByIdAndUser(id, userEntity)
-            ?: throw IllegalArgumentException("Trading rule not found with id: $id")
+            ?: throw TradingRuleNotFoundException(id)
         val updated = TradingRule(
             id = existing.id,
             label = label,
@@ -140,7 +141,7 @@ class TradingRuleService(
     fun getRulePerformance(ruleId: Long, user: User): RulePerformanceResponse {
         val userEntity = UserEntity.toEntity(user)
         val rule = tradingRuleRepository.findByIdAndUser(ruleId, userEntity)
-            ?: throw IllegalArgumentException("Trading rule not found with id: $ruleId")
+            ?: throw TradingRuleNotFoundException(ruleId)
         val allJournals = journalRepository.findByUser(userEntity)
 
         val (checked, unchecked) = allJournals.partition { journal ->

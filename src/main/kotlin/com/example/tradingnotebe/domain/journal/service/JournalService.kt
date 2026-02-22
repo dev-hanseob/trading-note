@@ -1,5 +1,7 @@
 package com.example.tradingnotebe.domain.journal.service
 
+import com.example.tradingnotebe.domain.exception.JournalNotFoundException
+import com.example.tradingnotebe.domain.exception.PositionAlreadyClosedException
 import com.example.tradingnotebe.domain.journal.entity.Journal
 import com.example.tradingnotebe.domain.journal.entity.TradeStatus
 import com.example.tradingnotebe.domain.journal.model.AddJournalRequest
@@ -70,7 +72,7 @@ class JournalService(
     fun updateJournal(id: Long, request: AddJournalRequest, user: User): JournalResponse {
         val userEntity = UserEntity.toEntity(user)
         val existing = journalRepository.findByIdAndUser(id, userEntity)
-            ?: throw IllegalArgumentException("Journal not found with id: $id")
+            ?: throw JournalNotFoundException(id)
 
         val updated = Journal(
             id = existing.id,
@@ -119,10 +121,10 @@ class JournalService(
     fun closePosition(id: Long, request: ClosePositionRequest, user: User): JournalResponse {
         val userEntity = UserEntity.toEntity(user)
         val existing = journalRepository.findByIdAndUser(id, userEntity)
-            ?: throw IllegalArgumentException("Journal not found with id: $id")
+            ?: throw JournalNotFoundException(id)
 
         if (existing.tradeStatus != TradeStatus.OPEN) {
-            throw IllegalStateException("Only OPEN positions can be closed")
+            throw PositionAlreadyClosedException(id)
         }
 
         val closed = Journal(

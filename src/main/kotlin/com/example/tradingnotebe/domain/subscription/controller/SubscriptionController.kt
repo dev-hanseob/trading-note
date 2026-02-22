@@ -1,6 +1,7 @@
 package com.example.tradingnotebe.domain.subscription.controller
 
 import com.example.tradingnotebe.config.CurrentUser
+import com.example.tradingnotebe.domain.exception.UnauthorizedAccessException
 import com.example.tradingnotebe.domain.subscription.entity.BillingCycle
 import com.example.tradingnotebe.domain.subscription.entity.PlanTier
 import com.example.tradingnotebe.domain.subscription.entity.PricingConstants
@@ -8,7 +9,6 @@ import com.example.tradingnotebe.domain.subscription.entity.SubscriptionStatus
 import com.example.tradingnotebe.domain.subscription.service.SubscriptionService
 import com.example.tradingnotebe.domain.user.domain.User
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -21,7 +21,7 @@ class SubscriptionController(
 
     @GetMapping
     fun getSubscription(@CurrentUser user: User): ResponseEntity<*> {
-        val userId = user.id ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("message" to "Unauthorized"))
+        val userId = user.id ?: throw UnauthorizedAccessException()
         val subscription = subscriptionService.getSubscription(userId)
         val monthlyTradeCount = subscriptionService.getMonthlyTradeCount(userId)
         val effectiveTier = subscriptionService.getEffectiveTier(userId)
@@ -49,20 +49,15 @@ class SubscriptionController(
         @CurrentUser user: User,
         @RequestBody request: BillingRequest
     ): ResponseEntity<*> {
-        val userId = user.id ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("message" to "Unauthorized"))
-        return try {
-            val cycle = BillingCycle.valueOf(request.billingCycle)
-            val subscription = subscriptionService.confirmBillingAuth(userId, request.authKey, cycle)
-            ResponseEntity.ok(mapOf(
-                "message" to "Subscription activated",
-                "tier" to subscription.tier.name,
-                "status" to subscription.status.name,
-                "currentPeriodEnd" to subscription.currentPeriodEnd?.toString()
-            ))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("message" to (e.message ?: "Billing confirmation failed")))
-        }
+        val userId = user.id ?: throw UnauthorizedAccessException()
+        val cycle = BillingCycle.valueOf(request.billingCycle)
+        val subscription = subscriptionService.confirmBillingAuth(userId, request.authKey, cycle)
+        return ResponseEntity.ok(mapOf(
+            "message" to "Subscription activated",
+            "tier" to subscription.tier.name,
+            "status" to subscription.status.name,
+            "currentPeriodEnd" to subscription.currentPeriodEnd?.toString()
+        ))
     }
 
     @PostMapping("/cancel")
@@ -70,26 +65,16 @@ class SubscriptionController(
         @CurrentUser user: User,
         @RequestBody request: CancelRequest?
     ): ResponseEntity<*> {
-        val userId = user.id ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("message" to "Unauthorized"))
-        return try {
-            subscriptionService.cancelSubscription(userId, request?.reason)
-            ResponseEntity.ok(mapOf("message" to "Subscription cancelled"))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("message" to (e.message ?: "Cancellation failed")))
-        }
+        val userId = user.id ?: throw UnauthorizedAccessException()
+        subscriptionService.cancelSubscription(userId, request?.reason)
+        return ResponseEntity.ok(mapOf("message" to "Subscription cancelled"))
     }
 
     @PostMapping("/reactivate")
     fun reactivateSubscription(@CurrentUser user: User): ResponseEntity<*> {
-        val userId = user.id ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("message" to "Unauthorized"))
-        return try {
-            subscriptionService.reactivateSubscription(userId)
-            ResponseEntity.ok(mapOf("message" to "Subscription reactivated"))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("message" to (e.message ?: "Reactivation failed")))
-        }
+        val userId = user.id ?: throw UnauthorizedAccessException()
+        subscriptionService.reactivateSubscription(userId)
+        return ResponseEntity.ok(mapOf("message" to "Subscription reactivated"))
     }
 
     @GetMapping("/payments")
@@ -98,7 +83,7 @@ class SubscriptionController(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") pageSize: Int
     ): ResponseEntity<*> {
-        val userId = user.id ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("message" to "Unauthorized"))
+        val userId = user.id ?: throw UnauthorizedAccessException()
         val payments = subscriptionService.getPaymentHistory(userId, page - 1, pageSize)
         val items = payments.content.map { p ->
             PaymentHistoryResponse(

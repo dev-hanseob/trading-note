@@ -5,6 +5,7 @@ import com.example.tradingnotebe.domain.seed.entity.SeedEntity
 import com.example.tradingnotebe.domain.user.repository.UserJpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Repository
 class SeedRepository(
@@ -34,12 +35,12 @@ class SeedRepository(
             .orElse(null)
     }
     
-    fun findByUserId(userId: Long): List<Seed> {
+    fun findByUserId(userId: UUID): List<Seed> {
         return seedJpaRepository.findByUserId(userId)
             .map { SeedEntity.toDomain(it) }
     }
-    
-    fun findByIdAndUserId(id: Long, userId: Long): Seed? {
+
+    fun findByIdAndUserId(id: Long, userId: UUID): Seed? {
         return seedJpaRepository.findByIdAndUserId(id, userId)
             ?.let { SeedEntity.toDomain(it) }
     }
