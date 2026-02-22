@@ -116,8 +116,8 @@ logging:
 # Toss Payments Configuration
 toss:
   payments:
-    secret-key: ${TOSS_SECRET_KEY:test_sk_placeholder}
-    client-key: ${TOSS_CLIENT_KEY:test_ck_placeholder}
+    secret-key: ${TOSS_SECRET_KEY:test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R}
+    client-key: ${TOSS_CLIENT_KEY:test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq}
     api-url: https://api.tosspayments.com/v1
 
 # OpenAI Configuration
