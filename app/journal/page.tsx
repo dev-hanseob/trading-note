@@ -9,15 +9,17 @@ import {
     Search, X, ArrowUpDown, ArrowUp, ArrowDown,
     StickyNote, ChevronDown, Zap, FileSpreadsheet
 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import JournalRegisterModal from '@/components/JournalRegisterModal';
 import JournalDetailModal from '@/components/JournalDetailModal';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import CsvImportModal from '@/components/CsvImportModal';
 import { useToast } from '@/components/Toast';
-import {deleteJournals, getJournals} from '@/lib/api/journal';
+import {deleteJournals} from '@/lib/api/journal';
 import {Journal} from "@/type/domain/journal";
 import {AssetType, TradeType, AssetTypeLabel, TradeTypeLabel} from "@/type/domain/journal.enum";
 import {useSeed} from '@/hooks/useSeed';
+import { useJournals } from '@/hooks/useJournals';
 import { useSubscription } from '@/hooks/useSubscription';
 import UpgradeBanner from '@/components/UpgradeBanner';
 import { formatTradeDate } from '@/lib/utils/format';
@@ -27,9 +29,9 @@ type SortDir = 'asc' | 'desc';
 
 export default function JournalPage() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const {seed: totalSeed, isLoading: isSeedLoading} = useSeed();
     const { showToast } = useToast();
-    const [tableData, setTableData] = useState<Journal[]>([]);
     const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
     const [showModal, setShowModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -44,9 +46,16 @@ export default function JournalPage() {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [totalItems, setTotalItems] = useState(0);
 
     const subscription = useSubscription();
+
+    const { data: journalData } = useJournals({ page: currentPage, pageSize: itemsPerPage });
+    const tableData = journalData?.journals ?? [];
+    const totalItems = journalData?.total ?? 0;
+
+    const invalidateJournals = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ['journals'] });
+    }, [queryClient]);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [assetFilter, setAssetFilter] = useState<'all' | AssetType>('all');
@@ -55,21 +64,6 @@ export default function JournalPage() {
 
     const [sortField, setSortField] = useState<SortField>('date');
     const [sortDir, setSortDir] = useState<SortDir>('desc');
-
-    const fetchJournals = useCallback(() => {
-        getJournals({page: currentPage, pageSize: itemsPerPage})
-            .then((res) => {
-                setTableData(res.journals);
-                setTotalItems(res.total);
-            })
-            .catch((error) => {
-                // silently handle fetch errors
-            });
-    }, [currentPage, itemsPerPage]);
-
-    useEffect(() => {
-        fetchJournals();
-    }, [fetchJournals]);
 
     useEffect(() => {
         const checkMobile = () => setIsMobileView(window.innerWidth < 1024);
@@ -161,16 +155,10 @@ export default function JournalPage() {
     const handleBatchDelete = async () => {
         setIsDeleting(true);
         try {
-            await deleteJournals(Array.from(selectedRows));
-            const updated = tableData.filter(e => !selectedRows.has(e.id));
-            const updTotal = totalItems - selectedRows.size;
-            setTableData(updated);
-            setTotalItems(updTotal);
             const deletedCount = selectedRows.size;
+            await deleteJournals(Array.from(selectedRows));
             setSelectedRows(new Set());
-            const newTP = Math.ceil(updTotal / itemsPerPage);
-            if (currentPage > newTP && newTP > 0) setCurrentPage(newTP);
-            else if (newTP === 0) setCurrentPage(1);
+            invalidateJournals();
             showToast(`${deletedCount}건의 거래가 삭제되었습니다`, 'success');
         } catch {
             showToast('삭제에 실패했습니다', 'error');
@@ -185,13 +173,7 @@ export default function JournalPage() {
         setIsDeleting(true);
         try {
             await deleteJournals([singleDeleteTarget]);
-            const upd = tableData.filter(e => e.id !== singleDeleteTarget);
-            const updT = totalItems - 1;
-            setTableData(upd);
-            setTotalItems(updT);
-            const newTP = Math.ceil(updT / itemsPerPage);
-            if (currentPage > newTP && newTP > 0) setCurrentPage(newTP);
-            else if (newTP === 0) setCurrentPage(1);
+            invalidateJournals();
             setShowDetailModal(false);
             setDetailTarget(null);
             showToast('거래가 삭제되었습니다', 'success');
@@ -523,8 +505,8 @@ export default function JournalPage() {
                     recentJournals={tableData}
                     onClose={() => { setShowModal(false); setEditTarget(null); if (detailTarget) setShowDetailModal(true); }}
                     onSuccessAction={(newData) => {
-                        if (editTarget) { setTableData(prev => prev.map(item => item.id === newData.id ? newData : item)); if (detailTarget && detailTarget.id === newData.id) setDetailTarget(newData); }
-                        else { getJournals({page: currentPage, pageSize: itemsPerPage}).then(res => { setTableData(res.journals); setTotalItems(res.total); }).catch(() => {}); }
+                        if (detailTarget && detailTarget.id === newData.id) setDetailTarget(newData);
+                        invalidateJournals();
                         setShowModal(false); setEditTarget(null); if (detailTarget) setShowDetailModal(true);
                     }}
                 />
@@ -572,7 +554,7 @@ export default function JournalPage() {
                 onClose={() => setIsCsvImportOpen(false)}
                 onComplete={() => {
                     setIsCsvImportOpen(false);
-                    fetchJournals();
+                    invalidateJournals();
                 }}
             />
         </div>

@@ -7,10 +7,10 @@ import SeedSettingModal from '@/components/SeedSettingModal';
 import GoalSettingModal from '@/components/GoalSettingModal';
 import GoalDashboard from '@/components/GoalDashboard';
 import JournalDetailModal from '@/components/JournalDetailModal';
-import { getJournals } from '@/lib/api/journal';
 import { getTradingRuleStats } from '@/lib/api/tradingRule';
 import { Journal } from '@/type/domain/journal';
 import { useSeed } from '@/hooks/useSeed';
+import { useAllJournals } from '@/hooks/useJournals';
 import TodaySummary from '@/components/dashboard/TodaySummary';
 import StatCards from '@/components/dashboard/StatCards';
 import RecentTrades from '@/components/dashboard/RecentTrades';
@@ -73,9 +73,8 @@ function filterByDatePreset(journals: Journal[], preset: DatePreset): Journal[] 
 
 export default function DashboardPage() {
     const { seed: totalSeed, seedCurrency, updateSeed, isLoading: isSeedLoading } = useSeed();
-    const [allJournals, setAllJournals] = useState<Journal[]>([]);
-    const [isLoadingJournals, setIsLoadingJournals] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: allJournals = [], isLoading: isLoadingJournals, error: journalsError } = useAllJournals();
+    const error = journalsError ? '데이터를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.' : null;
     const [showSeedModal, setShowSeedModal] = useState(false);
     const [showGoalModal, setShowGoalModal] = useState(false);
     const [datePreset, setDatePreset] = useState<DatePreset>('ALL');
@@ -86,63 +85,6 @@ export default function DashboardPage() {
 
     const [detailTarget, setDetailTarget] = useState<Journal | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        async function fetchAllJournals() {
-            setIsLoadingJournals(true);
-            try {
-                const pageSize = 100;
-                let allData: Journal[] = [];
-
-                const firstRes = await getJournals({ page: 1, pageSize });
-                if (cancelled) return;
-
-                if (firstRes && firstRes.journals && Array.isArray(firstRes.journals)) {
-                    allData = [...firstRes.journals];
-                    const totalPages = Math.ceil(firstRes.total / pageSize);
-
-                    if (totalPages > 1) {
-                        const remainingPages = Array.from(
-                            { length: totalPages - 1 },
-                            (_, i) => i + 2
-                        );
-
-                        const batchSize = 5;
-                        for (let i = 0; i < remainingPages.length; i += batchSize) {
-                            const batch = remainingPages.slice(i, i + batchSize);
-                            const results = await Promise.all(
-                                batch.map((p) => getJournals({ page: p, pageSize }))
-                            );
-                            if (cancelled) return;
-                            for (const res of results) {
-                                if (res && res.journals) {
-                                    allData = [...allData, ...res.journals];
-                                }
-                            }
-                        }
-                    }
-                }
-
-                setAllJournals(allData);
-                setError(null);
-            } catch (err) {
-                // silently handle - error state is managed via setError
-                if (!cancelled) {
-                    setAllJournals([]);
-                    setError('데이터를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsLoadingJournals(false);
-                }
-            }
-        }
-
-        fetchAllJournals();
-        return () => { cancelled = true; };
-    }, []);
 
     useEffect(() => {
         getTradingRuleStats()
