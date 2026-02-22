@@ -5,6 +5,7 @@ import { Journal } from '@/type/domain/journal';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
+import { TooltipProps } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { CalendarRange } from 'lucide-react';
 import { formatCurrencyWithSign } from '@/lib/currency';
@@ -49,7 +50,7 @@ export default function MonthlyPnlChart({ journals, seedCurrency = 'KRW' }: Mont
     return `${parseInt(parts[1])}월`;
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (!active || !payload || !payload.length) return null;
     const data = payload[0].payload as MonthlyData;
     const [year, month] = data.month.split('-');

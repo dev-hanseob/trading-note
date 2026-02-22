@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { Brain } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { TooltipProps } from 'recharts';
 import { Journal } from '@/type/domain/journal';
 import { EmotionType, EmotionTypeLabel, EmotionTypeColor } from '@/type/domain/journal.enum';
 
@@ -77,7 +78,7 @@ export default function EmotionStats({ journals }: Props) {
         }));
     }, [emotionStats]);
 
-    const CustomTooltip = ({ active, payload }: any) => {
+    const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
         if (!active || !payload || !payload.length) return null;
         const data = payload[0].payload;
         const stat = emotionStats.find((s) => s.emotion === data.emotion);

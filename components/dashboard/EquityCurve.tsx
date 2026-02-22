@@ -5,6 +5,7 @@ import { Journal } from '@/type/domain/journal';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
+import { TooltipProps } from 'recharts';
 import { parseISO, subWeeks, subMonths, format, isAfter } from 'date-fns';
 import { Activity } from 'lucide-react';
 import { formatCurrency, formatCurrencyWithSign } from '@/lib/currency';
@@ -103,7 +104,7 @@ export default function EquityCurve({ journals, seed, seedCurrency = 'KRW' }: Eq
     return format(date, 'M/d');
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (!active || !payload || !payload.length) return null;
     const data = payload[0].payload as EquityDataPoint;
     const date = parseISO(data.date);
