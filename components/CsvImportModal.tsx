@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from 'react';
 import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { analyzeCsv, confirmCsvImport } from '@/lib/api/journal';
 import { CsvAnalyzeResponse, CsvPreviewRow } from '@/type/dto/csvImport';
+import { formatNumberDisplay } from '@/lib/utils/format';
 
 interface CsvImportModalProps {
   isOpen: boolean;
@@ -96,10 +97,6 @@ export default function CsvImportModal({ isOpen, onClose, onComplete }: CsvImpor
 
   if (!isOpen) return null;
 
-  const formatNumber = (n: number | null) => {
-    if (n === null || n === undefined) return '-';
-    return n.toLocaleString('ko-KR');
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -199,14 +196,14 @@ export default function CsvImportModal({ isOpen, onClose, onComplete }: CsvImpor
                         <td className="px-3 py-2 text-slate-500">{row.rowNumber}</td>
                         <td className="px-3 py-2 text-slate-900 dark:text-white">{row.tradedAt || '-'}</td>
                         <td className="px-3 py-2 text-slate-900 dark:text-white font-medium">{row.symbol || '-'}</td>
-                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumber(row.entryPrice)}</td>
-                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumber(row.exitPrice)}</td>
-                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumber(row.quantity)}</td>
-                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumber(row.investment)}</td>
+                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumberDisplay(row.entryPrice)}</td>
+                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumberDisplay(row.exitPrice)}</td>
+                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumberDisplay(row.quantity)}</td>
+                        <td className="px-3 py-2 text-right text-slate-900 dark:text-white tabular-nums">{formatNumberDisplay(row.investment)}</td>
                         <td className={`px-3 py-2 text-right tabular-nums font-medium ${
                           (row.profit ?? 0) >= 0 ? 'text-emerald-500' : 'text-red-500'
                         }`}>
-                          {row.profit !== null ? `${row.profit >= 0 ? '+' : ''}${formatNumber(row.profit)}` : '-'}
+                          {row.profit !== null ? `${row.profit >= 0 ? '+' : ''}${formatNumberDisplay(row.profit)}` : '-'}
                         </td>
                         <td className={`px-3 py-2 text-right tabular-nums ${
                           (row.roi ?? 0) >= 0 ? 'text-emerald-500' : 'text-red-500'

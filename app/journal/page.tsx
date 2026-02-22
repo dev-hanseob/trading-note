@@ -20,18 +20,7 @@ import {AssetType, TradeType, AssetTypeLabel, TradeTypeLabel} from "@/type/domai
 import {useSeed} from '@/hooks/useSeed';
 import { useSubscription } from '@/hooks/useSubscription';
 import UpgradeBanner from '@/components/UpgradeBanner';
-
-function formatTradeDate(dateStr: string): string {
-    try {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return dateStr;
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${m}.${d}`;
-    } catch {
-        return dateStr;
-    }
-}
+import { formatTradeDate } from '@/lib/utils/format';
 
 type SortField = 'symbol' | 'date' | 'pnl' | 'roi' | 'investment' | null;
 type SortDir = 'asc' | 'desc';

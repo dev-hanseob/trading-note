@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Settings, Loader2 } from 'lucide-react';
 import { CURRENCY_OPTIONS } from '@/lib/currency';
+import { formatNumberInput } from '@/lib/utils/format';
 
 interface SeedSettingModalProps {
   isOpen: boolean;
@@ -27,15 +28,7 @@ export default function SeedSettingModal({
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const formatNumber = (value: string) => {
-    // 숫자만 추출
-    const numberOnly = value.replace(/[^\d]/g, '');
-    // 천 단위 쉼표 추가
-    return numberOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
-
   const parseNumber = (value: string) => {
-    // 쉼표 제거하고 숫자로 변환
     return parseFloat(value.replace(/,/g, ''));
   };
 
@@ -99,7 +92,7 @@ export default function SeedSettingModal({
   }, [isOpen, isLoading, handleClose, handleSaveInternal]);
 
   useEffect(() => {
-    setSeedValue(formatNumber(currentSeed.toString()));
+    setSeedValue(formatNumberInput(currentSeed.toString()));
   }, [currentSeed]);
 
   useEffect(() => {
@@ -108,7 +101,7 @@ export default function SeedSettingModal({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSeedValue(formatNumber(value));
+    setSeedValue(formatNumberInput(value));
     setError('');
   };
 

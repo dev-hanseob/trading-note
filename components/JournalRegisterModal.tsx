@@ -17,6 +17,7 @@ import {Journal} from "@/type/domain/journal";
 import {TradingRule} from '@/type/domain/tradingRule';
 import RiskWarningBanner from "@/components/RiskWarningBanner";
 import Link from 'next/link';
+import { formatNumberInput, parseNumberInput } from '@/lib/utils/format';
 
 interface Props {
     onClose: () => void;
@@ -66,28 +67,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
     const isFirstStep = currentStepIndex === 0;
     const isLastStep = currentStepIndex === steps.length - 1;
     
-    // 숫자 포맷팅 함수
-    const formatNumber = (value: string | number): string => {
-        if (typeof value === 'number') value = value.toString();
-        // 숫자만 추출
-        const numberOnly = value.replace(/[^\d-]/g, '');
-        // 음수 처리
-        if (numberOnly.startsWith('-')) {
-            return '-' + numberOnly.substring(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        }
-        // 양수 처리
-        return numberOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
-
-    // 쉼표 제거하고 숫자로 변환
-    const parseNumber = (value: string): number => {
-        return parseFloat(value.replace(/,/g, '')) || 0;
-    };
-
     // 실제 숫자 값 계산 함수 (표시용 문자열에서 숫자 추출)
-    const getPrice = (): number => parseNumber(priceDisplay);
-    const getInvestment = (): number => parseNumber(investmentDisplay);
-    const getProfit = (): number => parseNumber(profitDisplay);
+    const getPrice = (): number => parseNumberInput(priceDisplay);
+    const getInvestment = (): number => parseNumberInput(investmentDisplay);
+    const getProfit = (): number => parseNumberInput(profitDisplay);
     
     // Initialize form data based on edit target
     useEffect(() => {
@@ -123,10 +106,10 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
         setTradeType(editTarget.tradeType);
         setPosition(editTarget.position ?? null);
         setQuantity(editTarget.quantity || '');
-        setPriceDisplay(formatNumber(editTarget.buyPrice || 0));
+        setPriceDisplay(formatNumberInput(editTarget.buyPrice || 0));
         setLeverage(editTarget.leverage ? String(editTarget.leverage) : '');
-        setInvestmentDisplay(formatNumber(editTarget.investment || 0));
-        setProfitDisplay(formatNumber(editTarget.profit || 0));
+        setInvestmentDisplay(formatNumberInput(editTarget.investment || 0));
+        setProfitDisplay(formatNumberInput(editTarget.profit || 0));
         setRoi(editTarget.roi || 0);
         setMemo(editTarget.memo || '');
         setEmotion((editTarget.emotion as EmotionType) || null);
@@ -211,7 +194,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
         
         const calculatedProfit = (roi / 100) * investment;
         const rounded = Math.round(calculatedProfit);
-        setProfitDisplay(formatNumber(rounded));
+        setProfitDisplay(formatNumberInput(rounded));
     }, [roi, investmentDisplay, activeCalculation]);
     
     // Validation functions
@@ -679,7 +662,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                               <input
                                 type="text"
                                 value={priceDisplay}
-                                onChange={(e) => setPriceDisplay(formatNumber(e.target.value))}
+                                onChange={(e) => setPriceDisplay(formatNumberInput(e.target.value))}
                                 placeholder="50,000"
                                 className="w-full px-3 py-2.5 bg-slate-100 border border-slate-300 dark:bg-slate-800 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white text-right placeholder-slate-400 dark:placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors tabular-nums"
                               />
@@ -692,7 +675,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                             <input
                               type="text"
                               value={investmentDisplay}
-                              onChange={(e) => setInvestmentDisplay(formatNumber(e.target.value))}
+                              onChange={(e) => setInvestmentDisplay(formatNumberInput(e.target.value))}
                               placeholder="1,000,000"
                               className="w-full px-3 py-2.5 bg-slate-100 border border-slate-300 dark:bg-slate-800 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white text-right placeholder-slate-400 dark:placeholder-slate-600 focus:border-emerald-500 focus:outline-none transition-colors tabular-nums"
                             />
@@ -707,7 +690,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                 value={profitDisplay}
                                 onChange={(e) => {
                                   setActiveCalculation('roi');
-                                  setProfitDisplay(formatNumber(e.target.value));
+                                  setProfitDisplay(formatNumberInput(e.target.value));
                                 }}
                                 placeholder="+100,000"
                                 className={`w-full px-3 py-2.5 bg-slate-100 dark:bg-slate-800 border rounded-lg text-sm text-right font-medium tabular-nums focus:outline-none transition-colors ${
@@ -1032,7 +1015,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                 type="text"
                                                 value={priceDisplay}
                                                 onChange={(e) => {
-                                                    setPriceDisplay(formatNumber(e.target.value));
+                                                    setPriceDisplay(formatNumberInput(e.target.value));
                                                 }}
                                                 placeholder="예: 50,000,000"
                                                 className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white text-right transition-colors ${
@@ -1057,7 +1040,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                 type="text"
                                                 value={investmentDisplay}
                                                 onChange={(e) => {
-                                                    setInvestmentDisplay(formatNumber(e.target.value));
+                                                    setInvestmentDisplay(formatNumberInput(e.target.value));
                                                 }}
                                                 placeholder="예: 1,000,000"
                                                 className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white text-right transition-colors ${
@@ -1181,7 +1164,7 @@ export default function JournalRegisterModal({ onClose, onSuccessAction, editTar
                                                 value={profitDisplay}
                                                 onChange={(e) => {
                                                     setActiveCalculation('roi');
-                                                    setProfitDisplay(formatNumber(e.target.value));
+                                                    setProfitDisplay(formatNumberInput(e.target.value));
                                                 }}
                                                 placeholder="예: +100,000 또는 -50,000"
                                                 className={`w-full px-4 py-3 border-2 rounded-xl text-sm bg-slate-100 dark:bg-slate-800 text-right transition-colors font-medium ${
