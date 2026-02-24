@@ -186,6 +186,16 @@ export default function EquityCurve({ journals, seed, seedCurrency = 'KRW' }: Eq
             tickLine={false}
             tick={{ fontSize: 12, fill: '#94a3b8' }}
             width={55}
+            domain={[
+              (dataMin: number) => {
+                const padding = (dataMin) * 0.02;
+                return Math.max(0, Math.floor((dataMin - padding) / 100000) * 100000);
+              },
+              (dataMax: number) => {
+                const padding = (dataMax) * 0.02;
+                return Math.ceil((dataMax + padding) / 100000) * 100000;
+              }
+            ]}
           />
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine

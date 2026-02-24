@@ -211,22 +211,18 @@ export default function DashboardPage() {
                         seedCurrency={seedCurrency}
                     />
 
+                    {/* Goal Dashboard - always visible, right after stats */}
+                    <div className="mt-4">
+                        <GoalDashboard
+                            currentProfit={totalProfit}
+                            totalSeed={totalSeed}
+                            currentRoi={totalRoi}
+                            compact
+                        />
+                    </div>
+
                     {/* Mobile Tab Navigation */}
                     <MobileDashboardTabs activeTab={mobileTab} onChange={setMobileTab} />
-
-                    {/* Summary tab: Recent Trades */}
-                    <div className={`lg:block ${mobileTab === 'summary' ? 'block' : 'hidden'}`}>
-                        <div className="mt-4">
-                            <RecentTrades
-                                journals={tableData}
-                                onSelect={(journal) => {
-                                    setDetailTarget(journal);
-                                    setShowDetailModal(true);
-                                }}
-                                seedCurrency={seedCurrency}
-                            />
-                        </div>
-                    </div>
 
                     {/* Charts tab: EquityCurve, Calendar, MonthlyPnl */}
                     <div className={`lg:block ${mobileTab === 'charts' ? 'block' : 'hidden'}`}>
@@ -247,14 +243,16 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    {/* Goals tab */}
-                    <div className={`lg:block ${mobileTab === 'goals' ? 'block' : 'hidden'}`}>
+                    {/* Summary tab: Recent Trades - moved to bottom */}
+                    <div className={`lg:block ${mobileTab === 'summary' ? 'block' : 'hidden'}`}>
                         <div className="mt-4">
-                            <GoalDashboard
-                                currentProfit={totalProfit}
-                                totalSeed={totalSeed}
-                                currentRoi={totalRoi}
-                                compact
+                            <RecentTrades
+                                journals={tableData}
+                                onSelect={(journal) => {
+                                    setDetailTarget(journal);
+                                    setShowDetailModal(true);
+                                }}
+                                seedCurrency={seedCurrency}
                             />
                         </div>
                     </div>

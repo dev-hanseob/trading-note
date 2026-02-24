@@ -21,9 +21,30 @@ apiClient.interceptors.request.use((config) => {
     return config;
 });
 
+// Rewrite absolute backend URLs to relative proxy paths
+function rewriteUploadUrls(data: unknown): unknown {
+    if (typeof data === 'string') {
+        return data.replace(/http:\/\/localhost:8080\/uploads\//g, '/uploads/');
+    }
+    if (Array.isArray(data)) {
+        return data.map(rewriteUploadUrls);
+    }
+    if (data && typeof data === 'object') {
+        const result: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(data)) {
+            result[key] = rewriteUploadUrls(value);
+        }
+        return result;
+    }
+    return data;
+}
+
 // Response interceptor: handle 401
 apiClient.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        response.data = rewriteUploadUrls(response.data);
+        return response;
+    },
     (error) => {
         if (error.response?.status === 401 && typeof window !== 'undefined') {
             localStorage.removeItem(TOKEN_KEY);

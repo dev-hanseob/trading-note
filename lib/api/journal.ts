@@ -24,6 +24,10 @@ export async function updateJournal(id: number, request: addJournalRequest): Pro
 
 export async function getJournals(params: GetJournalsParams): Promise<GetJournalsResponse> {
     const { data } = await apiClient.get<GetJournalsResponse>('/journals', { params });
+    // Normalize: backend may return "journals" instead of "items"
+    if (!data.items && data.journals) {
+        data.items = data.journals;
+    }
     return data;
 }
 

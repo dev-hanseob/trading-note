@@ -41,4 +41,5 @@ export interface GetJournalsResponse {
     page: number;
     pageSize: number;
     items: Journal[];
+    journals?: Journal[];
 }
