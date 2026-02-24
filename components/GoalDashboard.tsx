@@ -44,7 +44,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
 
     if (!hasGoals) {
       return (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">목표 진행률</h3>
             <button
@@ -66,7 +66,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
     }
 
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">목표 진행률</h3>
 
         <div className="space-y-4">

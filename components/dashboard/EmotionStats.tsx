@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { TooltipProps } from 'recharts';
 import { Journal } from '@/type/domain/journal';
 import { EmotionType, EmotionTypeLabel, EmotionTypeColor } from '@/type/domain/journal.enum';
+import { DashboardCard, CardHeader } from '@/components/dashboard/DashboardCard';
 
 interface Props {
     journals: Journal[];
@@ -113,14 +114,11 @@ export default function EmotionStats({ journals }: Props) {
     const hasData = emotionStats.length > 0;
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
-            {/* Header */}
-            <div className="flex items-center gap-2 mb-4">
-                <Brain className="w-5 h-5 text-purple-500" />
-                <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                    감정별 트레이딩 통계
-                </h3>
-            </div>
+        <DashboardCard>
+            <CardHeader
+                icon={<Brain className="w-4 h-4 text-purple-500" />}
+                title="감정별 트레이딩 통계"
+            />
 
             {!hasData ? (
                 <div className="flex items-center justify-center h-[200px] text-slate-400 dark:text-slate-500 text-sm">
@@ -215,6 +213,6 @@ export default function EmotionStats({ journals }: Props) {
                     </div>
                 </>
             )}
-        </div>
+        </DashboardCard>
     );
 }

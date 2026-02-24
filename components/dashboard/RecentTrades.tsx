@@ -6,6 +6,7 @@ import { Journal } from '@/type/domain/journal';
 import { History, ScrollText, ArrowRight, TrendingUp, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatCurrencyWithSign } from '@/lib/currency';
+import { CardHeader } from '@/components/dashboard/DashboardCard';
 
 interface RecentTradesProps {
   journals: Journal[];
@@ -19,12 +20,12 @@ export default function RecentTrades({ journals, onSelect, seedCurrency = 'KRW' 
     .slice(0, 5);
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col">
-      <div className="flex items-center gap-2 px-6 pt-6 pb-4">
-        <History size={18} className="text-slate-500 dark:text-slate-400" />
-        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-          최근 거래
-        </h3>
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col">
+      <div className="px-5 pt-5">
+        <CardHeader
+          icon={<History size={16} className="text-slate-500 dark:text-slate-400" />}
+          title="최근 거래"
+        />
       </div>
 
       {recentTrades.length === 0 ? (
@@ -121,7 +122,7 @@ export default function RecentTrades({ journals, onSelect, seedCurrency = 'KRW' 
           {/* View All Link */}
           <Link
             href="/journal"
-            className="flex items-center justify-center gap-1 py-3.5 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 border-t border-slate-100 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded-b-2xl"
+            className="flex items-center justify-center gap-1 py-3.5 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 border-t border-slate-100 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded-b-xl"
           >
             전체 거래 보기
             <ArrowRight size={14} />

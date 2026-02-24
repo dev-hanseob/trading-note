@@ -141,7 +141,7 @@ export default function DashboardPage() {
         <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8 min-h-screen">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                <h1 className="text-lg font-bold text-slate-900 dark:text-white">
                     대시보드
                 </h1>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -181,9 +181,9 @@ export default function DashboardPage() {
                 />
             ) : (
                 <>
-                    {/* Upgrade Banner */}
-                    {(subscription.effectiveTier === 'FREE' || subscription.isTrialActive) && (
-                        <div className="mb-4">
+                    <div className="space-y-4">
+                        {/* Upgrade Banner */}
+                        {(subscription.effectiveTier === 'FREE' || subscription.isTrialActive) && (
                             <UpgradeBanner
                                 tradesUsed={subscription.tradesUsed}
                                 tradeLimit={subscription.tradeLimit}
@@ -191,61 +191,53 @@ export default function DashboardPage() {
                                 isTrialActive={subscription.isTrialActive}
                                 trialDaysLeft={subscription.trialDaysLeft}
                             />
-                        </div>
-                    )}
+                        )}
 
-                    {/* Today Summary */}
-                    <div className="mb-4">
+                        {/* Today Summary */}
                         <TodaySummary journals={allJournals} seedCurrency={seedCurrency} />
-                    </div>
 
-                    {/* Stat Cards - always visible */}
-                    <StatCards
-                        totalSeed={totalSeed}
-                        totalProfit={totalProfit}
-                        totalRoi={totalRoi}
-                        winRate={winRate}
-                        tradeCount={tradeCount}
-                        journals={tableData}
-                        ruleComplianceRate={ruleComplianceRate}
-                        seedCurrency={seedCurrency}
-                    />
+                        {/* Stat Cards */}
+                        <StatCards
+                            totalSeed={totalSeed}
+                            totalProfit={totalProfit}
+                            totalRoi={totalRoi}
+                            winRate={winRate}
+                            tradeCount={tradeCount}
+                            journals={tableData}
+                            ruleComplianceRate={ruleComplianceRate}
+                            seedCurrency={seedCurrency}
+                        />
 
-                    {/* Goal Dashboard - always visible, right after stats */}
-                    <div className="mt-4">
+                        {/* Goal Dashboard */}
                         <GoalDashboard
                             currentProfit={totalProfit}
                             totalSeed={totalSeed}
                             currentRoi={totalRoi}
                             compact
                         />
-                    </div>
 
-                    {/* Mobile Tab Navigation */}
-                    <MobileDashboardTabs activeTab={mobileTab} onChange={setMobileTab} />
+                        {/* Mobile Tab Navigation */}
+                        <MobileDashboardTabs activeTab={mobileTab} onChange={setMobileTab} />
 
-                    {/* Charts tab: EquityCurve, Calendar, MonthlyPnl */}
-                    <div className={`lg:block ${mobileTab === 'charts' ? 'block' : 'hidden'}`}>
-                        <div className="mt-4">
+                        {/* Charts tab */}
+                        <div className={`lg:block ${mobileTab === 'charts' ? 'block' : 'hidden'} space-y-4`}>
                             <EquityCurve journals={tableData} seed={totalSeed} seedCurrency={seedCurrency} />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <CalendarHeatmap journals={allJournals} seedCurrency={seedCurrency} />
+                                <MonthlyPnlChart journals={tableData} seedCurrency={seedCurrency} />
+                            </div>
                         </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                            <CalendarHeatmap journals={allJournals} seedCurrency={seedCurrency} />
-                            <MonthlyPnlChart journals={tableData} seedCurrency={seedCurrency} />
-                        </div>
-                    </div>
 
-                    {/* Mindset tab: RuleInsights, EmotionStats */}
-                    <div className={`lg:block ${mobileTab === 'mindset' ? 'block' : 'hidden'}`}>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                            <RuleInsights />
-                            <EmotionStats journals={tableData} />
+                        {/* Mindset tab */}
+                        <div className={`lg:block ${mobileTab === 'mindset' ? 'block' : 'hidden'}`}>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <RuleInsights />
+                                <EmotionStats journals={tableData} />
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Summary tab: Recent Trades - moved to bottom */}
-                    <div className={`lg:block ${mobileTab === 'summary' ? 'block' : 'hidden'}`}>
-                        <div className="mt-4">
+                        {/* Summary tab: Recent Trades */}
+                        <div className={`lg:block ${mobileTab === 'summary' ? 'block' : 'hidden'}`}>
                             <RecentTrades
                                 journals={tableData}
                                 onSelect={(journal) => {

@@ -8,6 +8,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { formatCurrencyWithSign } from '@/lib/currency';
+import { DashboardCard, CardHeader } from '@/components/dashboard/DashboardCard';
 import {
   startOfMonth,
   endOfMonth,
@@ -143,33 +144,30 @@ export default function CalendarHeatmap({ journals, seedCurrency = 'KRW' }: Cale
   }, [dailyPnl, currentDate]);
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="w-5 h-5 text-emerald-500" />
-          <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-            Trading Calendar
-          </h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
-          >
-            <ChevronLeft size={16} className="text-slate-400" />
-          </button>
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300 min-w-[100px] text-center">
-            {format(currentDate, 'yyyy년 M월')}
-          </span>
-          <button
-            onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
-          >
-            <ChevronRight size={16} className="text-slate-400" />
-          </button>
-        </div>
-      </div>
+    <DashboardCard>
+      <CardHeader
+        icon={<CalendarDays className="w-4 h-4 text-emerald-500" />}
+        title="Trading Calendar"
+        action={
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
+            >
+              <ChevronLeft size={16} className="text-slate-400" />
+            </button>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 min-w-[100px] text-center">
+              {format(currentDate, 'yyyy년 M월')}
+            </span>
+            <button
+              onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
+            >
+              <ChevronRight size={16} className="text-slate-400" />
+            </button>
+          </div>
+        }
+      />
 
       {/* Monthly summary bar */}
       <div className="flex items-center gap-4 mb-4 px-1 text-xs text-slate-500 dark:text-slate-400">
@@ -253,6 +251,6 @@ export default function CalendarHeatmap({ journals, seedCurrency = 'KRW' }: Cale
         <div className="w-3 h-3 rounded-sm bg-emerald-400" />
         <span>이익</span>
       </div>
-    </div>
+    </DashboardCard>
   );
 }

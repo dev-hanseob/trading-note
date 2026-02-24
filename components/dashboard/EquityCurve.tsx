@@ -9,6 +9,7 @@ import { TooltipProps } from 'recharts';
 import { parseISO, subWeeks, subMonths, format, isAfter } from 'date-fns';
 import { Activity } from 'lucide-react';
 import { formatCurrency, formatCurrencyWithSign } from '@/lib/currency';
+import { DashboardCard, CardHeader } from '@/components/dashboard/DashboardCard';
 
 interface EquityCurveProps {
   journals: Journal[];
@@ -128,41 +129,41 @@ export default function EquityCurve({ journals, seed, seedCurrency = 'KRW' }: Eq
 
   if (journals.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Activity className="w-5 h-5 text-emerald-500" />
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">자산 추이</h3>
-        </div>
-        <div className="flex items-center justify-center h-64 text-slate-400 dark:text-slate-500">
+      <DashboardCard>
+        <CardHeader
+          icon={<Activity className="w-4 h-4 text-emerald-500" />}
+          title="자산 추이"
+        />
+        <div className="flex items-center justify-center h-64 text-sm text-slate-400 dark:text-slate-500">
           매매 기록이 없습니다.
         </div>
-      </div>
+      </DashboardCard>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-emerald-500" />
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">자산 추이</h3>
-        </div>
-        <div className="flex gap-1">
-          {periodButtons.map((btn) => (
-            <button
-              key={btn.value}
-              onClick={() => setPeriod(btn.value)}
-              className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-                period === btn.value
-                  ? 'bg-emerald-500 text-white'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
-            >
-              {btn.label}
-            </button>
-          ))}
-        </div>
-      </div>
+    <DashboardCard>
+      <CardHeader
+        icon={<Activity className="w-4 h-4 text-emerald-500" />}
+        title="자산 추이"
+        action={
+          <div className="flex gap-1">
+            {periodButtons.map((btn) => (
+              <button
+                key={btn.value}
+                onClick={() => setPeriod(btn.value)}
+                className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
+                  period === btn.value
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        }
+      />
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={filteredData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <defs>
@@ -215,6 +216,6 @@ export default function EquityCurve({ journals, seed, seedCurrency = 'KRW' }: Eq
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </DashboardCard>
   );
 }

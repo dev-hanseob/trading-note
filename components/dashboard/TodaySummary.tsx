@@ -36,7 +36,7 @@ export default function TodaySummary({ journals, seedCurrency = 'KRW' }: Props) 
 
   if (!stats) {
     return (
-      <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-xl p-4 sm:p-5">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
@@ -57,7 +57,7 @@ export default function TodaySummary({ journals, seedCurrency = 'KRW' }: Props) 
   const isNegative = stats.totalPnl < 0;
 
   return (
-    <div className={`bg-white dark:bg-slate-900 border rounded-xl p-4 sm:p-5 ${
+    <div className={`bg-white dark:bg-slate-900 rounded-xl border p-5 ${
       isPositive ? 'border-emerald-200 dark:border-emerald-800/50' : isNegative ? 'border-red-200 dark:border-red-800/50' : 'border-slate-200 dark:border-slate-800'
     }`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

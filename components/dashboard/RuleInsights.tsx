@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ListChecks, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { getTradingRuleStats, getJournalAnalyticsByRules } from '@/lib/api/tradingRule';
 import { TradingRuleStatsResponse, RuleAnalyticsResponse } from '@/type/domain/tradingRule';
+import { DashboardCard, CardHeader } from '@/components/dashboard/DashboardCard';
 
 export default function RuleInsights() {
     const [stats, setStats] = useState<TradingRuleStatsResponse | null>(null);
@@ -38,10 +39,10 @@ export default function RuleInsights() {
 
     if (isLoading) {
         return (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+            <DashboardCard>
                 <div className="animate-pulse space-y-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 bg-slate-200 dark:bg-slate-800 rounded" />
+                        <div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded" />
                         <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-32" />
                     </div>
                     <div className="flex items-center gap-6">
@@ -53,19 +54,17 @@ export default function RuleInsights() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </DashboardCard>
         );
     }
 
     if (error || !stats) {
         return (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                    <ListChecks className="w-5 h-5 text-emerald-500" />
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                        매매원칙 인사이트
-                    </h3>
-                </div>
+            <DashboardCard>
+                <CardHeader
+                    icon={<ListChecks className="w-4 h-4 text-emerald-500" />}
+                    title="매매원칙 인사이트"
+                />
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                     <p className="text-sm text-red-500 dark:text-red-400 mb-3">
                         데이터를 불러오지 못했습니다
@@ -77,7 +76,7 @@ export default function RuleInsights() {
                         다시 시도
                     </button>
                 </div>
-            </div>
+            </DashboardCard>
         );
     }
 
@@ -85,13 +84,11 @@ export default function RuleInsights() {
 
     if (!hasData) {
         return (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                    <ListChecks className="w-5 h-5 text-emerald-500" />
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                        매매원칙 인사이트
-                    </h3>
-                </div>
+            <DashboardCard>
+                <CardHeader
+                    icon={<ListChecks className="w-4 h-4 text-emerald-500" />}
+                    title="매매원칙 인사이트"
+                />
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                         매매 원칙을 설정하면 분석을 확인할 수 있습니다
@@ -103,7 +100,7 @@ export default function RuleInsights() {
                         설정으로 이동
                     </Link>
                 </div>
-            </div>
+            </DashboardCard>
         );
     }
 
@@ -118,23 +115,20 @@ export default function RuleInsights() {
     const offset = circumference - (complianceRate / 100) * circumference;
 
     return (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <ListChecks className="w-5 h-5 text-emerald-500" />
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                        매매원칙 인사이트
-                    </h3>
-                </div>
-                <Link
-                    href="/analytics/rules"
-                    className="flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
-                >
-                    상세 분석
-                    <ArrowRight className="w-3 h-3" />
-                </Link>
-            </div>
+        <DashboardCard>
+            <CardHeader
+                icon={<ListChecks className="w-4 h-4 text-emerald-500" />}
+                title="매매원칙 인사이트"
+                action={
+                    <Link
+                        href="/analytics/rules"
+                        className="flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                    >
+                        상세 분석
+                        <ArrowRight className="w-3 h-3" />
+                    </Link>
+                }
+            />
 
             {/* Content */}
             <div className="flex items-center gap-5">
@@ -226,6 +220,6 @@ export default function RuleInsights() {
                     </span>
                 </div>
             </div>
-        </div>
+        </DashboardCard>
     );
 }

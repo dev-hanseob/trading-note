@@ -193,10 +193,10 @@ export default function StatCards({
             <motion.div
               key={card.label}
               variants={itemVariants}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 sm:p-6"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                   {card.label}
                 </span>
                 <div
@@ -223,7 +223,7 @@ export default function StatCards({
         {/* Total Balance - demoted from hero */}
         <motion.div
           variants={itemVariants}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4"
+          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4"
         >
           <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
             총 잔고
@@ -239,7 +239,7 @@ export default function StatCards({
         {/* Win Rate */}
         <motion.div
           variants={itemVariants}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4"
+          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4"
         >
           <div className="flex items-center justify-between">
             <div className="min-w-0">
@@ -297,7 +297,7 @@ export default function StatCards({
         {/* Profit Factor */}
         <motion.div
           variants={itemVariants}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4"
+          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4"
         >
           <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
             손익비
@@ -313,7 +313,7 @@ export default function StatCards({
         {/* Average P&L */}
         <motion.div
           variants={itemVariants}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4"
+          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4"
         >
           <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
             평균 손익
@@ -335,7 +335,7 @@ export default function StatCards({
         {/* Current Streak */}
         <motion.div
           variants={itemVariants}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4"
+          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4"
         >
           <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
             현재 스트릭

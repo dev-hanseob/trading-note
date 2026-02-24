@@ -9,6 +9,7 @@ import { TooltipProps } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { CalendarRange } from 'lucide-react';
 import { formatCurrencyWithSign } from '@/lib/currency';
+import { DashboardCard, CardHeader } from '@/components/dashboard/DashboardCard';
 
 interface MonthlyPnlChartProps {
   journals: Journal[];
@@ -72,24 +73,24 @@ export default function MonthlyPnlChart({ journals, seedCurrency = 'KRW' }: Mont
 
   if (journals.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full">
-        <div className="flex items-center gap-2 mb-4">
-          <CalendarRange className="w-5 h-5 text-indigo-500" />
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">월별 손익</h3>
-        </div>
-        <div className="flex items-center justify-center flex-1 min-h-[250px] text-slate-400 dark:text-slate-500">
+      <DashboardCard className="flex flex-col h-full">
+        <CardHeader
+          icon={<CalendarRange className="w-4 h-4 text-indigo-500" />}
+          title="월별 손익"
+        />
+        <div className="flex items-center justify-center flex-1 min-h-[250px] text-sm text-slate-400 dark:text-slate-500">
           매매 기록이 없습니다.
         </div>
-      </div>
+      </DashboardCard>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <CalendarRange className="w-5 h-5 text-indigo-500" />
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">월별 손익</h3>
-      </div>
+    <DashboardCard className="flex flex-col h-full">
+      <CardHeader
+        icon={<CalendarRange className="w-4 h-4 text-indigo-500" />}
+        title="월별 손익"
+      />
       <div className="flex-1 min-h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -120,6 +121,6 @@ export default function MonthlyPnlChart({ journals, seedCurrency = 'KRW' }: Mont
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </DashboardCard>
   );
 }
