@@ -10,7 +10,7 @@ interface Props {
   onChange: (tab: DashboardTab) => void;
 }
 
-const tabs: { id: DashboardTab; label: string; icon: React.ElementType }[] = [
+const tabs: { id: DashboardTab; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
   { id: 'charts', label: '차트', icon: LineChart },
   { id: 'mindset', label: '심법', icon: ListChecks },
   { id: 'summary', label: '거래', icon: Receipt },

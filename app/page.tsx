@@ -47,6 +47,7 @@ export default function HomePage() {
           'ROI, 누적 손익, 승률 자동 계산',
           '거래 직후 30초 안에 기록 완료',
         ]}
+        iconType="lightning"
         fallbackIcon={Zap}
         reversed={false}
         bgVariant="dark"
@@ -63,6 +64,7 @@ export default function HomePage() {
           '연승/연패 패턴 자동 추적',
           '감정별 트레이딩 통계',
         ]}
+        iconType="chart"
         fallbackIcon={BarChart3}
         reversed={true}
         bgVariant="light"
@@ -79,6 +81,7 @@ export default function HomePage() {
           '원칙 준수 vs 미준수 시 수익 비교',
           '감정 기록으로 심리 패턴 분석',
         ]}
+        iconType="checklist"
         fallbackIcon={ListChecks}
         reversed={false}
         bgVariant="dark"

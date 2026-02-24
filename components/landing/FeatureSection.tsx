@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import ScrollReveal from './ScrollReveal';
-import SplineScene from './SplineScene';
+import ThreeScene, { IconType } from './ThreeScene';
 
 interface FeatureSectionProps {
   eyebrow: string;
@@ -10,7 +10,7 @@ interface FeatureSectionProps {
   painPoint?: string;
   description: string;
   bullets?: string[];
-  splineUrl?: string;
+  iconType?: IconType;
   fallbackIcon: React.ComponentType<{ className?: string; size?: number }>;
   reversed?: boolean;
   bgVariant?: 'dark' | 'light';
@@ -23,7 +23,7 @@ export default function FeatureSection({
   painPoint,
   description,
   bullets,
-  splineUrl,
+  iconType,
   fallbackIcon: FallbackIcon,
   reversed = false,
   bgVariant = 'dark',
@@ -75,13 +75,11 @@ export default function FeatureSection({
             delay={0.15}
             className={reversed ? 'lg:order-first' : ''}
           >
-            <div className="h-32 lg:aspect-square lg:h-auto max-w-[400px] mx-auto relative flex items-center justify-center">
-              {splineUrl ? (
-                <SplineScene
-                  sceneUrl={splineUrl}
-                  fallback={
-                    <IconFallback Icon={FallbackIcon} />
-                  }
+            <div className="h-48 sm:h-64 lg:aspect-square lg:h-auto max-w-[400px] mx-auto relative flex items-center justify-center">
+              {iconType ? (
+                <ThreeScene
+                  iconType={iconType}
+                  fallback={<IconFallback Icon={FallbackIcon} />}
                   className="w-full h-full"
                 />
               ) : (
