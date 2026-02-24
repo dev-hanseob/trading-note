@@ -134,8 +134,11 @@ export default function EquityCurve({ journals, seed, seedCurrency = 'KRW' }: Eq
           icon={<Activity className="w-4 h-4 text-emerald-500" />}
           title="자산 추이"
         />
-        <div className="flex items-center justify-center h-64 text-sm text-slate-400 dark:text-slate-500">
-          매매 기록이 없습니다.
+        <div className="flex flex-col items-center justify-center h-64 gap-2">
+          <Activity className="w-8 h-8 text-slate-300 dark:text-slate-700" />
+          <p className="text-sm text-slate-400 dark:text-slate-500">
+            거래를 기록하면 자산 추이를 확인할 수 있습니다
+          </p>
         </div>
       </DashboardCard>
     );

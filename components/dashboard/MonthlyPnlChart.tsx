@@ -78,8 +78,11 @@ export default function MonthlyPnlChart({ journals, seedCurrency = 'KRW' }: Mont
           icon={<CalendarRange className="w-4 h-4 text-emerald-500" />}
           title="월별 손익"
         />
-        <div className="flex items-center justify-center flex-1 min-h-[250px] text-sm text-slate-400 dark:text-slate-500">
-          매매 기록이 없습니다.
+        <div className="flex flex-col items-center justify-center flex-1 min-h-[250px] gap-2">
+          <CalendarRange className="w-8 h-8 text-slate-300 dark:text-slate-700" />
+          <p className="text-sm text-slate-400 dark:text-slate-500">
+            거래를 기록하면 월별 손익을 확인할 수 있습니다
+          </p>
         </div>
       </DashboardCard>
     );

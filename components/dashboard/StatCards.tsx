@@ -219,7 +219,7 @@ export default function StatCards({
       </div>
 
       {/* Secondary Cards - 5 supporting metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
         {/* Total Balance - demoted from hero */}
         <motion.div
           variants={itemVariants}

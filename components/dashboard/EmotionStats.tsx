@@ -114,15 +114,18 @@ export default function EmotionStats({ journals }: Props) {
     const hasData = emotionStats.length > 0;
 
     return (
-        <DashboardCard>
+        <DashboardCard className="flex flex-col h-full">
             <CardHeader
                 icon={<Brain className="w-4 h-4 text-purple-500" />}
                 title="감정별 트레이딩 통계"
             />
 
             {!hasData ? (
-                <div className="flex items-center justify-center h-[200px] text-slate-400 dark:text-slate-500 text-sm">
-                    감정 기록이 있는 거래가 없습니다.
+                <div className="flex flex-col items-center justify-center h-[200px] gap-2">
+                    <Brain className="w-8 h-8 text-slate-300 dark:text-slate-700" />
+                    <p className="text-sm text-slate-400 dark:text-slate-500">
+                        거래 시 감정을 기록하면 통계를 확인할 수 있습니다
+                    </p>
                 </div>
             ) : (
                 <>

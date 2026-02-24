@@ -115,7 +115,7 @@ export default function RuleInsights() {
     const offset = circumference - (complianceRate / 100) * circumference;
 
     return (
-        <DashboardCard>
+        <DashboardCard className="flex flex-col h-full">
             <CardHeader
                 icon={<ListChecks className="w-4 h-4 text-emerald-500" />}
                 title="매매원칙 인사이트"

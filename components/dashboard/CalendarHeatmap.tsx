@@ -144,7 +144,7 @@ export default function CalendarHeatmap({ journals, seedCurrency = 'KRW' }: Cale
   }, [dailyPnl, currentDate]);
 
   return (
-    <DashboardCard>
+    <DashboardCard className="flex flex-col h-full">
       <CardHeader
         icon={<CalendarDays className="w-4 h-4 text-emerald-500" />}
         title="Trading Calendar"
