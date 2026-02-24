@@ -11,7 +11,8 @@ module.exports = {
                 primary: '#10b981',
             },
             fontFamily: {
-                sans: ['var(--font-manrope)', 'system-ui', 'sans-serif'],
+                sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+                mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
             },
         },
     },

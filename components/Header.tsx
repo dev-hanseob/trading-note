@@ -60,7 +60,7 @@ export default function Header() {
                     </Link>
 
                     {/* Desktop nav */}
-                    {isAuthenticated && !isLanding && (
+                    {isAuthenticated && (
                         <nav className="hidden lg:flex items-center gap-1">
                             {navLinks.map(({ href, label, icon: Icon }) => (
                                 <Link
@@ -138,7 +138,7 @@ export default function Header() {
 
                         <ThemeToggle />
 
-                        {isAuthenticated && !isLanding && (
+                        {isAuthenticated && (
                             <button
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 className="lg:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
@@ -150,7 +150,7 @@ export default function Header() {
                 </div>
 
                 {/* Mobile menu */}
-                {isAuthenticated && !isLanding && isMobileMenuOpen && (
+                {isAuthenticated && isMobileMenuOpen && (
                     <div className="lg:hidden bg-white dark:bg-slate-950 border-t border-slate-200/50 dark:border-slate-800/50">
                         <div className="px-4 py-3 space-y-1">
                             {navLinks.map(({ href, label, icon: Icon }) => (

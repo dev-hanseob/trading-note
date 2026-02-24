@@ -1,12 +1,26 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, TrendingUp, Zap, BarChart3, Clock, Check, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading || isAuthenticated) {
+    return <div className="min-h-screen bg-white dark:bg-slate-950" />;
+  }
 
   return (
     <div className="w-full bg-white dark:bg-slate-950 min-h-screen">

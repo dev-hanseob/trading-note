@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Target, TrendingUp, Calendar, Settings, Plus, Crosshair, Rocket, CalendarClock, Flame } from 'lucide-react';
+import { Target, TrendingUp, Calendar, Plus, Crosshair } from 'lucide-react';
 import { useGoals, Goal } from '@/hooks/useGoals';
 import GoalSettingModal from '@/components/GoalSettingModal';
 
@@ -44,24 +44,19 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
 
     if (!hasGoals) {
       return (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Target size={18} className="text-emerald-500" />
-            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">목표 진행률</h3>
-          </div>
-          <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Crosshair size={32} className="text-slate-300 dark:text-slate-600 mb-3" />
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-              목표를 설정하고 진행률을 추적해보세요
-            </p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">목표 진행률</h3>
             <button
               onClick={() => setShowSettings(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+              className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
             >
-              <Flame size={14} />
-              목표 설정하기
+              설정하기
             </button>
           </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+            목표를 설정하고 진행률을 추적해보세요
+          </p>
           <GoalSettingModal
             isOpen={showSettings}
             handleClose={() => setShowSettings(false)}
@@ -71,16 +66,13 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
     }
 
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <Target size={18} className="text-emerald-500" />
-          <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">목표 진행률</h3>
-        </div>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">목표 진행률</h3>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           {monthlyGoal && (
             <CompactGoalRow
-              icon={<CalendarClock size={14} className="text-emerald-500" />}
+              color="emerald"
               title="이번 달"
               targetLabel={`${monthlyGoal.targetAmount.toLocaleString()}원`}
               progress={monthlyProgress.amountProgress}
@@ -88,7 +80,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
           )}
           {yearlyGoal && (
             <CompactGoalRow
-              icon={<Rocket size={14} className="text-purple-500" />}
+              color="purple"
               title="올해"
               targetLabel={`${yearlyGoal.targetAmount.toLocaleString()}원`}
               progress={yearlyProgress.amountProgress}
@@ -288,28 +280,33 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
 }
 
 function CompactGoalRow({
-  icon,
+  color,
   title,
   targetLabel,
   progress,
 }: {
-  icon: React.ReactNode;
+  color: 'emerald' | 'purple';
   title: string;
   targetLabel: string;
   progress: number;
 }) {
   const isAchieved = progress >= 100;
+  const barColor = isAchieved
+    ? 'bg-green-500'
+    : color === 'emerald'
+      ? 'bg-emerald-500'
+      : 'bg-purple-500';
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          {icon}
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{title}</span>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-2">
+          <div className={`w-1.5 h-1.5 rounded-full ${barColor}`} />
+          <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{title}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400 dark:text-slate-500">{targetLabel}</span>
-          <span className={`text-sm font-bold tabular-nums ${
+          <span className={`text-xs font-bold tabular-nums ${
             isAchieved
               ? 'text-green-600 dark:text-green-400'
               : progress >= 80
@@ -320,18 +317,12 @@ function CompactGoalRow({
           </span>
         </div>
       </div>
-      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(progress, 100)}%` }}
           transition={{ duration: 1, ease: 'easeOut' }}
-          className={`h-2 rounded-full ${
-            isAchieved
-              ? 'bg-green-500'
-              : progress >= 80
-                ? 'bg-emerald-500'
-                : 'bg-emerald-400'
-          }`}
+          className={`h-1.5 rounded-full ${barColor}`}
         />
       </div>
     </div>

@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { BarChart3, LineChart, ListChecks, Target } from 'lucide-react';
+import { Receipt, LineChart, ListChecks } from 'lucide-react';
 
-export type DashboardTab = 'summary' | 'charts' | 'mindset' | 'goals';
+export type DashboardTab = 'charts' | 'mindset' | 'summary';
 
 interface Props {
   activeTab: DashboardTab;
@@ -11,10 +11,9 @@ interface Props {
 }
 
 const tabs: { id: DashboardTab; label: string; icon: React.ElementType }[] = [
-  { id: 'summary', label: '요약', icon: BarChart3 },
   { id: 'charts', label: '차트', icon: LineChart },
   { id: 'mindset', label: '심법', icon: ListChecks },
-  { id: 'goals', label: '목표', icon: Target },
+  { id: 'summary', label: '거래', icon: Receipt },
 ];
 
 export default function MobileDashboardTabs({ activeTab, onChange }: Props) {

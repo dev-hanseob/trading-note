@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
     const [ruleComplianceRate, setRuleComplianceRate] = useState(0);
     const [hasRules, setHasRules] = useState(false);
-    const [mobileTab, setMobileTab] = useState<DashboardTab>('summary');
+    const [mobileTab, setMobileTab] = useState<DashboardTab>('charts');
 
     const [detailTarget, setDetailTarget] = useState<Journal | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);

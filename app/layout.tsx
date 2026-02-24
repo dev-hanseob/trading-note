@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-import { Manrope } from 'next/font/google';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import Header from '@/components/Header';
 import { ToastProvider } from '@/components/Toast';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryProvider } from '@/lib/query-client';
-
-const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'Trabit - 트래빗',
@@ -19,7 +18,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="ko" suppressHydrationWarning className="overflow-x-hidden">
         <body
             className={`
-                ${manrope.variable}
+                ${GeistSans.variable}
+                ${GeistMono.variable}
                 font-sans antialiased
                 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100
                 m-0 p-0 overflow-x-hidden
