@@ -84,12 +84,12 @@ export default function RecentTrades({ journals, onSelect, seedCurrency = 'KRW' 
                   </div>
 
                   {/* Date */}
-                  <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0">
+                  <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0 tabular-nums text-right min-w-[36px]">
                     {format(new Date(trade.tradedAt), 'MM.dd')}
                   </span>
 
                   {/* Profit & ROI */}
-                  <div className="flex flex-col items-end flex-shrink-0 min-w-[80px]">
+                  <div className="flex flex-col items-end flex-shrink-0 w-[110px]">
                     <span
                       className={`text-sm font-semibold ${
                         isProfit
