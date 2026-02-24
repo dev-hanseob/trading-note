@@ -75,7 +75,7 @@ export default function MonthlyPnlChart({ journals, seedCurrency = 'KRW' }: Mont
     return (
       <DashboardCard className="flex flex-col h-full">
         <CardHeader
-          icon={<CalendarRange className="w-4 h-4 text-indigo-500" />}
+          icon={<CalendarRange className="w-4 h-4 text-emerald-500" />}
           title="월별 손익"
         />
         <div className="flex items-center justify-center flex-1 min-h-[250px] text-sm text-slate-400 dark:text-slate-500">
@@ -88,7 +88,7 @@ export default function MonthlyPnlChart({ journals, seedCurrency = 'KRW' }: Mont
   return (
     <DashboardCard className="flex flex-col h-full">
       <CardHeader
-        icon={<CalendarRange className="w-4 h-4 text-indigo-500" />}
+        icon={<CalendarRange className="w-4 h-4 text-emerald-500" />}
         title="월별 손익"
       />
       <div className="flex-1 min-h-[250px]">

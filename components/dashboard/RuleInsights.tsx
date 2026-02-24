@@ -182,8 +182,8 @@ export default function RuleInsights() {
                                     <span
                                         className={`flex items-center gap-0.5 text-xs font-semibold tabular-nums flex-shrink-0 ${
                                             rule.avgProfit >= 0
-                                                ? 'text-emerald-500'
-                                                : 'text-red-500'
+                                                ? 'text-emerald-600 dark:text-emerald-400'
+                                                : 'text-red-600 dark:text-red-400'
                                         }`}
                                     >
                                         {rule.avgProfit >= 0 ? (

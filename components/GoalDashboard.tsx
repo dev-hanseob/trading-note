@@ -123,7 +123,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {icon}
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
           </div>
           <span className="text-sm text-slate-500 dark:text-slate-400">{period}</span>
         </div>
@@ -148,7 +148,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
         <div className="mb-3">
           <div className="flex justify-between text-sm mb-1">
             <span className="text-slate-600 dark:text-slate-300">금액 달성률</span>
-            <span className={`font-medium ${isAchieved ? 'text-green-600' : 'text-blue-600'}`}>
+            <span className={`font-medium ${isAchieved ? 'text-emerald-600' : 'text-blue-600'}`}>
               {progress.amountProgress.toFixed(1)}%
             </span>
           </div>
@@ -159,7 +159,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
               transition={{ duration: 1, ease: "easeOut" }}
               className={`h-2 rounded-full ${
                 isAchieved
-                  ? 'bg-green-500'
+                  ? 'bg-emerald-500'
                   : progress.amountProgress >= 80
                     ? 'bg-blue-500'
                     : 'bg-blue-400'
@@ -172,7 +172,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-1">
             <span className="text-slate-600 dark:text-slate-300">수익률 달성률</span>
-            <span className={`font-medium ${isAchieved ? 'text-green-600' : 'text-purple-600'}`}>
+            <span className={`font-medium ${isAchieved ? 'text-emerald-600' : 'text-purple-600'}`}>
               {progress.percentProgress.toFixed(1)}%
             </span>
           </div>
@@ -183,7 +183,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
               className={`h-2 rounded-full ${
                 isAchieved
-                  ? 'bg-green-500'
+                  ? 'bg-emerald-500'
                   : progress.percentProgress >= 80
                     ? 'bg-purple-500'
                     : 'bg-purple-400'
@@ -196,7 +196,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
         <div className="grid grid-cols-2 gap-4 text-center bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
           <div>
             <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">목표까지</div>
-            <div className={`font-medium ${progress.remainingAmount <= 0 ? 'text-green-600' : 'text-orange-600'}`}>
+            <div className={`font-medium ${progress.remainingAmount <= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
               {progress.remainingAmount <= 0
                 ? '달성!'
                 : `${progress.remainingAmount.toLocaleString()}원`
@@ -205,7 +205,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
           </div>
           <div>
             <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">수익률까지</div>
-            <div className={`font-medium ${progress.remainingPercent <= 0 ? 'text-green-600' : 'text-orange-600'}`}>
+            <div className={`font-medium ${progress.remainingPercent <= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
               {progress.remainingPercent <= 0
                 ? '달성!'
                 : `${progress.remainingPercent.toFixed(1)}%`
@@ -222,7 +222,7 @@ export default function GoalDashboard({ currentProfit, totalSeed, currentRoi, co
             transition={{ delay: 1, type: "spring" }}
             className="mt-3 text-center"
           >
-            <div className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-medium">
+            <div className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-sm font-medium">
               목표 달성!
             </div>
           </motion.div>
@@ -292,7 +292,7 @@ function CompactGoalRow({
 }) {
   const isAchieved = progress >= 100;
   const barColor = isAchieved
-    ? 'bg-green-500'
+    ? 'bg-emerald-500'
     : color === 'emerald'
       ? 'bg-emerald-500'
       : 'bg-purple-500';
@@ -308,7 +308,7 @@ function CompactGoalRow({
           <span className="text-xs text-slate-400 dark:text-slate-500">{targetLabel}</span>
           <span className={`text-xs font-bold tabular-nums ${
             isAchieved
-              ? 'text-green-600 dark:text-green-400'
+              ? 'text-emerald-600 dark:text-emerald-400'
               : progress >= 80
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : 'text-slate-700 dark:text-slate-300'

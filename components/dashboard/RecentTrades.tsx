@@ -102,11 +102,11 @@ export default function RecentTrades({ journals, onSelect, seedCurrency = 'KRW' 
                       {formatCurrencyWithSign(trade.profit, seedCurrency)}
                     </span>
                     <span
-                      className={`text-xs ${
+                      className={`text-xs tabular-nums ${
                         isProfit
-                          ? 'text-emerald-500 dark:text-emerald-400'
+                          ? 'text-emerald-600 dark:text-emerald-400'
                           : isLoss
-                            ? 'text-red-500 dark:text-red-400'
+                            ? 'text-red-600 dark:text-red-400'
                             : 'text-slate-400'
                       }`}
                     >

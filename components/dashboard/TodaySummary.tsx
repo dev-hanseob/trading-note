@@ -76,7 +76,7 @@ export default function TodaySummary({ journals, seedCurrency = 'KRW' }: Props) 
               <span className="text-xs text-slate-400 dark:text-slate-500">{stats.count}건 거래</span>
             </div>
             <div className={`text-lg font-bold tabular-nums ${
-              isPositive ? 'text-emerald-400' : isNegative ? 'text-red-400' : 'text-slate-400'
+              isPositive ? 'text-emerald-600 dark:text-emerald-400' : isNegative ? 'text-red-600 dark:text-red-400' : 'text-slate-400'
             }`}>
               {formatCurrencyWithSign(stats.totalPnl, seedCurrency)}
             </div>
@@ -88,11 +88,11 @@ export default function TodaySummary({ journals, seedCurrency = 'KRW' }: Props) 
           <div className="flex items-center gap-3">
             <div className="text-center">
               <div className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">이익</div>
-              <span className="font-bold text-emerald-400 tabular-nums">{stats.wins}</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{stats.wins}</span>
             </div>
             <div className="text-center">
               <div className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">손실</div>
-              <span className="font-bold text-red-400 tabular-nums">{stats.losses}</span>
+              <span className="font-bold text-red-600 dark:text-red-400 tabular-nums">{stats.losses}</span>
             </div>
           </div>
           {stats.count > 1 && (
@@ -101,13 +101,13 @@ export default function TodaySummary({ journals, seedCurrency = 'KRW' }: Props) 
               <div className="flex items-center gap-3">
                 <div className="text-center">
                   <div className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">Best</div>
-                  <span className="font-medium text-emerald-400 tabular-nums text-xs">
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400 tabular-nums text-xs">
                     {stats.best.symbol} {stats.best.profit > 0 ? '+' : ''}{stats.best.profit.toLocaleString()}
                   </span>
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">Worst</div>
-                  <span className="font-medium text-red-400 tabular-nums text-xs">
+                  <span className="font-medium text-red-600 dark:text-red-400 tabular-nums text-xs">
                     {stats.worst.symbol} {stats.worst.profit > 0 ? '+' : ''}{stats.worst.profit.toLocaleString()}
                   </span>
                 </div>
