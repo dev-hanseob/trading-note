@@ -201,7 +201,7 @@ export default function EquityCurve({ journals, seed, seedCurrency = 'KRW' }: Eq
               }
             ]}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(148, 163, 184, 0.1)' }} />
           <ReferenceLine
             y={seed}
             stroke="#94a3b8"

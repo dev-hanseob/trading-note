@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { Brain } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { TooltipProps } from 'recharts';
 import { Journal } from '@/type/domain/journal';
 import { EmotionType, EmotionTypeLabel, EmotionTypeColor } from '@/type/domain/journal.enum';
@@ -135,6 +135,7 @@ export default function EmotionStats({ journals }: Props) {
                             data={chartData}
                             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                         >
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
                             <XAxis
                                 dataKey="name"
                                 axisLine={false}
