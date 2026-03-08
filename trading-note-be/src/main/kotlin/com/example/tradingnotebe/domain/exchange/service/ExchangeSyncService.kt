@@ -268,7 +268,9 @@ class ExchangeSyncService(
             openOrder.avgPrice
         }
 
-        val investment = openOrder.totalAmount
+        // Investment = notional value (entryPrice * quantity)
+        // Note: actual margin = notional / leverage, but fills API doesn't provide leverage
+        val investment = entryPrice * quantity
         val roi = if (investment > 0) (profit / investment) * 100 else 0.0
 
         val feeInfo = if (totalFee > 0) " | fee: ${"%.4f".format(totalFee)} ${openOrder.feeCurrency}" else ""
@@ -344,10 +346,10 @@ class ExchangeSyncService(
             entryPrice = entryPrice,
             exitPrice = exitPrice,
             quantity = quantity,
-            investment = order.totalAmount,
+            investment = if (entryPrice != null) entryPrice * quantity else order.totalAmount,
             profit = profit,
-            roi = if (order.totalAmount > 0 && order.profit != null) {
-                (order.profit / order.totalAmount) * 100
+            roi = if (entryPrice != null && entryPrice * quantity > 0 && order.profit != null) {
+                (order.profit / (entryPrice * quantity)) * 100
             } else {
                 0.0
             },
