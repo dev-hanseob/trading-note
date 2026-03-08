@@ -1,0 +1,135 @@
+package com.example.tradingnotebe.domain.journal.service
+
+import com.example.tradingnotebe.domain.exception.JournalNotFoundException
+import com.example.tradingnotebe.domain.journal.entity.Journal
+import com.example.tradingnotebe.domain.journal.entity.TradeStatus
+import com.example.tradingnotebe.domain.journal.model.AddJournalRequest
+import com.example.tradingnotebe.domain.journal.model.ClosePositionRequest
+import com.example.tradingnotebe.domain.journal.model.JournalResponse
+import com.example.tradingnotebe.domain.journal.repository.JournalRepository
+import com.example.tradingnotebe.domain.user.domain.User
+import com.example.tradingnotebe.domain.user.entity.UserEntity
+import com.example.tradingnotebe.domain.user.repository.UserJpaRepository
+import jakarta.transaction.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+
+@Transactional
+@Service
+class JournalService(
+    private val journalRepository: JournalRepository,
+    private val userJpaRepository: UserJpaRepository
+) {
+
+    fun createJournal(request: AddJournalRequest, user: User): JournalResponse {
+        val userEntity = UserEntity.toEntity(user)
+        val journal = Journal(
+            assetType = request.assetType,
+            tradeType = request.tradeType,
+            position = request.position,
+            currency = request.currency,
+            symbol = request.symbol,
+            buyPrice = request.buyPrice,
+            investment = request.investment,
+            profit = request.profit,
+            roi = request.roi,
+            quantity = request.quantity,
+            leverage = request.leverage,
+            memo = request.memo,
+            tradedAt = request.tradedAt,
+            user = userEntity,
+            tradeStatus = request.tradeStatus,
+            entryPrice = request.entryPrice,
+            stopLoss = request.stopLoss,
+            takeProfitPrice = request.takeProfitPrice,
+            positionSize = request.positionSize,
+            accountRiskPercent = request.accountRiskPercent,
+            chartScreenshotUrl = request.chartScreenshotUrl,
+            timeframes = request.timeframes,
+            setupType = request.setupType,
+            keyLevels = request.keyLevels,
+            emotion = request.emotion,
+            physicalCondition = request.physicalCondition,
+            influencedByLastTrade = request.influencedByLastTrade,
+            checkedRuleIds = request.checkedRuleIds,
+            narrative = request.narrative,
+            exitPrice = request.exitPrice,
+            exitDate = request.exitDate,
+            realizedPnl = request.realizedPnl,
+            postTradeAnalysis = request.postTradeAnalysis,
+            executionResult = request.executionResult,
+            wouldTakeAgain = request.wouldTakeAgain,
+            parentJournalId = request.parentJournalId
+        )
+        val saved = journalRepository.save(journal)
+        return JournalResponse.from(saved)
+    }
+
+    fun updateJournal(id: Long, request: AddJournalRequest, user: User): JournalResponse {
+        val userEntity = UserEntity.toEntity(user)
+        val existing = journalRepository.findByIdAndUser(id, userEntity)
+            ?: throw JournalNotFoundException(id)
+
+        val updated = existing.updateFrom(request)
+        val saved = journalRepository.save(updated)
+        return JournalResponse.from(saved)
+    }
+
+    fun closePosition(id: Long, request: ClosePositionRequest, user: User): JournalResponse {
+        val userEntity = UserEntity.toEntity(user)
+        val existing = journalRepository.findByIdAndUser(id, userEntity)
+            ?: throw JournalNotFoundException(id)
+
+        val closed = existing.close(request)
+        val saved = journalRepository.save(closed)
+        return JournalResponse.from(saved)
+    }
+
+    fun findByUser(user: User, pageable: Pageable, status: TradeStatus?, search: String?): Page<JournalResponse> {
+        val userEntity = UserEntity.toEntity(user)
+        val page = when {
+            status != null -> journalRepository.findByUserAndTradeStatusOrderByTradedAtDesc(userEntity, status, pageable)
+            !search.isNullOrBlank() -> journalRepository.findByUserAndSymbolContainingIgnoreCaseOrderByTradedAtDesc(userEntity, search, pageable)
+            else -> journalRepository.findByUserOrderByTradedAtDesc(userEntity, pageable)
+        }
+        return page.map { JournalResponse.from(it) }
+    }
+
+    fun getOpenPositions(user: User, pageable: Pageable): Page<JournalResponse> {
+        val userEntity = UserEntity.toEntity(user)
+        val page = journalRepository.findByUserAndTradeStatusOrderByTradedAtDesc(userEntity, TradeStatus.OPEN, pageable)
+        return page.map { JournalResponse.from(it) }
+    }
+
+    fun findByIdAndUser(id: Long, user: User): JournalResponse? {
+        val userEntity = UserEntity.toEntity(user)
+        val journal = journalRepository.findByIdAndUser(id, userEntity) ?: return null
+        return JournalResponse.from(journal)
+    }
+
+    fun deleteByIdAndUser(id: Long, user: User) {
+        val userId = user.id ?: throw IllegalArgumentException("User ID is required")
+        val userEntity = userJpaRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("User not found")
+        }
+        journalRepository.deleteByIdAndUser(id, userEntity)
+    }
+
+    // Legacy methods (kept for compatibility)
+    fun save(journal: Journal): Journal {
+        return journalRepository.save(journal)
+    }
+
+    fun findAll(pageable: Pageable): Page<Journal> {
+        return journalRepository.findAllByOrderByTradedAtDesc(pageable)
+    }
+
+    fun findById(id: Long): Journal? {
+        return journalRepository.findById(id).orElse(null)
+    }
+
+    fun deleteById(id: Long) {
+        journalRepository.deleteById(id)
+    }
+}

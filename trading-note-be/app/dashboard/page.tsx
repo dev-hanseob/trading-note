@@ -1,0 +1,299 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { SlidersHorizontal, Flag } from 'lucide-react';
+import SeedSettingModal from '@/components/SeedSettingModal';
+import GoalSettingModal from '@/components/GoalSettingModal';
+import GoalDashboard from '@/components/GoalDashboard';
+import JournalDetailModal from '@/components/JournalDetailModal';
+import { getJournals } from '@/lib/api/journal';
+import { Journal } from '@/type/domain/journal';
+import { useSeed } from '@/hooks/useSeed';
+import TodaySummary from '@/components/dashboard/TodaySummary';
+import StatCards from '@/components/dashboard/StatCards';
+import RecentTrades from '@/components/dashboard/RecentTrades';
+import DateRangeFilter, { DatePreset } from '@/components/dashboard/DateRangeFilter';
+import CalendarHeatmap from '@/components/dashboard/CalendarHeatmap';
+import { subWeeks, subMonths, startOfYear, parseISO, isAfter } from 'date-fns';
+
+const EquityCurve = dynamic(
+    () => import('@/components/dashboard/EquityCurve'),
+    { ssr: false }
+);
+
+const MonthlyPnlChart = dynamic(
+    () => import('@/components/dashboard/MonthlyPnlChart'),
+    { ssr: false }
+);
+
+const EmotionStats = dynamic(
+    () => import('@/components/dashboard/EmotionStats'),
+    { ssr: false }
+);
+
+const RuleInsights = dynamic(
+    () => import('@/components/dashboard/RuleInsights'),
+    { ssr: false }
+);
+
+function filterByDatePreset(journals: Journal[], preset: DatePreset): Journal[] {
+    if (preset === 'ALL') return journals;
+
+    const now = new Date();
+    let cutoff: Date;
+    switch (preset) {
+        case '1W':
+            cutoff = subWeeks(now, 1);
+            break;
+        case '1M':
+            cutoff = subMonths(now, 1);
+            break;
+        case '3M':
+            cutoff = subMonths(now, 3);
+            break;
+        case '6M':
+            cutoff = subMonths(now, 6);
+            break;
+        case 'YTD':
+            cutoff = startOfYear(now);
+            break;
+        default:
+            return journals;
+    }
+
+    return journals.filter((j) => isAfter(parseISO(j.tradedAt), cutoff));
+}
+
+export default function DashboardPage() {
+    const { seed: totalSeed, updateSeed, isLoading: isSeedLoading } = useSeed();
+    const [allJournals, setAllJournals] = useState<Journal[]>([]);
+    const [isLoadingJournals, setIsLoadingJournals] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [showSeedModal, setShowSeedModal] = useState(false);
+    const [showGoalModal, setShowGoalModal] = useState(false);
+    const [datePreset, setDatePreset] = useState<DatePreset>('ALL');
+
+    const [detailTarget, setDetailTarget] = useState<Journal | null>(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function fetchAllJournals() {
+            setIsLoadingJournals(true);
+            try {
+                const pageSize = 100;
+                let allData: Journal[] = [];
+
+                const firstRes = await getJournals({ page: 1, pageSize });
+                if (cancelled) return;
+
+                if (firstRes && firstRes.journals && Array.isArray(firstRes.journals)) {
+                    allData = [...firstRes.journals];
+                    const totalPages = Math.ceil(firstRes.total / pageSize);
+
+                    if (totalPages > 1) {
+                        const remainingPages = Array.from(
+                            { length: totalPages - 1 },
+                            (_, i) => i + 2
+                        );
+
+                        const batchSize = 5;
+                        for (let i = 0; i < remainingPages.length; i += batchSize) {
+                            const batch = remainingPages.slice(i, i + batchSize);
+                            const results = await Promise.all(
+                                batch.map((p) => getJournals({ page: p, pageSize }))
+                            );
+                            if (cancelled) return;
+                            for (const res of results) {
+                                if (res && res.journals) {
+                                    allData = [...allData, ...res.journals];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                setAllJournals(allData);
+                setError(null);
+            } catch (err) {
+                console.error('매매일지 조회 실패:', err);
+                if (!cancelled) {
+                    setAllJournals([]);
+                    setError('데이터를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoadingJournals(false);
+                }
+            }
+        }
+
+        fetchAllJournals();
+        return () => { cancelled = true; };
+    }, []);
+
+    const tableData = useMemo(
+        () => filterByDatePreset(allJournals, datePreset),
+        [allJournals, datePreset]
+    );
+
+    const totalProfit = tableData.reduce((sum, e) => sum + e.profit, 0);
+    const totalRoi = totalSeed && totalSeed > 0 ? (totalProfit / totalSeed) * 100 : 0;
+    const winCount = tableData.filter(j => j.profit > 0).length;
+    const winRate = tableData.length > 0 ? (winCount / tableData.length) * 100 : 0;
+    const tradeCount = tableData.length;
+
+    if (isSeedLoading || isLoadingJournals) {
+        return (
+            <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8 min-h-screen">
+                <div className="animate-pulse space-y-4">
+                    <div className="flex justify-between items-center">
+                        <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded w-32" />
+                        <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded w-48" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="h-20 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="h-72 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                        <div className="h-72 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8 min-h-screen">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                    대시보드
+                </h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                    <DateRangeFilter value={datePreset} onChange={setDatePreset} />
+                    <div className="flex items-center gap-1.5">
+                        <button
+                            onClick={() => setShowSeedModal(true)}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 rounded-md transition-colors"
+                        >
+                            <SlidersHorizontal size={12} />
+                            시드
+                        </button>
+                        <button
+                            onClick={() => setShowGoalModal(true)}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 rounded-md transition-colors"
+                        >
+                            <Flag size={12} />
+                            목표
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+                <div className="mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-lg text-sm text-red-500 dark:text-red-400">
+                    {error}
+                </div>
+            )}
+
+            {/* Today Summary */}
+            <div className="mb-4">
+                <TodaySummary journals={allJournals} />
+            </div>
+
+            {/* Stat Cards */}
+            <StatCards
+                totalSeed={totalSeed}
+                totalProfit={totalProfit}
+                totalRoi={totalRoi}
+                winRate={winRate}
+                tradeCount={tradeCount}
+                journals={tableData}
+            />
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                <EquityCurve journals={tableData} seed={totalSeed} />
+                <CalendarHeatmap journals={allJournals} />
+            </div>
+
+            {/* Bottom Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                <MonthlyPnlChart journals={tableData} />
+                <RecentTrades
+                    journals={tableData}
+                    onSelect={(journal) => {
+                        setDetailTarget(journal);
+                        setShowDetailModal(true);
+                    }}
+                />
+            </div>
+
+            {/* Emotion Stats */}
+            <div className="mt-4">
+                <EmotionStats journals={tableData} />
+            </div>
+
+            {/* Rule Insights */}
+            <div className="mt-4">
+                <RuleInsights />
+            </div>
+
+            {/* Goal Dashboard */}
+            <div className="mt-4">
+                <GoalDashboard
+                    currentProfit={totalProfit}
+                    totalSeed={totalSeed}
+                    currentRoi={totalRoi}
+                    compact
+                />
+            </div>
+
+            {/* Modals */}
+            {showDetailModal && detailTarget && (
+                <JournalDetailModal
+                    journal={detailTarget}
+                    onClose={() => {
+                        setShowDetailModal(false);
+                        setDetailTarget(null);
+                    }}
+                    onEdit={() => {
+                        setShowDetailModal(false);
+                    }}
+                    onDelete={() => {
+                        setShowDetailModal(false);
+                        setDetailTarget(null);
+                    }}
+                    totalSeed={totalSeed}
+                />
+            )}
+
+            {showSeedModal && (
+                <SeedSettingModal
+                    isOpen={showSeedModal}
+                    handleClose={() => setShowSeedModal(false)}
+                    handleSave={updateSeed}
+                    currentSeed={totalSeed}
+                />
+            )}
+
+            {showGoalModal && (
+                <GoalSettingModal
+                    isOpen={showGoalModal}
+                    handleClose={() => setShowGoalModal(false)}
+                />
+            )}
+        </div>
+    );
+}
