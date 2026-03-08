@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-rgb: 255, 255, 255;
+  --chart-grid: #e2e8f0;
+}
+
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 15, 23, 42;
+  --chart-grid: #334155;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+/* Tabular numbers for financial data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(203, 213, 225);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(148, 163, 184);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(51, 65, 85);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(71, 85, 105);
+}
+
+/* Clean button system */
+.btn-primary {
+  @apply px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-700 transition-colors;
+}
+
+.btn-danger {
+  @apply px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-600/10 dark:hover:bg-red-600/20 dark:text-red-400 text-sm font-medium rounded-lg border border-red-200 dark:border-red-800/30 transition-colors;
+}
+
+.btn-ghost {
+  @apply px-4 py-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 text-sm font-medium rounded-lg transition-colors;
+}
+
+/* Legacy compatibility */
+.btn-trendy-primary { @apply btn-primary; }
+.btn-trendy-secondary { @apply btn-secondary; }
+.btn-trendy-danger { @apply btn-danger; }
+.btn-trendy-ghost { @apply btn-ghost; }
+.btn-trendy-icon {
+  @apply p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors;
+}
+.btn-trading-primary { @apply btn-primary; }
+.btn-trading-secondary { @apply btn-secondary; }
+
+/* Pagination */
+.btn-pagination {
+  @apply rounded-lg font-medium transition-colors;
+}
+.btn-pagination.active {
+  @apply bg-emerald-600 text-white;
+}
+.btn-pagination:not(.active) {
+  @apply bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200;
+}
+
+/* Modal scroll lock */
+.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+.modal-open body {
+  touch-action: none;
+}
+
+/* Landing page dot grid pattern */
+.bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(148,163,184,0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.dark .bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(51,65,85,0.4) 1px, transparent 1px);
+}
+
+/* Landing page 3D icon glow animation */
+@keyframes icon-glow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+.animate-icon-glow {
+  animation: icon-glow-pulse 3s ease-in-out infinite;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
