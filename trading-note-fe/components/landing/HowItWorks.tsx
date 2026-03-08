@@ -28,7 +28,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="bg-white dark:bg-slate-950 py-20 sm:py-28">
+    <section className="bg-slate-50 dark:bg-slate-900/50 py-20 sm:py-28">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal direction="up">
           <div className="text-center mb-14">

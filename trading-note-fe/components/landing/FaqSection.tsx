@@ -26,6 +26,18 @@ const faqs = [
     q: '암호화폐와 주식 모두 기록할 수 있나요?',
     a: '네, 암호화폐(현물/선물)와 주식(현물/선물) 모두 지원합니다. 자산 유형별로 분리된 통계도 제공됩니다.',
   },
+  {
+    q: '기존 거래 내역을 한 번에 가져올 수 있나요?',
+    a: '네, CSV 파일로 거래 내역을 일괄 업로드할 수 있습니다. 거래소별 다양한 포맷을 자동으로 인식합니다.',
+  },
+  {
+    q: 'Free와 Basic 플랜의 차이가 뭔가요?',
+    a: 'Free 플랜은 월 30건 기록과 기본 통계를 제공합니다. Basic 플랜은 무제한 기록, 상세 분석(종목별/시간대별/요일별), 매매원칙 관리 등 모든 기능을 이용할 수 있습니다.',
+  },
+  {
+    q: '해지하면 기록한 데이터는 어떻게 되나요?',
+    a: '해지 후에도 기존 데이터는 삭제되지 않으며, Free 플랜으로 전환되어 열람이 가능합니다. 언제든 다시 업그레이드할 수 있습니다.',
+  },
 ];
 
 export default function FaqSection() {
@@ -36,7 +48,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="bg-slate-50 dark:bg-slate-900/50 py-20 sm:py-28">
+    <section className="bg-white dark:bg-slate-950 py-20 sm:py-28">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal direction="up">
           <div className="text-center mb-12">

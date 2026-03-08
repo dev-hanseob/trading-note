@@ -2,7 +2,6 @@
 
 import { ReactNode } from 'react';
 import ScrollReveal from './ScrollReveal';
-import ThreeScene, { IconType } from './ThreeScene';
 
 interface FeatureSectionProps {
   eyebrow: string;
@@ -10,7 +9,7 @@ interface FeatureSectionProps {
   painPoint?: string;
   description: string;
   bullets?: string[];
-  iconType?: IconType;
+  mockup?: ReactNode;
   fallbackIcon: React.ComponentType<{ className?: string; size?: number }>;
   reversed?: boolean;
   bgVariant?: 'dark' | 'light';
@@ -23,7 +22,7 @@ export default function FeatureSection({
   painPoint,
   description,
   bullets,
-  iconType,
+  mockup,
   fallbackIcon: FallbackIcon,
   reversed = false,
   bgVariant = 'dark',
@@ -69,21 +68,21 @@ export default function FeatureSection({
             </div>
           </ScrollReveal>
 
-          {/* 3D / Icon column */}
+          {/* Screenshot / Icon column */}
           <ScrollReveal
             direction={reversed ? 'left' : 'right'}
             delay={0.15}
             className={reversed ? 'lg:order-first' : ''}
           >
-            <div className="h-48 sm:h-64 lg:aspect-square lg:h-auto max-w-[400px] mx-auto relative flex items-center justify-center">
-              {iconType ? (
-                <ThreeScene
-                  iconType={iconType}
-                  fallback={<IconFallback Icon={FallbackIcon} />}
-                  className="w-full h-full"
-                />
+            <div className="max-w-[420px] mx-auto">
+              {mockup ? (
+                <div className="transition-transform duration-500 hover:scale-[1.02]">
+                  {mockup}
+                </div>
               ) : (
-                <IconFallback Icon={FallbackIcon} />
+                <div className="h-48 sm:h-64 lg:aspect-square lg:h-auto flex items-center justify-center">
+                  <IconFallback Icon={FallbackIcon} />
+                </div>
               )}
             </div>
           </ScrollReveal>

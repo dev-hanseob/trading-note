@@ -8,7 +8,7 @@ import StaggerContainer, { staggerItemVariants } from './StaggerContainer';
 
 export default function AnalyticsShowcase() {
   return (
-    <section className="py-20 sm:py-28 bg-slate-50 dark:bg-slate-900/50">
+    <section className="py-20 sm:py-28 bg-white dark:bg-slate-950">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <ScrollReveal>
@@ -74,10 +74,10 @@ export default function AnalyticsShowcase() {
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {[
-                  { slot: '새벽', winRate: 45, trades: 8, color: 'text-red-400' },
-                  { slot: '오전', winRate: 72, trades: 45, color: 'text-emerald-400' },
-                  { slot: '오후', winRate: 65, trades: 38, color: 'text-emerald-400' },
-                  { slot: '야간', winRate: 52, trades: 21, color: 'text-slate-400' },
+                  { slot: '새벽', winRate: 38, trades: 8, color: 'text-red-400' },
+                  { slot: '오전', winRate: 62, trades: 45, color: 'text-emerald-400' },
+                  { slot: '오후', winRate: 55, trades: 38, color: 'text-emerald-400' },
+                  { slot: '야간', winRate: 47, trades: 21, color: 'text-slate-400' },
                 ].map((item, i) => (
                   <div
                     key={i}
@@ -142,15 +142,15 @@ export default function AnalyticsShowcase() {
                 <div className="flex items-center justify-between p-2.5 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/30 rounded-lg">
                   <span className="text-[11px] text-slate-600 dark:text-slate-400">원칙 준수 시</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-emerald-500 tabular-nums">승률 78%</span>
-                    <span className="text-xs font-bold text-emerald-500 tabular-nums">+82만</span>
+                    <span className="text-xs font-bold text-emerald-500 tabular-nums">승률 63%</span>
+                    <span className="text-xs font-bold text-emerald-500 tabular-nums">+47만</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between p-2.5 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-lg">
                   <span className="text-[11px] text-slate-600 dark:text-slate-400">원칙 미준수 시</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-red-500 tabular-nums">승률 41%</span>
-                    <span className="text-xs font-bold text-red-500 tabular-nums">-45만</span>
+                    <span className="text-xs font-bold text-red-500 tabular-nums">승률 44%</span>
+                    <span className="text-xs font-bold text-red-500 tabular-nums">-28만</span>
                   </div>
                 </div>
               </div>

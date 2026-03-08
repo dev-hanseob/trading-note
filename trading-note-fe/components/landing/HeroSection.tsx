@@ -57,7 +57,7 @@ export default function HeroSection() {
           className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white leading-[1.05] mb-4 tracking-tight"
         >
           복기하는 트레이더가<br />
-          <span className="text-emerald-500">결국 이긴다.</span>
+          <span className="text-emerald-500">결국 살아남는다.</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -65,8 +65,8 @@ export default function HeroSection() {
           variants={fadeUp}
           className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8 max-w-lg"
         >
-          좋은 트레이더와 그렇지 않은 트레이더의 차이는<br className="hidden sm:block" />
-          기억력이 아니라 기록 습관입니다.
+          실력은 있습니다. 다만<br className="hidden sm:block" />
+          복기할 시스템이 없었을 뿐입니다.
         </motion.p>
 
         {/* CTA */}

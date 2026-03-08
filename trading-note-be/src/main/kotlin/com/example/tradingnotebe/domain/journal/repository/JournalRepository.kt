@@ -34,4 +34,6 @@ interface JournalRepository : JpaRepository<Journal, Long> {
         ORDER BY month
     """)
     fun findMonthlyRuleComplianceStats(user: UserEntity): List<Array<Any>>
+
+    fun existsByExchangeTradeIdAndUser(exchangeTradeId: String, user: UserEntity): Boolean
 }

@@ -1,5 +1,5 @@
 server:
-  address: 127.0.0.1
+  address: ${SERVER_ADDRESS:127.0.0.1}
 
 spring:
   servlet:
@@ -100,7 +100,7 @@ frontend:
 # File Upload Configuration
 file:
   upload-dir: ./uploads
-  base-url: http://localhost:8080/uploads
+  base-url: ${FILE_BASE_URL:http://localhost:8080/uploads}
 
 # Logging Configuration
 logging:
@@ -125,3 +125,7 @@ openai:
   api-key: ${OPENAI_API_KEY:}
   model: gpt-4o-mini
   base-url: https://api.openai.com/v1
+
+# Exchange API Configuration
+exchange:
+  encryption-key: ${EXCHANGE_ENCRYPTION_KEY:default-key-must-be-32-bytes!!}

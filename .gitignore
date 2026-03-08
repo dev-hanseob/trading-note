@@ -1,0 +1,45 @@
+# OS
+.DS_Store
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Backend
+trading-note-be/target/
+trading-note-be/.apt_generated
+trading-note-be/.classpath
+trading-note-be/.factorypath
+trading-note-be/.project
+trading-note-be/.settings
+trading-note-be/.springBeans
+trading-note-be/.sts4-cache
+trading-note-be/build/
+trading-note-be/uploads/
+trading-note-be/application.log
+
+# Frontend
+trading-note-fe/node_modules/
+trading-note-fe/.next/
+trading-note-fe/out/
+trading-note-fe/build/
+trading-note-fe/.vercel
+trading-note-fe/*.tsbuildinfo
+trading-note-fe/next-env.d.ts
+trading-note-fe/coverage/
+
+# Debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Claude
+.claude/

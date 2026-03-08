@@ -51,10 +51,10 @@ export default function DashboardMockup() {
           {/* Stat cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {[
-              { label: '총 잔고', value: '12,450,000', sub: '+24.5%', color: 'text-slate-900 dark:text-white', subColor: 'text-emerald-500' },
-              { label: '누적 손익', value: '+2,450,000', sub: '32건', color: 'text-emerald-600 dark:text-emerald-400', subColor: 'text-slate-500' },
-              { label: '승률', value: '68.7%', sub: '22W / 10L', color: 'text-slate-900 dark:text-white', subColor: 'text-slate-500' },
-              { label: 'Profit Factor', value: '2.14', sub: 'Good', color: 'text-slate-900 dark:text-white', subColor: 'text-emerald-500' },
+              { label: '총 잔고', value: '11,120,000', sub: '+11.2%', color: 'text-slate-900 dark:text-white', subColor: 'text-emerald-500' },
+              { label: '누적 손익', value: '+1,120,000', sub: '35건', color: 'text-emerald-600 dark:text-emerald-400', subColor: 'text-slate-500' },
+              { label: '승률', value: '57.1%', sub: '20W / 15L', color: 'text-slate-900 dark:text-white', subColor: 'text-slate-500' },
+              { label: 'Profit Factor', value: '1.65', sub: '', color: 'text-slate-900 dark:text-white', subColor: 'text-slate-500' },
             ].map((stat, i) => (
               <div key={i} className="bg-slate-100 dark:bg-slate-800/30 rounded-lg p-3">
                 <div className="text-[11px] text-slate-500 mb-1">{stat.label}</div>

@@ -15,7 +15,8 @@ import java.time.LocalDateTime
         Index(name = "idx_journal_traded_at", columnList = "traded_at"),
         Index(name = "idx_journal_trade_status", columnList = "trade_status"),
         Index(name = "idx_journal_symbol", columnList = "symbol"),
-        Index(name = "idx_journal_user_traded_at", columnList = "user_id, traded_at")
+        Index(name = "idx_journal_user_traded_at", columnList = "user_id, traded_at"),
+        Index(name = "idx_journal_exchange_trade_id", columnList = "exchange_trade_id")
     ]
 )
 class Journal(
@@ -142,6 +143,16 @@ class Journal(
     @Column(name = "parent_journal_id")
     val parentJournalId: Long? = null,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exchange_name")
+    val exchangeName: com.example.tradingnotebe.domain.exchange.entity.ExchangeName? = null,
+
+    @Column(name = "exchange_trade_id")
+    val exchangeTradeId: String? = null,
+
+    @Column(name = "exchange_credential_id")
+    val exchangeCredentialId: Long? = null,
+
     @Column(name = "updated_at")
     val updatedAt: LocalDateTime? = null
 ) {
@@ -199,6 +210,9 @@ class Journal(
             executionResult = request.executionResult,
             wouldTakeAgain = request.wouldTakeAgain,
             parentJournalId = request.parentJournalId,
+            exchangeName = this.exchangeName,
+            exchangeTradeId = this.exchangeTradeId,
+            exchangeCredentialId = this.exchangeCredentialId,
             updatedAt = LocalDateTime.now()
         )
     }
@@ -245,6 +259,9 @@ class Journal(
             executionResult = request.executionResult,
             wouldTakeAgain = request.wouldTakeAgain,
             parentJournalId = this.parentJournalId,
+            exchangeName = this.exchangeName,
+            exchangeTradeId = this.exchangeTradeId,
+            exchangeCredentialId = this.exchangeCredentialId,
             updatedAt = LocalDateTime.now()
         )
     }

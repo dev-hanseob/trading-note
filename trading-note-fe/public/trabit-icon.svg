@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <!-- Background -->
+  <rect width="128" height="128" rx="28" fill="#059669"/>
+
+  <!-- Notebook spine -->
+  <rect x="25" y="14" width="3" height="100" rx="1.5" fill="white" fill-opacity="0.3"/>
+
+  <!-- Ring bindings -->
+  <rect x="9" y="28" width="14" height="4.5" rx="2.25" fill="white" fill-opacity="0.8"/>
+  <rect x="9" y="46" width="14" height="4.5" rx="2.25" fill="white" fill-opacity="0.8"/>
+  <rect x="9" y="64" width="14" height="4.5" rx="2.25" fill="white" fill-opacity="0.8"/>
+  <rect x="9" y="82" width="14" height="4.5" rx="2.25" fill="white" fill-opacity="0.8"/>
+  <rect x="9" y="100" width="14" height="4.5" rx="2.25" fill="white" fill-opacity="0.8"/>
+
+  <!-- Candlestick 1 (shortest) -->
+  <rect x="41" y="60" width="2" height="44" rx="1" fill="white" fill-opacity="0.4"/>
+  <rect x="35" y="68" width="14" height="26" rx="2.5" fill="white"/>
+
+  <!-- Candlestick 2 -->
+  <rect x="62" y="44" width="2" height="48" rx="1" fill="white" fill-opacity="0.4"/>
+  <rect x="56" y="52" width="14" height="30" rx="2.5" fill="white"/>
+
+  <!-- Candlestick 3 -->
+  <rect x="83" y="28" width="2" height="52" rx="1" fill="white" fill-opacity="0.4"/>
+  <rect x="77" y="36" width="14" height="34" rx="2.5" fill="white"/>
+
+  <!-- Candlestick 4 (tallest) -->
+  <rect x="104" y="14" width="2" height="54" rx="1" fill="white" fill-opacity="0.4"/>
+  <rect x="98" y="22" width="14" height="38" rx="2.5" fill="white"/>
+</svg>

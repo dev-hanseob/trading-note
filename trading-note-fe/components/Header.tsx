@@ -46,16 +46,10 @@ export default function Header() {
             <div className="w-full max-w-[1600px] mx-auto">
                 <div className="flex items-center justify-between px-4 sm:px-6 h-14">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 bg-emerald-600 rounded-md flex items-center justify-center">
-                            <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10l4-4V5a2 2 0 0 0-2-2H6z" fill="currentColor" fillOpacity="0.9" />
-                                <path d="M8 13l2 2 2-3 2 1.5" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                            </svg>
-                        </div>
-                        <span className="text-base font-bold text-slate-900 dark:text-white">
-                            <span className="hidden sm:inline">Trabit</span>
-                            <span className="sm:hidden">Trabit</span>
+                    <Link href="/" className="flex items-center gap-2">
+                        <img src="/trabit-icon.svg" alt="" width={26} height={26} className="rounded-[6px]" />
+                        <span className="text-[15px] font-bold text-slate-900 dark:text-white tracking-tight">
+                            Trabit
                         </span>
                     </Link>
 

@@ -7,7 +7,7 @@ import ScrollReveal from './ScrollReveal';
 
 export default function BottomCta() {
   return (
-    <section className="bg-white dark:bg-slate-950 py-20 sm:py-28 relative overflow-hidden">
+    <section className="bg-slate-50 dark:bg-slate-900/50 py-20 sm:py-28 relative overflow-hidden">
       <GradientGlow className="inset-0 w-full h-full" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -31,7 +31,7 @@ export default function BottomCta() {
           </div>
 
           <p className="mt-5 text-xs text-slate-400 dark:text-slate-500">
-            Basic 플랜 월 10,400원 (연간) &middot; 언제든 해지 가능
+            Basic 월 14,900원 &middot; 연간 결제 시 월 10,400원 &middot; 언제든 해지 가능
           </p>
         </ScrollReveal>
       </div>

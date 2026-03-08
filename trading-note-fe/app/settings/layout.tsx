@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, CreditCard, ListChecks } from 'lucide-react';
+import { User, CreditCard, ListChecks, ArrowLeftRight } from 'lucide-react';
 
 const tabs = [
     { label: '계정', href: '/settings/account', icon: User },
     { label: '구독 및 결제', href: '/settings/billing', icon: CreditCard },
     { label: '매매 원칙', href: '/settings/rules', icon: ListChecks },
+    { label: '거래소 연동', href: '/settings/exchange', icon: ArrowLeftRight },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

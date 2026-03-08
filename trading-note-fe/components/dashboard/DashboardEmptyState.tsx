@@ -39,7 +39,7 @@ export default function DashboardEmptyState({ hasSeed, hasRules, onOpenSeedModal
       description: '나만의 트레이딩 규칙을 만들어 심법을 강화하세요',
       icon: ListChecks,
       done: hasRules,
-      href: '/settings',
+      href: '/settings/rules',
       actionLabel: '원칙 설정',
     },
     {
